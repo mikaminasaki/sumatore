@@ -1,5 +1,16 @@
 import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+
+import { ProgressProvider } from "@/hooks/use-progress";
 
 export default function RootLayout() {
-  return <Stack />;
+  return (
+    <ProgressProvider>
+      <StatusBar style="light" />
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="clear" options={{ presentation: "transparentModal", animation: "fade" }} />
+      </Stack>
+    </ProgressProvider>
+  );
 }
