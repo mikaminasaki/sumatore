@@ -1,27 +1,39 @@
-import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { ScrollView, StyleSheet, View } from "react-native";
 
 import { AppHeader } from "@/components/app-header";
-import { MenuButton } from "@/components/menu-button";
-import { colors } from "@/constants/theme";
-import { courses, getCategoriesByCourse, type CourseId } from "@/data/lessons";
+import { CategoryCard } from "@/components/category-card";
+import { ProgressCard } from "@/components/progress-card";
+import { accents, colors } from "@/constants/theme";
+import { courses, getCategoriesByCourse, getLevelsByCategory, type CourseId } from "@/data/lessons";
+import { useProgress } from "@/hooks/use-progress";
 
 // 基本操作編・実践編のメニュー画面。中身は lessons.ts のカテゴリから作る
 export function CourseMenu({ course }: { course: CourseId }) {
+  const { isCleared } = useProgress();
+  const categories = getCategoriesByCourse(course);
+
+  // カテゴリ内のレベルを全部クリアしたら、そのカテゴリはクリア
+  const isCategoryCleared = (categoryId: string) => {
+    const levels = getLevelsByCategory(categoryId);
+    return levels.length > 0 && levels.every((l) => isCleared(l.id));
+  };
+  const clearedCount = categories.filter((c) => isCategoryCleared(c.id)).length;
+  const nextId = categories.find((c) => !isCategoryCleared(c.id))?.id;
+
   return (
     <View style={styles.container}>
-      <AppHeader title={courses[course].title} showHomeButton />
+      <AppHeader title={courses[course].title} leftButton="back" accent={accents[course]} />
       <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.picture}>
-          {/* パズル画像は #7 で差し替える */}
-          <Ionicons name="extension-puzzle" size={96} color={colors.green} />
-        </View>
-        {getCategoriesByCourse(course).map((category) => (
-          <MenuButton
+        <ProgressCard cleared={clearedCount} total={categories.length} />
+        {categories.map((category, index) => (
+          <CategoryCard
             key={category.id}
+            number={index + 1}
             title={category.title}
-            disabled={!category.available}
+            cleared={isCategoryCleared(category.id)}
+            isNext={category.id === nextId}
+            accent={accents[course]}
             onPress={() => router.push({ pathname: "/category/[categoryId]", params: { categoryId: category.id } })}
           />
         ))}
@@ -31,16 +43,6 @@ export function CourseMenu({ course }: { course: CourseId }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.greenPale },
-  content: { padding: 20, gap: 24 },
-  picture: {
-    alignSelf: "center",
-    width: 150,
-    height: 120,
-    borderRadius: 12,
-    backgroundColor: colors.greenLight,
-    alignItems: "center",
-    justifyContent: "center",
-    marginVertical: 16,
-  },
+  container: { flex: 1, backgroundColor: colors.background },
+  content: { padding: 16, gap: 14 },
 });

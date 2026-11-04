@@ -1,37 +1,37 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import { colors, fontSize, minTouchSize } from "@/constants/theme";
+import { NextBadge } from "@/components/next-badge";
+import { StatusMark } from "@/components/status-mark";
+import { accents, colors, fontSize, minTouchSize, type Accent } from "@/constants/theme";
 
 type Props = {
   level: number;
-  description: string;
   cleared: boolean;
+  // 次に取り組むレベルなら青枠と「つぎは ここ」を付ける
+  isNext?: boolean;
   onPress: () => void;
+  accent?: Accent;
 };
 
-// レベル一覧の 1 行。クリア済みは緑の背景とチェックで表示する
-export function LevelCard({ level, description, cleared, onPress }: Props) {
+// レベル一覧の 1 行
+export function LevelCard({ level, cleared, isNext = false, onPress, accent = accents.basic }: Props) {
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`Level ${level} ${description}${cleared ? " クリア済み" : ""}`}
+      accessibilityLabel={`レベル ${level} ${cleared ? "クリア" : "まだ"}`}
       onPress={onPress}
-      style={({ pressed }) => [
-        styles.card,
-        { backgroundColor: cleared ? colors.greenLight : colors.white },
-        pressed && styles.pressed,
-      ]}
+      style={({ pressed }) => [styles.card, isNext && { borderColor: accent.main }, pressed && styles.pressed]}
     >
-      <View style={styles.texts}>
-        <Text style={styles.level}>Level {level}</Text>
-        <Text style={styles.description}>{description}</Text>
+      <View style={[styles.image, { borderColor: accent.main, backgroundColor: accent.pale }]}>
+        {/* レベルごとの画像は #7 で差し替える */}
+        <Text style={[styles.imageText, { color: accent.main }]}>画像</Text>
       </View>
-      <Ionicons
-        name={cleared ? "checkmark-circle-outline" : "ellipse-outline"}
-        size={40}
-        color={cleared ? colors.green : colors.gray}
-      />
+      <View style={styles.texts}>
+        {isNext && <NextBadge />}
+        <Text style={styles.level}>レベル {level}</Text>
+      </View>
+      <StatusMark cleared={cleared} />
       <Ionicons name="chevron-forward" size={24} color={colors.textSub} />
     </Pressable>
   );
@@ -39,35 +39,27 @@ export function LevelCard({ level, description, cleared, onPress }: Props) {
 
 const styles = StyleSheet.create({
   card: {
-    minHeight: minTouchSize,
-    borderRadius: 20,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
+    minHeight: minTouchSize + 24,
+    borderRadius: 16,
+    padding: 12,
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 10,
+    backgroundColor: colors.white,
+    borderWidth: 2,
+    borderColor: colors.border,
+  },
+  image: {
+    width: 64,
+    height: 64,
+    borderRadius: 8,
     borderWidth: 1,
-    borderColor: colors.greenLight,
-    shadowColor: "#000",
-    shadowOpacity: 0.12,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 3,
+    borderStyle: "dashed",
+    alignItems: "center",
+    justifyContent: "center",
   },
-  texts: {
-    flex: 1,
-  },
-  level: {
-    fontSize: fontSize.large,
-    fontWeight: "bold",
-    color: colors.text,
-  },
-  description: {
-    fontSize: fontSize.small,
-    color: colors.textSub,
-    marginTop: 2,
-  },
-  pressed: {
-    transform: [{ scale: 0.98 }],
-  },
+  imageText: { fontSize: 14, },
+  texts: { flex: 1, gap: 2 },
+  level: { fontSize: fontSize.title, fontWeight: "bold", color: colors.text },
+  pressed: { transform: [{ scale: 0.98 }] },
 });
