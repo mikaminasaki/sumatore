@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AppHeader } from "@/components/app-header";
-import { colors, fontSize, minTouchSize } from "@/constants/theme";
+import { accents, colors, fontSize, minTouchSize } from "@/constants/theme";
 import { getCategory, getLevel } from "@/data/lessons";
 import { useProgress } from "@/hooks/use-progress";
 
@@ -17,18 +17,19 @@ export default function LessonScreen() {
   const insets = useSafeAreaInsets();
   const level = getLevel(levelId);
   const category = level ? getCategory(level.categoryId) : undefined;
+  const accent = accents[category?.course ?? "basic"];
   const step = 1;
 
   return (
     <View style={styles.container}>
-      <AppHeader title={level ? `レベル ${level.level}` : ""} subtitle={category?.title} leftButton="close" />
+      <AppHeader title={level ? `レベル ${level.level}` : ""} subtitle={category?.title} leftButton="close" accent={accent} />
 
       <View style={styles.stepRow}>
         <Text style={styles.stepText}>
           ステップ {step} / {TOTAL_STEPS}
         </Text>
         {Array.from({ length: TOTAL_STEPS }, (_, i) => (
-          <View key={i} style={[styles.stepBar, i < step && styles.stepBarOn]} />
+          <View key={i} style={[styles.stepBar, i < step && { backgroundColor: accent.main }]} />
         ))}
       </View>
 
@@ -57,8 +58,8 @@ export default function LessonScreen() {
           </Pressable>
         </View>
 
-        <Pressable accessibilityRole="button" style={({ pressed }) => [styles.hintButton, pressed && styles.pressed]}>
-          <Text style={styles.hintText}>ヒントを 見る</Text>
+        <Pressable accessibilityRole="button" style={({ pressed }) => [styles.hintButton, { borderColor: accent.main }, pressed && styles.pressed]}>
+          <Text style={[styles.hintText, { color: accent.main }]}>ヒントを 見る</Text>
         </Pressable>
       </View>
     </View>
@@ -79,7 +80,6 @@ const styles = StyleSheet.create({
   },
   stepText: { fontSize: 15, color: colors.text, marginRight: 6 },
   stepBar: { flex: 1, height: 6, borderRadius: 3, backgroundColor: colors.border },
-  stepBarOn: { backgroundColor: colors.blue },
   body: { flex: 1, padding: 16, gap: 16 },
   guide: { flexDirection: "row", alignItems: "flex-start", gap: 10 },
   character: { width: 64, height: 64, alignItems: "center", justifyContent: "center" },
@@ -110,11 +110,10 @@ const styles = StyleSheet.create({
     minHeight: minTouchSize,
     borderRadius: 16,
     borderWidth: 2,
-    borderColor: colors.blue,
     backgroundColor: colors.white,
     alignItems: "center",
     justifyContent: "center",
   },
-  hintText: { fontSize: fontSize.body, fontWeight: "bold", color: colors.blue },
+  hintText: { fontSize: fontSize.body, fontWeight: "bold" },
   pressed: { opacity: 0.7 },
 });

@@ -3,7 +3,7 @@ import { router } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { colors, fontSize } from "@/constants/theme";
+import { accents, colors, fontSize, type Accent } from "@/constants/theme";
 
 type Props = {
   title: string;
@@ -12,14 +12,16 @@ type Props = {
   variant?: "logo" | "section";
   // 左上のボタン。back =「‹ もどる」、close =「× やめる」
   leftButton?: "back" | "close" | "none";
+  // ヘッダーの色 (logo のときは使わない)
+  accent?: Accent;
 };
 
-export function AppHeader({ title, subtitle, variant = "section", leftButton = "none" }: Props) {
+export function AppHeader({ title, subtitle, variant = "section", leftButton = "none", accent = accents.basic }: Props) {
   const insets = useSafeAreaInsets();
 
   if (variant === "logo") {
     return (
-      <View style={[styles.container, styles.logoContainer, { paddingTop: insets.top + 8 }]}>
+      <View style={[styles.container, styles.logoContainer, { backgroundColor: colors.homeRed, paddingTop: insets.top + 8 }]}>
         <Text style={[styles.title, styles.logo]} accessibilityRole="header">
           {title}
         </Text>
@@ -28,15 +30,15 @@ export function AppHeader({ title, subtitle, variant = "section", leftButton = "
   }
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top + 8 }]}>
+    <View style={[styles.container, { backgroundColor: accent.main, paddingTop: insets.top + 8 }]}>
       {leftButton !== "none" && (
         <Pressable
           accessibilityRole="button"
           onPress={() => router.back()}
           style={({ pressed }) => [styles.leftButton, pressed && styles.pressed]}
         >
-          <Ionicons name={leftButton === "back" ? "chevron-back" : "close"} size={22} color={colors.blue} />
-          <Text style={styles.leftButtonText}>{leftButton === "back" ? "もどる" : "やめる"}</Text>
+          <Ionicons name={leftButton === "back" ? "chevron-back" : "close"} size={22} color={accent.main} />
+          <Text style={[styles.leftButtonText, { color: accent.main }]}>{leftButton === "back" ? "もどる" : "やめる"}</Text>
         </Pressable>
       )}
       <View style={styles.titles}>
@@ -57,7 +59,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 14,
     minHeight: 64,
-    backgroundColor: colors.blue,
   },
   logoContainer: { justifyContent: "center" },
   leftButton: {
@@ -70,7 +71,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     backgroundColor: colors.white,
   },
-  leftButtonText: { color: colors.blue, fontSize: fontSize.body, fontWeight: "bold" },
+  leftButtonText: { fontSize: fontSize.body, fontWeight: "bold" },
   titles: { flex: 1 },
   subtitle: { color: colors.white, fontSize: 14, fontWeight: "bold" },
   title: { color: colors.white, fontSize: fontSize.large, fontWeight: "bold" },

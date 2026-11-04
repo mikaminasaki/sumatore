@@ -4,8 +4,8 @@ import { StatusBar } from "expo-status-bar";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { colors, fontSize, minTouchSize } from "@/constants/theme";
-import { getLevel, getNextLevel } from "@/data/lessons";
+import { accents, colors, fontSize, minTouchSize } from "@/constants/theme";
+import { getCategory, getLevel, getNextLevel } from "@/data/lessons";
 
 // クリア画面。手に入れたパズルのピースを見せて、次のレベルへ進めるようにする
 export default function ClearScreen() {
@@ -13,6 +13,7 @@ export default function ClearScreen() {
   const insets = useSafeAreaInsets();
   const level = getLevel(levelId);
   const next = getNextLevel(levelId);
+  const accent = accents[(level && getCategory(level.categoryId)?.course) ?? "basic"];
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + 40, paddingBottom: insets.bottom + 24 }]}>
@@ -39,7 +40,7 @@ export default function ClearScreen() {
           <Pressable
             accessibilityRole="button"
             onPress={() => router.replace({ pathname: "/lesson/[levelId]", params: { levelId: next.id } })}
-            style={({ pressed }) => [styles.primary, pressed && styles.pressed]}
+            style={({ pressed }) => [styles.primary, { backgroundColor: accent.main, borderBottomColor: accent.dark }, pressed && styles.pressed]}
           >
             <Text style={styles.primaryText}>つぎの レベルへ</Text>
           </Pressable>
@@ -79,9 +80,7 @@ const styles = StyleSheet.create({
   primary: {
     minHeight: minTouchSize,
     borderRadius: 16,
-    backgroundColor: colors.blue,
     borderBottomWidth: 4,
-    borderBottomColor: "#174A8A",
     alignItems: "center",
     justifyContent: "center",
   },

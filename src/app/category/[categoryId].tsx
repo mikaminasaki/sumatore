@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { AppHeader } from "@/components/app-header";
 import { LevelCard } from "@/components/level-card";
-import { colors, fontSize } from "@/constants/theme";
+import { accents, colors, fontSize } from "@/constants/theme";
 import { courses, getCategory, getLevelsByCategory } from "@/data/lessons";
 import { useProgress } from "@/hooks/use-progress";
 
@@ -13,6 +13,7 @@ export default function CategoryScreen() {
   const { isCleared } = useProgress();
   const category = getCategory(categoryId);
   const levels = getLevelsByCategory(categoryId);
+  const accent = accents[category?.course ?? "basic"];
   const nextId = levels.find((l) => !isCleared(l.id))?.id;
 
   return (
@@ -21,6 +22,7 @@ export default function CategoryScreen() {
         title={category?.title ?? ""}
         subtitle={category ? courses[category.course].title : undefined}
         leftButton="back"
+        accent={accent}
       />
       <ScrollView contentContainerStyle={styles.content}>
         {category && <Text style={styles.intro}>{category.intro}</Text>}
@@ -31,6 +33,7 @@ export default function CategoryScreen() {
             description={level.description}
             cleared={isCleared(level.id)}
             isNext={level.id === nextId}
+            accent={accent}
             onPress={() => router.push({ pathname: "/lesson/[levelId]", params: { levelId: level.id } })}
           />
         ))}

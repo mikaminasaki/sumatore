@@ -4,7 +4,7 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { AppHeader } from "@/components/app-header";
 import { CategoryCard } from "@/components/category-card";
 import { ProgressCard } from "@/components/progress-card";
-import { colors, fontSize } from "@/constants/theme";
+import { accents, colors, fontSize } from "@/constants/theme";
 import { courses, getCategoriesByCourse, getLevelsByCategory, type CourseId } from "@/data/lessons";
 import { useProgress } from "@/hooks/use-progress";
 
@@ -23,7 +23,7 @@ export function CourseMenu({ course }: { course: CourseId }) {
 
   return (
     <View style={styles.container}>
-      <AppHeader title={courses[course].title} leftButton="back" />
+      <AppHeader title={courses[course].title} leftButton="back" accent={accents[course]} />
       <ScrollView contentContainerStyle={styles.content}>
         <ProgressCard cleared={clearedCount} total={categories.length} />
         <Text style={styles.lead}>れんしゅうを えらんでください</Text>
@@ -36,6 +36,7 @@ export function CourseMenu({ course }: { course: CourseId }) {
             cleared={isCategoryCleared(category.id)}
             isNext={category.id === nextId}
             disabled={!category.available}
+            accent={accents[course]}
             onPress={() => router.push({ pathname: "/category/[categoryId]", params: { categoryId: category.id } })}
           />
         ))}

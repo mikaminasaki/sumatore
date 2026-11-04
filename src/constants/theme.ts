@@ -18,6 +18,8 @@ export const colors = {
   piece: "#E2B85A",
   piecePale: "#FBF3DF",
 
+  // ホーム画面のヘッダーの赤 (青・焼きオレンジと並べても浮かない落ち着いた赤)
+  homeRed: "#B8323A",
   brandRed: "#E8432E",
   green: "#4CB43C",
   greenLight: "#C4F0B4",
@@ -39,6 +41,14 @@ export const fontSize = {
   title: 28,
   logo: 32,
 };
+
+// コースごとのテーマ色。基本操作編は青、実践編は焼きオレンジ
+export type Accent = { main: string; pale: string; dark: string };
+
+export const accents = {
+  basic: { main: "#1F5FAF", pale: "#EAF1FA", dark: "#174A8A" },
+  practice: { main: "#C2570C", pale: "#FBEDE3", dark: "#94420A" },
+} satisfies Record<string, Accent>;
 
 // タップできる要素の最低の高さ
 export const minTouchSize = 64;
