@@ -1,7 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import type { BottomTabBarProps } from "expo-router/tabs";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { colors, fontSize } from "@/constants/theme";
 
@@ -13,9 +12,7 @@ const tabIcons: Record<string, { active: IconName; inactive: IconName }> = {
 };
 
 // 画面下の「ホーム / きろく」タブ。選択中のタブはピンクの背景で強調する
-export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
-  const insets = useSafeAreaInsets();
-
+export function TabBar({ state, descriptors, navigateToTab, insets }: BottomTabBarProps) {
   return (
     <View style={[styles.container, { paddingBottom: insets.bottom + 8 }]}>
       {state.routes.map((route, index) => {
@@ -30,8 +27,7 @@ export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
             accessibilityRole="tab"
             accessibilityState={{ selected: focused }}
             onPress={() => {
-              const event = navigation.emit({ type: "tabPress", target: route.key, canPreventDefault: true });
-              if (!focused && !event.defaultPrevented) navigation.navigate(route.name);
+              if (!focused) navigateToTab(route.key);
             }}
             style={[styles.tab, focused && styles.tabFocused]}
           >
