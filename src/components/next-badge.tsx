@@ -11,12 +11,12 @@ const styles = StyleSheet.create({
   badge: {
     alignSelf: "flex-start",
     overflow: "hidden",
-    paddingHorizontal: 10,
-    paddingVertical: 2,
-    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 3,
+    borderRadius: 12,
     backgroundColor: colors.burntOrange,
     color: colors.white,
-    fontSize: 13,
+    fontSize: 16,
     fontWeight: "bold",
   },
 });

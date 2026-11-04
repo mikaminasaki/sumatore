@@ -7,7 +7,6 @@ import { accents, colors, fontSize, minTouchSize, type Accent } from "@/constant
 
 type Props = {
   level: number;
-  description: string;
   cleared: boolean;
   // 次に取り組むレベルなら青枠と「つぎは ここ」を付ける
   isNext?: boolean;
@@ -16,11 +15,11 @@ type Props = {
 };
 
 // レベル一覧の 1 行
-export function LevelCard({ level, description, cleared, isNext = false, onPress, accent = accents.basic }: Props) {
+export function LevelCard({ level, cleared, isNext = false, onPress, accent = accents.basic }: Props) {
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`レベル ${level} ${description} ${cleared ? "クリア" : "まだ"}`}
+      accessibilityLabel={`レベル ${level} ${cleared ? "クリア" : "まだ"}`}
       onPress={onPress}
       style={({ pressed }) => [styles.card, isNext && { borderColor: accent.main }, pressed && styles.pressed]}
     >
@@ -31,7 +30,6 @@ export function LevelCard({ level, description, cleared, isNext = false, onPress
       <View style={styles.texts}>
         {isNext && <NextBadge />}
         <Text style={styles.level}>レベル {level}</Text>
-        <Text style={styles.description}>{description}</Text>
       </View>
       <StatusMark cleared={cleared} />
       <Ionicons name="chevron-forward" size={24} color={colors.textSub} />
@@ -41,7 +39,7 @@ export function LevelCard({ level, description, cleared, isNext = false, onPress
 
 const styles = StyleSheet.create({
   card: {
-    minHeight: minTouchSize + 16,
+    minHeight: minTouchSize + 24,
     borderRadius: 16,
     padding: 12,
     flexDirection: "row",
@@ -52,17 +50,16 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   image: {
-    width: 56,
-    height: 56,
+    width: 64,
+    height: 64,
     borderRadius: 8,
     borderWidth: 1,
     borderStyle: "dashed",
     alignItems: "center",
     justifyContent: "center",
   },
-  imageText: { fontSize: 12, },
+  imageText: { fontSize: 14, },
   texts: { flex: 1, gap: 2 },
-  level: { fontSize: fontSize.body, fontWeight: "bold", color: colors.text },
-  description: { fontSize: 15, color: colors.textSub },
+  level: { fontSize: fontSize.title, fontWeight: "bold", color: colors.text },
   pressed: { transform: [{ scale: 0.98 }] },
 });

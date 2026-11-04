@@ -37,7 +37,7 @@ export function AppHeader({ title, subtitle, variant = "section", leftButton = "
           onPress={() => router.back()}
           style={({ pressed }) => [styles.leftButton, pressed && styles.pressed]}
         >
-          <Ionicons name={leftButton === "back" ? "chevron-back" : "close"} size={22} color={accent.main} />
+          <Ionicons name={leftButton === "back" ? "chevron-back" : "close"} size={26} color={accent.main} />
           <Text style={[styles.leftButtonText, { color: accent.main }]}>{leftButton === "back" ? "もどる" : "やめる"}</Text>
         </Pressable>
       )}
@@ -65,16 +65,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 2,
-    minHeight: 48,
+    minHeight: 52,
     paddingLeft: 10,
     paddingRight: 16,
     borderRadius: 24,
     backgroundColor: colors.white,
   },
-  leftButtonText: { fontSize: fontSize.body, fontWeight: "bold" },
+  leftButtonText: { fontSize: 22, fontWeight: "bold" },
   titles: { flex: 1 },
   subtitle: { color: colors.white, fontSize: 14, fontWeight: "bold" },
-  title: { color: colors.white, fontSize: fontSize.large, fontWeight: "bold" },
+  title: { color: colors.white, fontSize: fontSize.title, fontWeight: "bold" },
   logo: { fontSize: fontSize.logo, letterSpacing: 4 },
   pressed: { opacity: 0.7 },
 });

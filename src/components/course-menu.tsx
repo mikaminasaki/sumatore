@@ -1,10 +1,10 @@
 import { router } from "expo-router";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 
 import { AppHeader } from "@/components/app-header";
 import { CategoryCard } from "@/components/category-card";
 import { ProgressCard } from "@/components/progress-card";
-import { accents, colors, fontSize } from "@/constants/theme";
+import { accents, colors } from "@/constants/theme";
 import { courses, getCategoriesByCourse, getLevelsByCategory, type CourseId } from "@/data/lessons";
 import { useProgress } from "@/hooks/use-progress";
 
@@ -26,13 +26,11 @@ export function CourseMenu({ course }: { course: CourseId }) {
       <AppHeader title={courses[course].title} leftButton="back" accent={accents[course]} />
       <ScrollView contentContainerStyle={styles.content}>
         <ProgressCard cleared={clearedCount} total={categories.length} />
-        <Text style={styles.lead}>れんしゅうを えらんでください</Text>
         {categories.map((category, index) => (
           <CategoryCard
             key={category.id}
             number={index + 1}
             title={category.title}
-            description={category.description}
             cleared={isCategoryCleared(category.id)}
             isNext={category.id === nextId}
             disabled={!category.available}
@@ -47,6 +45,5 @@ export function CourseMenu({ course }: { course: CourseId }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
-  content: { padding: 16, gap: 12 },
-  lead: { fontSize: fontSize.small, fontWeight: "bold", color: colors.text, marginTop: 8 },
+  content: { padding: 16, gap: 14 },
 });

@@ -8,7 +8,6 @@ import { accents, colors, fontSize, minTouchSize, type Accent } from "@/constant
 type Props = {
   number: number;
   title: string;
-  description: string;
   cleared: boolean;
   isNext?: boolean;
   // 準備中のカテゴリは押せない表示にする
@@ -18,7 +17,7 @@ type Props = {
 };
 
 // コースメニューの番号付きカード (例: 1 拡大・縮小)
-export function CategoryCard({ number, title, description, cleared, isNext = false, disabled = false, onPress, accent = accents.basic }: Props) {
+export function CategoryCard({ number, title, cleared, isNext = false, disabled = false, onPress, accent = accents.basic }: Props) {
   return (
     <Pressable
       accessibilityRole="button"
@@ -33,7 +32,7 @@ export function CategoryCard({ number, title, description, cleared, isNext = fal
       <View style={styles.texts}>
         {isNext && <NextBadge />}
         <Text style={styles.title}>{title}</Text>
-        <Text style={styles.description}>{disabled ? "じゅんびちゅう" : description}</Text>
+        {disabled && <Text style={styles.description}>じゅんびちゅう</Text>}
       </View>
       {!disabled && <StatusMark cleared={cleared} />}
       {!disabled && <Ionicons name="chevron-forward" size={24} color={colors.textSub} />}
@@ -43,7 +42,7 @@ export function CategoryCard({ number, title, description, cleared, isNext = fal
 
 const styles = StyleSheet.create({
   card: {
-    minHeight: minTouchSize + 16,
+    minHeight: minTouchSize + 24,
     borderRadius: 16,
     padding: 12,
     flexDirection: "row",
@@ -55,15 +54,15 @@ const styles = StyleSheet.create({
   },
   disabled: { opacity: 0.5 },
   number: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     alignItems: "center",
     justifyContent: "center",
   },
-  numberText: { fontSize: fontSize.large, },
+  numberText: { fontSize: fontSize.title, fontWeight: "bold", },
   texts: { flex: 1, gap: 2 },
-  title: { fontSize: fontSize.body, fontWeight: "bold", color: colors.text },
-  description: { fontSize: 15, color: colors.textSub },
+  title: { fontSize: fontSize.title, fontWeight: "bold", color: colors.text },
+  description: { fontSize: fontSize.body, color: colors.textSub },
   pressed: { transform: [{ scale: 0.98 }] },
 });
