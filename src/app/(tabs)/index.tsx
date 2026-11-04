@@ -18,7 +18,7 @@ export default function HomeScreen() {
           <Pressable
             accessibilityRole="button"
             onPress={() => router.push("/basic")}
-            style={[styles.courseButton, { backgroundColor: colors.green }]}
+            style={[styles.courseButton, { backgroundColor: colors.blue }]}
           >
             <Ionicons name="book-outline" size={64} color={colors.white} />
             <Text style={styles.courseLabel}>基本操作編</Text>
@@ -26,7 +26,7 @@ export default function HomeScreen() {
           <Pressable
             accessibilityRole="button"
             onPress={() => router.push("/practice")}
-            style={[styles.courseButton, { backgroundColor: colors.orange }]}
+            style={[styles.courseButton, { backgroundColor: colors.burntOrange }]}
           >
             <Ionicons name="phone-portrait-outline" size={64} color={colors.white} />
             <Text style={styles.courseLabel}>実践編</Text>
@@ -38,7 +38,7 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#EAF4FA" },
+  container: { flex: 1, backgroundColor: colors.background },
   body: { flex: 1, padding: 20, justifyContent: "space-between" },
   bubble: {
     backgroundColor: colors.white,
