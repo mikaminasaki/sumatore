@@ -9,7 +9,7 @@ export default function RootLayout() {
       <StatusBar style="light" />
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="clear" options={{ presentation: "transparentModal", animation: "fade" }} />
+        <Stack.Screen name="clear" options={{ animation: "fade" }} />
       </Stack>
     </ProgressProvider>
   );
