@@ -1,6 +1,23 @@
 // アプリ全体の色・文字サイズ。シニア向けなので文字とタップ領域は大きめにする。
 
 export const colors = {
+  // メインの青 (ヘッダー・主要ボタン・「つぎは ここ」の枠)
+  blue: "#1F5FAF",
+  bluePale: "#EAF1FA",
+  // 焼きオレンジ (「つぎは ここ」バッジ・クリア！の文字)
+  burntOrange: "#C2570C",
+  // 画面の背景 (クリーム色) と、カードの枠線
+  background: "#F8F5EF",
+  border: "#E2DED6",
+  // クリア表示の緑
+  clearGreen: "#3E7D32",
+  // 練習エリア
+  practiceArea: "#E6EDE4",
+  practiceBorder: "#B7C9B2",
+  // パズルのピース
+  piece: "#E2B85A",
+  piecePale: "#FBF3DF",
+
   brandRed: "#E8432E",
   green: "#4CB43C",
   greenLight: "#C4F0B4",
