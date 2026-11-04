@@ -1,16 +1,20 @@
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { ProgressProvider } from "@/hooks/use-progress";
 
 export default function RootLayout() {
   return (
-    <ProgressProvider>
+    // ピンチなどのジェスチャーを使うために、アプリ全体を包む
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ProgressProvider>
       <StatusBar style="light" />
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="clear" options={{ animation: "fade" }} />
       </Stack>
-    </ProgressProvider>
+      </ProgressProvider>
+    </GestureHandlerRootView>
   );
 }
