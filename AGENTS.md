@@ -39,3 +39,24 @@ Docs: https://docs.expo.dev/eas/index.md
 - If `ios/` and `android/` directories do not exist, they are generated (Continuous Native Generation). Never create or edit them by hand — configure native behavior in `app.json` and config plugins.
 - Expo Go only includes its bundled native modules. After adding a library with native code, the app needs a development build: `npx expo run:ios|android` locally, or `eas build --profile development`.
 - Prefer recommended Expo modules over third-party libraries, and check your available skills before adding dependencies. Docs: https://docs.expo.dev/versions/latest/index.md
+
+## Team workflow (read before starting any task)
+
+This project is developed by two people, one using Claude Code and one using Codex (ChatGPT). Both AI tools must follow the same procedures. Respond to the user in Japanese.
+
+The procedures live in `.claude/skills/`. They are plain Markdown, so any AI tool should read and follow them even if it does not load skills automatically:
+
+| When | Follow |
+|---|---|
+| Starting a task ("#12 をやって", "次のタスク") | `.claude/skills/triage-task/SKILL.md` |
+| Committing | `.claude/skills/commit/SKILL.md` |
+| Opening a pull request | `.claude/skills/pr/SKILL.md` |
+
+Human-facing rules and setup are in `CONTRIBUTING.md`. The most important ones:
+
+- Never commit or push directly to `main`. One task = one branch (`feature/<issue番号>-<説明>`) = one PR.
+- Before starting, assign yourself to the GitHub Issue and set the Notion task to `In progress`, so the two people never work on the same task.
+- Start from the latest `main` (`git fetch origin main`), and run `npm install` after pulling.
+- Do not change shared files (`src/constants/theme.ts`, `src/components/`, `src/data/lessons.ts`, `package.json`) without telling the other person; mention it in the PR.
+- Add libraries only with `npx expo install`. Run `npx tsc --noEmit` and `npx expo lint` before every PR.
+- Never commit secrets (`.env*`, keys, tokens).
