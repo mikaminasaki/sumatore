@@ -10,21 +10,17 @@ type Props = {
   title: string;
   cleared: boolean;
   isNext?: boolean;
-  // 準備中のカテゴリは押せない表示にする
-  disabled?: boolean;
   onPress: () => void;
   accent?: Accent;
 };
 
 // コースメニューの番号付きカード (例: 1 拡大・縮小)
-export function CategoryCard({ number, title, cleared, isNext = false, disabled = false, onPress, accent = accents.basic }: Props) {
+export function CategoryCard({ number, title, cleared, isNext = false, onPress, accent = accents.basic }: Props) {
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityState={{ disabled }}
-      disabled={disabled}
       onPress={onPress}
-      style={({ pressed }) => [styles.card, isNext && { borderColor: accent.main }, disabled && styles.disabled, pressed && styles.pressed]}
+      style={({ pressed }) => [styles.card, isNext && { borderColor: accent.main }, pressed && styles.pressed]}
     >
       <View style={[styles.number, { backgroundColor: accent.pale }]}>
         <Text style={[styles.numberText, { color: accent.main }]}>{number}</Text>
@@ -32,10 +28,9 @@ export function CategoryCard({ number, title, cleared, isNext = false, disabled 
       <View style={styles.texts}>
         {isNext && <NextBadge />}
         <Text style={styles.title}>{title}</Text>
-        {disabled && <Text style={styles.description}>じゅんびちゅう</Text>}
       </View>
-      {!disabled && <StatusMark cleared={cleared} />}
-      {!disabled && <Ionicons name="chevron-forward" size={24} color={colors.textSub} />}
+      <StatusMark cleared={cleared} />
+      <Ionicons name="chevron-forward" size={24} color={colors.textSub} />
     </Pressable>
   );
 }
@@ -52,7 +47,6 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: colors.border,
   },
-  disabled: { opacity: 0.5 },
   number: {
     width: 52,
     height: 52,
@@ -63,6 +57,5 @@ const styles = StyleSheet.create({
   numberText: { fontSize: fontSize.title, fontWeight: "bold", },
   texts: { flex: 1, gap: 2 },
   title: { fontSize: fontSize.title, fontWeight: "bold", color: colors.text },
-  description: { fontSize: fontSize.body, color: colors.textSub },
   pressed: { transform: [{ scale: 0.98 }] },
 });

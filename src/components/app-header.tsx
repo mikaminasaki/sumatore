@@ -43,7 +43,7 @@ export function AppHeader({ title, subtitle, variant = "section", leftButton = "
       )}
       <View style={styles.titles}>
         {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
-        <Text style={styles.title} accessibilityRole="header" numberOfLines={1}>
+        <Text style={styles.title} accessibilityRole="header" numberOfLines={1} adjustsFontSizeToFit>
           {title}
         </Text>
       </View>

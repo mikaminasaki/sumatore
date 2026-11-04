@@ -19,7 +19,7 @@ export function CourseMenu({ course }: { course: CourseId }) {
     return levels.length > 0 && levels.every((l) => isCleared(l.id));
   };
   const clearedCount = categories.filter((c) => isCategoryCleared(c.id)).length;
-  const nextId = categories.find((c) => c.available && !isCategoryCleared(c.id))?.id;
+  const nextId = categories.find((c) => !isCategoryCleared(c.id))?.id;
 
   return (
     <View style={styles.container}>
@@ -33,7 +33,6 @@ export function CourseMenu({ course }: { course: CourseId }) {
             title={category.title}
             cleared={isCategoryCleared(category.id)}
             isNext={category.id === nextId}
-            disabled={!category.available}
             accent={accents[course]}
             onPress={() => router.push({ pathname: "/category/[categoryId]", params: { categoryId: category.id } })}
           />

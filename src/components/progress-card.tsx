@@ -4,13 +4,16 @@ import { colors, fontSize } from "@/constants/theme";
 
 // コースメニュー上部の「すすみぐあい 2 / 4 クリア」
 export function ProgressCard({ cleared, total }: { cleared: number; total: number }) {
+  // カテゴリが多いときはピースを小さくして 3 列にする
+  const pieceSize = total > 4 ? 18 : 30;
+  const columns = total > 4 ? 3 : 2;
   const ratio = total === 0 ? 0 : cleared / total;
 
   return (
     <View style={styles.card} accessibilityLabel={`すすみぐあい ${total} こ中 ${cleared} こ クリア`}>
-      <View style={styles.pieces}>
+      <View style={[styles.pieces, { width: pieceSize * columns + 4 * (columns - 1) }]}>
         {Array.from({ length: total }, (_, i) => (
-          <View key={i} style={[styles.piece, i < cleared ? styles.pieceOn : styles.pieceOff]} />
+          <View key={i} style={[styles.piece, { width: pieceSize, height: pieceSize }, i < cleared ? styles.pieceOn : styles.pieceOff]} />
         ))}
       </View>
       <View style={styles.texts}>
@@ -36,8 +39,8 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     backgroundColor: colors.white,
   },
-  pieces: { width: 64, flexDirection: "row", flexWrap: "wrap", gap: 4 },
-  piece: { width: 30, height: 30, borderRadius: 4 },
+  pieces: { flexDirection: "row", flexWrap: "wrap", gap: 4 },
+  piece: { borderRadius: 4 },
   pieceOn: { backgroundColor: colors.piece },
   pieceOff: { borderWidth: 1, borderStyle: "dashed", borderColor: colors.gray },
   texts: { flex: 1 },
