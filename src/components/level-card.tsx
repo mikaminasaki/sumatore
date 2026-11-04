@@ -1,37 +1,38 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
+import { NextBadge } from "@/components/next-badge";
+import { StatusMark } from "@/components/status-mark";
 import { colors, fontSize, minTouchSize } from "@/constants/theme";
 
 type Props = {
   level: number;
   description: string;
   cleared: boolean;
+  // 次に取り組むレベルなら青枠と「つぎは ここ」を付ける
+  isNext?: boolean;
   onPress: () => void;
 };
 
-// レベル一覧の 1 行。クリア済みは緑の背景とチェックで表示する
-export function LevelCard({ level, description, cleared, onPress }: Props) {
+// レベル一覧の 1 行
+export function LevelCard({ level, description, cleared, isNext = false, onPress }: Props) {
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`Level ${level} ${description}${cleared ? " クリア済み" : ""}`}
+      accessibilityLabel={`レベル ${level} ${description} ${cleared ? "クリア" : "まだ"}`}
       onPress={onPress}
-      style={({ pressed }) => [
-        styles.card,
-        { backgroundColor: cleared ? colors.greenLight : colors.white },
-        pressed && styles.pressed,
-      ]}
+      style={({ pressed }) => [styles.card, isNext && styles.next, pressed && styles.pressed]}
     >
+      <View style={styles.image}>
+        {/* レベルごとの画像は #7 で差し替える */}
+        <Text style={styles.imageText}>画像</Text>
+      </View>
       <View style={styles.texts}>
-        <Text style={styles.level}>Level {level}</Text>
+        {isNext && <NextBadge />}
+        <Text style={styles.level}>レベル {level}</Text>
         <Text style={styles.description}>{description}</Text>
       </View>
-      <Ionicons
-        name={cleared ? "checkmark-circle-outline" : "ellipse-outline"}
-        size={40}
-        color={cleared ? colors.green : colors.gray}
-      />
+      <StatusMark cleared={cleared} />
       <Ionicons name="chevron-forward" size={24} color={colors.textSub} />
     </Pressable>
   );
@@ -39,35 +40,31 @@ export function LevelCard({ level, description, cleared, onPress }: Props) {
 
 const styles = StyleSheet.create({
   card: {
-    minHeight: minTouchSize,
-    borderRadius: 20,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
+    minHeight: minTouchSize + 16,
+    borderRadius: 16,
+    padding: 12,
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 10,
+    backgroundColor: colors.white,
+    borderWidth: 2,
+    borderColor: colors.border,
+  },
+  next: { borderColor: colors.blue },
+  image: {
+    width: 56,
+    height: 56,
+    borderRadius: 8,
     borderWidth: 1,
-    borderColor: colors.greenLight,
-    shadowColor: "#000",
-    shadowOpacity: 0.12,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 3,
+    borderStyle: "dashed",
+    borderColor: colors.blue,
+    backgroundColor: colors.bluePale,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  texts: {
-    flex: 1,
-  },
-  level: {
-    fontSize: fontSize.large,
-    fontWeight: "bold",
-    color: colors.text,
-  },
-  description: {
-    fontSize: fontSize.small,
-    color: colors.textSub,
-    marginTop: 2,
-  },
-  pressed: {
-    transform: [{ scale: 0.98 }],
-  },
+  imageText: { fontSize: 12, color: colors.blue },
+  texts: { flex: 1, gap: 2 },
+  level: { fontSize: fontSize.body, fontWeight: "bold", color: colors.text },
+  description: { fontSize: 15, color: colors.textSub },
+  pressed: { transform: [{ scale: 0.98 }] },
 });

@@ -19,7 +19,7 @@ export function TabBar({ state, descriptors, navigateToTab, insets }: BottomTabB
         const focused = state.index === index;
         const label = descriptors[route.key].options.title ?? route.name;
         const icons = tabIcons[route.name];
-        const color = focused ? colors.brandRed : colors.gray;
+        const color = focused ? colors.burntOrange : colors.textSub;
 
         return (
           <Pressable
@@ -31,7 +31,7 @@ export function TabBar({ state, descriptors, navigateToTab, insets }: BottomTabB
             }}
             style={[styles.tab, focused && styles.tabFocused]}
           >
-            {icons && <Ionicons name={focused ? icons.active : icons.inactive} size={40} color={color} />}
+            {icons && <Ionicons name={focused ? icons.active : icons.inactive} size={30} color={color} />}
             <Text style={[styles.label, { color }]}>{label}</Text>
           </Pressable>
         );
@@ -43,7 +43,9 @@ export function TabBar({ state, descriptors, navigateToTab, insets }: BottomTabB
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
-    backgroundColor: colors.pinkPale,
+    backgroundColor: colors.white,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
     paddingTop: 8,
     paddingHorizontal: 12,
     gap: 12,

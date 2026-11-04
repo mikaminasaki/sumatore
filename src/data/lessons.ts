@@ -6,6 +6,10 @@ export type Category = {
   id: string;
   course: CourseId;
   title: string;
+  // メニューのカードに出す ひとことの説明
+  description: string;
+  // レベル一覧の上に出す説明文
+  intro: string;
   // false のカテゴリはメニューに「準備中」と表示する
   available: boolean;
 };
@@ -24,12 +28,12 @@ export const courses: Record<CourseId, { title: string }> = {
 };
 
 export const categories: Category[] = [
-  { id: "zoom", course: "basic", title: "拡大・縮小編", available: true },
-  { id: "tap", course: "basic", title: "タップ編", available: false },
-  { id: "swipe", course: "basic", title: "スワイプ編", available: false },
-  { id: "practice-zoom", course: "practice", title: "拡大・縮小編", available: true },
-  { id: "map", course: "practice", title: "地図編", available: false },
-  { id: "photo", course: "practice", title: "写真編", available: false },
+  { id: "zoom", course: "basic", title: "拡大・縮小編", description: "写真を 大きく・小さく する", intro: "2本の指で、写真や文字を 大きくしたり 小さくしたり する れんしゅうです。", available: true },
+  { id: "tap", course: "basic", title: "タップ編", description: "画面を 指で かるく おす", intro: "画面を かるく おす れんしゅうです。", available: false },
+  { id: "swipe", course: "basic", title: "スワイプ編", description: "指で 画面を すべらせる", intro: "指で 画面を すべらせる れんしゅうです。", available: false },
+  { id: "practice-zoom", course: "practice", title: "拡大・縮小編", description: "地図を 大きく・小さく する", intro: "地図を 大きくしたり 小さくしたりして、目的地を さがす れんしゅうです。", available: true },
+  { id: "map", course: "practice", title: "地図編", description: "地図アプリを つかう", intro: "地図アプリを つかう れんしゅうです。", available: false },
+  { id: "photo", course: "practice", title: "写真編", description: "写真アプリを つかう", intro: "写真アプリを つかう れんしゅうです。", available: false },
 ];
 
 export const levels: Level[] = [
@@ -55,4 +59,11 @@ export function getLevelsByCategory(categoryId: string) {
 
 export function getLevel(levelId: string) {
   return levels.find((l) => l.id === levelId);
+}
+
+// 同じカテゴリの次のレベル (最後のレベルなら undefined)
+export function getNextLevel(levelId: string) {
+  const level = getLevel(levelId);
+  if (!level) return undefined;
+  return levels.find((l) => l.categoryId === level.categoryId && l.level === level.level + 1);
 }
