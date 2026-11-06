@@ -1,7 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 import { router, useLocalSearchParams } from "expo-router";
-import { useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AppHeader } from "@/components/app-header";
@@ -9,6 +10,9 @@ import { accents, colors, fontSize, minTouchSize } from "@/constants/theme";
 import { getCategory, getLevel } from "@/data/lessons";
 import { getGame } from "@/games/registry";
 import { useProgress } from "@/hooks/use-progress";
+
+// ステップができたときに「できた！」を出している時間
+const CELEBRATE_MS = 1000;
 
 // 練習画面。ステップのバー・吹き出し・ヒントは共通で、練習エリアにレベルごとのゲームを表示する。
 // ゲームの中身は src/games/ にある (作り方は src/games/README.md)
@@ -31,10 +35,30 @@ export default function LessonScreen() {
     router.replace({ pathname: "/clear", params: { levelId } });
   };
 
+  // ステップができたら、ぶるっと震わせて「できた！」を見せてから次へ進む
+  const [celebrating, setCelebrating] = useState(false);
+  const [celebrateScale] = useState(() => new Animated.Value(0));
+  const celebrateTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (celebrateTimer.current) clearTimeout(celebrateTimer.current);
+    };
+  }, []);
+
   const handleStepComplete = () => {
+    // 「できた！」の表示中は、続けて呼ばれても無視する
+    if (celebrating) return;
+    setCelebrating(true);
     setShowHint(false);
-    if (step + 1 >= totalSteps) clear();
-    else setStep(step + 1);
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+    celebrateScale.setValue(0);
+    Animated.spring(celebrateScale, { toValue: 1, friction: 5, useNativeDriver: true }).start();
+    celebrateTimer.current = setTimeout(() => {
+      setCelebrating(false);
+      if (step + 1 >= totalSteps) clear();
+      else setStep(step + 1);
+    }, CELEBRATE_MS);
   };
 
   const bubbleText = showHint && currentStep ? currentStep.hint : (currentStep?.instruction ?? level?.description);
@@ -72,6 +96,17 @@ export default function LessonScreen() {
             <Pressable accessibilityRole="button" onPress={clear} style={styles.tempButton}>
               <Text style={styles.tempButtonText}>（仮）クリアする</Text>
             </Pressable>
+          )}
+          {celebrating && (
+            <View pointerEvents="none" style={styles.celebrate}>
+              <Animated.View
+                accessibilityLiveRegion="polite"
+                style={[styles.celebrateBadge, { transform: [{ scale: celebrateScale }] }]}
+              >
+                <Ionicons name="checkmark-circle" size={72} color={colors.clearGreen} />
+                <Text style={styles.celebrateText}>できた！</Text>
+              </Animated.View>
+            </View>
           )}
         </View>
 
@@ -127,6 +162,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     overflow: "hidden",
   },
+  celebrate: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, alignItems: "center", justifyContent: "center" },
+  celebrateBadge: {
+    alignItems: "center",
+    paddingHorizontal: 36,
+    paddingVertical: 20,
+    borderRadius: 24,
+    backgroundColor: colors.white,
+    borderWidth: 3,
+    borderColor: colors.clearGreen,
+  },
+  celebrateText: { fontSize: fontSize.title, fontWeight: "bold", color: colors.clearGreen, marginTop: 4 },
   tempButton: { paddingHorizontal: 20, paddingVertical: 10, borderRadius: 20, backgroundColor: colors.white },
   tempButtonText: { fontSize: fontSize.small, color: colors.textSub },
   hintButton: {
