@@ -98,11 +98,9 @@ const definitions: { id: string; course: CourseId; title: string; levels: string
     "写真を とうこう しよう",
   ] },
   { id: "photo", course: "practice", title: "写真編", levels: [
-    "カメラで 写真を とろう",
-    "とった 写真を 見よう",
+    "写真を さがして えらぼう",
+    "左右に スワイプして 写真を 切りかえよう",
     "写真を 拡大しよう",
-    "写真を けそう",
-    "写真を 人に 送ろう",
   ] },
   { id: "home-screen", course: "practice", title: "ホーム画面編", levels: [
     "アプリを ひらこう",
