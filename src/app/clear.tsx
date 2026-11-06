@@ -5,7 +5,8 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { accents, colors, fontSize, minTouchSize } from "@/constants/theme";
-import { getCategory, getLevel, getNextLevel } from "@/data/lessons";
+import { getCategory, getLevel, getLevelsByCategory, getNextLevel } from "@/data/lessons";
+import { useProgress } from "@/hooks/use-progress";
 
 // クリア画面。手に入れたパズルのピースを見せて、次のレベルへ進めるようにする
 export default function ClearScreen() {
@@ -13,6 +14,9 @@ export default function ClearScreen() {
   const insets = useSafeAreaInsets();
   const level = getLevel(levelId);
   const next = getNextLevel(levelId);
+  const { isCleared } = useProgress();
+  // ピースがもらえるのは、カテゴリのレベルを全部クリアしたときだけ
+  const categoryCleared = level ? getLevelsByCategory(level.categoryId).every((l) => isCleared(l.id)) : false;
   const accent = accents[(level && getCategory(level.categoryId)?.course) ?? "basic"];
 
   return (
@@ -29,10 +33,12 @@ export default function ClearScreen() {
             レベル {level.level}「{level.description}」が{"\n"}できました
           </Text>
         )}
-        <View style={styles.piece}>
-          <View style={styles.pieceIcon} />
-          <Text style={styles.pieceText}>パズルの ピースを 1まい もらいました</Text>
-        </View>
+        {categoryCleared && (
+          <View style={styles.piece}>
+            <View style={styles.pieceIcon} />
+            <Text style={styles.pieceText}>パズルの ピースを 1まい もらいました</Text>
+          </View>
+        )}
       </View>
 
       <View style={styles.buttons}>
