@@ -17,3 +17,4 @@ export const dogPhotoIndex = 10;
 
 export const riverPhotoIndex = 9;
 export const snowPhotoIndex = 11;
+export const meadowPhotoIndex = 7;

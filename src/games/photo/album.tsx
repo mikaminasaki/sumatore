@@ -13,7 +13,7 @@ const thumbnailGap = 4;
 type AlbumProps = {
   initialPhoto?: number;
   referencePhoto?: number;
-  zoomPhoto?: number;
+  allowZoom?: boolean;
   actions: (index: number, zoomed: boolean) => ReactNode;
 };
 
@@ -49,7 +49,7 @@ function ZoomPhoto({ index, onZoom }: { index: number; onZoom: (zoomed: boolean)
   );
 }
 
-function PhotoViewer({ initialPhoto, zoomPhoto, actions, onBack }: Omit<AlbumProps, "referencePhoto" | "initialPhoto"> & { initialPhoto: number; onBack: () => void }) {
+function PhotoViewer({ initialPhoto, allowZoom, actions, onBack }: Omit<AlbumProps, "referencePhoto" | "initialPhoto"> & { initialPhoto: number; onBack: () => void }) {
   const [width, setWidth] = useState(0);
   const [index, setIndex] = useState(initialPhoto);
   const [zoomed, setZoomed] = useState(false);
@@ -93,7 +93,7 @@ function PhotoViewer({ initialPhoto, zoomPhoto, actions, onBack }: Omit<AlbumPro
             }}
             renderItem={({ item, index: itemIndex }) => (
               <View style={[styles.page, { width }]}>
-                {itemIndex === zoomPhoto && itemIndex === index ? (
+                {allowZoom && itemIndex === index ? (
                   <ZoomPhoto index={itemIndex} onZoom={setZoomed} />
                 ) : (
                   <Image source={item} style={styles.image} resizeMode="contain" />
@@ -136,7 +136,7 @@ function PhotoViewer({ initialPhoto, zoomPhoto, actions, onBack }: Omit<AlbumPro
   );
 }
 
-export function PhotoAlbum({ initialPhoto, referencePhoto, zoomPhoto, actions }: AlbumProps) {
+export function PhotoAlbum({ initialPhoto, referencePhoto, allowZoom, actions }: AlbumProps) {
   const [opened, setOpened] = useState<number | undefined>(initialPhoto);
 
   return (
@@ -162,7 +162,7 @@ export function PhotoAlbum({ initialPhoto, referencePhoto, zoomPhoto, actions }:
         </ScrollView>
       </View>
       {opened !== undefined && (
-        <PhotoViewer initialPhoto={opened} zoomPhoto={zoomPhoto} actions={actions} onBack={() => setOpened(undefined)} />
+        <PhotoViewer initialPhoto={opened} allowZoom={allowZoom} actions={actions} onBack={() => setOpened(undefined)} />
       )}
     </View>
   );
@@ -173,6 +173,21 @@ export function AlbumAction({ title, onPress }: { title: string; onPress: () => 
     <Pressable accessibilityRole="button" style={styles.action} onPress={onPress}>
       <Text style={styles.actionText}>{title}</Text>
     </Pressable>
+  );
+}
+
+export function AlbumPrompt({ children }: { children: string }) {
+  return <Text accessibilityLiveRegion="polite" style={styles.prompt}>{children}</Text>;
+}
+
+export function ConfirmPhoto({ correct, onCorrect }: { correct: boolean; onCorrect: () => void }) {
+  const [tryAgain, setTryAgain] = useState(false);
+
+  return (
+    <View>
+      <AlbumPrompt>{tryAgain ? "もういちど 写真を さがしてみましょう" : "見せたい 写真を えらびましょう"}</AlbumPrompt>
+      <AlbumAction title="この 写真を 見せる" onPress={correct ? onCorrect : () => setTryAgain(true)} />
+    </View>
   );
 }
 
@@ -210,6 +225,7 @@ const styles = StyleSheet.create({
   selected: { borderColor: colors.blue },
   grid: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between", rowGap: 4, padding: 4 },
   tile: { width: "32.5%", minHeight: minTouchSize, aspectRatio: 1, overflow: "hidden", backgroundColor: colors.background },
+  prompt: { minHeight: 34, paddingHorizontal: 8, paddingTop: 6, textAlign: "center", fontSize: fontSize.small, color: colors.text },
   action: { minHeight: minTouchSize, flexShrink: 1, paddingHorizontal: 12, justifyContent: "center", alignItems: "center" },
   actionText: { fontSize: fontSize.body, color: colors.blue, fontWeight: "bold" },
 });

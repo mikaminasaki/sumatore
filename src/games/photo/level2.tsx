@@ -1,23 +1,21 @@
 import type { Game, GameProps } from "@/games/types";
 
-import { AlbumAction, PhotoAlbum } from "./album";
-import { dogPhotoIndex, snowPhotoIndex } from "./photos";
+import { ConfirmPhoto, PhotoAlbum } from "./album";
+import { meadowPhotoIndex, snowPhotoIndex } from "./photos";
 
 function PhotoLevel2({ onStepComplete }: GameProps) {
   return (
     <PhotoAlbum
-      initialPhoto={dogPhotoIndex}
-      actions={(index) => index === snowPhotoIndex && (
-        <AlbumAction title="この 写真を 見せる" onPress={onStepComplete} />
-      )}
+      initialPhoto={meadowPhotoIndex}
+      actions={(index) => <ConfirmPhoto key={index} correct={index === snowPhotoIndex} onCorrect={onStepComplete} />}
     />
   );
 }
 
 export const photo2: Game = {
   steps: [{
-    instruction: "犬の 写真の 近くに ある、雪山の 写真も 見せましょう",
-    hint: "写真を 左に めくるか、下に ある 小さな 写真を タップします",
+    instruction: "家族に、雪が つもった 山の 写真を 見せましょう",
+    hint: "草原の 写真から 左に 何枚か めくって、白い 山を さがします",
   }],
   Component: PhotoLevel2,
 };
