@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { router, useLocalSearchParams } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import { useEffect, useRef, useState } from "react";
 import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -68,6 +69,41 @@ export default function LessonScreen() {
 
   const bubbleText = showHint && currentStep ? currentStep.hint : (currentStep?.instruction ?? level?.description);
 
+  const celebration = celebrating && (
+    <View pointerEvents="none" style={styles.celebrate}>
+      <Animated.View
+        accessibilityLiveRegion="polite"
+        style={[styles.celebrateBadge, { transform: [{ scale: celebrateScale }] }]}
+      >
+        <Ionicons name="checkmark-circle" size={72} color={colors.clearGreen} />
+        <Text style={styles.celebrateText}>できた！</Text>
+      </Animated.View>
+    </View>
+  );
+
+  if (category?.id === "photo" && game) {
+    return (
+      <View style={[styles.albumLesson, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
+        <StatusBar style="dark" />
+        <View style={styles.albumBar}>
+          <Pressable accessibilityRole="button" accessibilityLabel="練習を とじる" onPress={() => router.back()} style={styles.albumBarButton}>
+            <Ionicons name="close" size={24} color={colors.text} />
+          </Pressable>
+          <Text style={styles.albumBarTitle}>写真編 · レベル {level?.level}</Text>
+          <Pressable accessibilityRole="button" accessibilityState={{ expanded: showHint }} onPress={() => setShowHint(!showHint)} style={styles.albumBarButton}>
+            <Text style={styles.albumHint}>{showHint ? "とじる" : "ヒント"}</Text>
+          </Pressable>
+        </View>
+        <Text style={styles.albumTask}>{currentStep?.instruction}</Text>
+        {showHint && (
+          <Text accessibilityLiveRegion="polite" style={styles.albumHelp}>{currentStep?.hint}</Text>
+        )}
+        <game.Component step={step} onStepComplete={handleStepComplete} />
+        {celebration}
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <AppHeader title={level ? `レベル ${level.level}` : ""} subtitle={category?.title} leftButton="close" accent={accent} />
@@ -102,17 +138,7 @@ export default function LessonScreen() {
               <Text style={styles.tempButtonText}>（仮）クリアする</Text>
             </Pressable>
           )}
-          {celebrating && (
-            <View pointerEvents="none" style={styles.celebrate}>
-              <Animated.View
-                accessibilityLiveRegion="polite"
-                style={[styles.celebrateBadge, { transform: [{ scale: celebrateScale }] }]}
-              >
-                <Ionicons name="checkmark-circle" size={72} color={colors.clearGreen} />
-                <Text style={styles.celebrateText}>できた！</Text>
-              </Animated.View>
-            </View>
-          )}
+          {celebration}
         </View>
 
         {game && (
@@ -130,6 +156,13 @@ export default function LessonScreen() {
 }
 
 const styles = StyleSheet.create({
+  albumLesson: { flex: 1, backgroundColor: colors.white },
+  albumBar: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 4 },
+  albumBarButton: { minHeight: 48, minWidth: 48, paddingHorizontal: 8, alignItems: "center", justifyContent: "center" },
+  albumBarTitle: { flexShrink: 1, fontSize: fontSize.small, color: colors.textSub },
+  albumHint: { fontSize: fontSize.small, fontWeight: "bold", color: accents.practice.dark },
+  albumHelp: { paddingHorizontal: 14, paddingVertical: 8, fontSize: fontSize.small, lineHeight: 23, color: colors.blue, backgroundColor: colors.bluePale },
+  albumTask: { paddingHorizontal: 14, paddingVertical: 8, fontSize: fontSize.small, lineHeight: 23, color: colors.text, backgroundColor: accents.practice.pale },
   container: { flex: 1, backgroundColor: colors.background },
   stepRow: {
     flexDirection: "row",
