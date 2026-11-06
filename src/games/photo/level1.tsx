@@ -1,13 +1,13 @@
 import type { Game, GameProps } from "@/games/types";
 
 import { ConfirmPhoto, PhotoAlbum } from "./album";
-import { dogPhotoIndex } from "./photos";
+import { blanketDogPhotoIndex } from "./photos";
 
 function PhotoLevel1({ onStepComplete }: GameProps) {
   return (
     <PhotoAlbum
-      referencePhoto={dogPhotoIndex}
-      actions={(index) => <ConfirmPhoto key={index} correct={index === dogPhotoIndex} onCorrect={onStepComplete} />}
+      referencePhoto={blanketDogPhotoIndex}
+      actions={(index) => <ConfirmPhoto key={index} correct={index === blanketDogPhotoIndex} onCorrect={onStepComplete} />}
     />
   );
 }

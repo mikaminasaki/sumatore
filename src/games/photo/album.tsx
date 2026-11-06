@@ -6,7 +6,7 @@ import { GestureDetector, usePanGesture, usePinchGesture, useSimultaneousGesture
 
 import { colors, fontSize, minTouchSize } from "@/constants/theme";
 
-import { dogPhotoIndex, photos, riverPhotoIndex, snowPhotoIndex } from "./photos";
+import { blanketDogPhotoIndex, dogPhotoIndex, photos, riverPhotoIndex, snowPhotoIndex } from "./photos";
 
 const thumbnailSize = minTouchSize;
 const thumbnailGap = 4;
@@ -277,6 +277,7 @@ function thumbnailOffset(index: number, width: number) {
 }
 
 function photoLabel(index: number) {
+  if (index === blanketDogPhotoIndex) return "毛布を かぶった 犬の 写真";
   if (index === dogPhotoIndex) return "黒い 犬の 写真";
   if (index === riverPhotoIndex) return "森の 川の 写真";
   if (index === snowPhotoIndex) return "雪山の 写真";
