@@ -14,3 +14,6 @@ export const photos = [
 ];
 
 export const dogPhotoIndex = 10;
+
+export const riverPhotoIndex = 9;
+export const snowPhotoIndex = 11;
