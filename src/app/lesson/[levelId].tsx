@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AppHeader } from "@/components/app-header";
 import { accents, colors, fontSize, minTouchSize } from "@/constants/theme";
-import { getCategory, getLevel } from "@/data/lessons";
+import { getCategory, getLevel, getLevelsByCategory } from "@/data/lessons";
 import { getGame } from "@/games/registry";
 import { useProgress } from "@/hooks/use-progress";
 
@@ -18,7 +18,7 @@ const CELEBRATE_MS = 1000;
 // ゲームの中身は src/games/ にある (作り方は src/games/README.md)
 export default function LessonScreen() {
   const { levelId } = useLocalSearchParams<{ levelId: string }>();
-  const { markCleared } = useProgress();
+  const { isCleared, markCleared } = useProgress();
   const insets = useSafeAreaInsets();
   const level = getLevel(levelId);
   const category = level ? getCategory(level.categoryId) : undefined;
@@ -31,8 +31,13 @@ export default function LessonScreen() {
   const currentStep = game?.steps[step];
 
   const clear = () => {
+    // このクリアでカテゴリの全レベルがそろったときだけ、ピースがもらえる (やり直しではもらえない)
+    const earnedPiece =
+      !!level &&
+      !isCleared(levelId) &&
+      getLevelsByCategory(level.categoryId).every((l) => l.id === levelId || isCleared(l.id));
     markCleared(levelId);
-    router.replace({ pathname: "/clear", params: { levelId } });
+    router.replace({ pathname: "/clear", params: { levelId, earnedPiece: earnedPiece ? "1" : "0" } });
   };
 
   // ステップができたら、ぶるっと震わせて「できた！」を見せてから次へ進む
