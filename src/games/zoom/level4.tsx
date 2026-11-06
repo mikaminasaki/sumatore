@@ -9,33 +9,13 @@ type IconName = React.ComponentProps<typeof Ionicons>["name"];
 
 const COLUMNS = 4;
 const ICONS: IconName[] = ["flower", "leaf", "sunny", "star"];
-// 左の絵は同じ模様を繰り返す。右の絵だけ、この場所が違う
+// 2枚とも同じ模様。「さがす絵」だけ、この場所が違う
 const DIFFERENT_INDEX = 9;
 const DIFFERENT_ICON: IconName = "heart";
 const CELLS: IconName[] = Array.from({ length: COLUMNS * COLUMNS }, (_, i) => ICONS[i % ICONS.length]);
 
 // 拡大・縮小編 レベル 4: 2枚の絵を拡大して、違うところをタップする
 function ZoomLevel4({ step, onStepComplete }: GameProps) {
-  const panel = (isRight: boolean) => (
-    <View style={styles.panel}>
-      {CELLS.map((icon, i) => {
-        const different = isRight && i === DIFFERENT_INDEX;
-        return (
-          <Pressable
-            key={i}
-            accessibilityLabel={different ? "ちがう ところ" : undefined}
-            onPress={() => {
-              if (different && step === 1) onStepComplete();
-            }}
-            style={styles.cell}
-          >
-            <Ionicons name={different ? DIFFERENT_ICON : icon} size={14} color={colors.clearGreen} />
-          </Pressable>
-        );
-      })}
-    </View>
-  );
-
   return (
     <ZoomArea
       pannable
@@ -45,13 +25,36 @@ function ZoomLevel4({ step, onStepComplete }: GameProps) {
       }}
     >
       <View style={styles.panels}>
+        {/* おてほんは見るだけ。タップできるのは「さがす絵」だけにする */}
         <View>
-          <Text style={styles.label}>ひだり</Text>
-          {panel(false)}
+          <Text style={styles.label}>おてほん</Text>
+          <View style={styles.panel}>
+            {CELLS.map((icon, i) => (
+              <View key={i} style={styles.cell}>
+                <Ionicons name={icon} size={14} color={colors.textSub} />
+              </View>
+            ))}
+          </View>
         </View>
         <View>
-          <Text style={styles.label}>みぎ</Text>
-          {panel(true)}
+          <Text style={[styles.label, styles.labelActive]}>さがす絵</Text>
+          <View style={[styles.panel, styles.panelActive]}>
+            {CELLS.map((icon, i) => {
+              const different = i === DIFFERENT_INDEX;
+              return (
+                <Pressable
+                  key={i}
+                  accessibilityLabel={different ? "ちがう ところ" : undefined}
+                  onPress={() => {
+                    if (different && step === 1) onStepComplete();
+                  }}
+                  style={styles.cell}
+                >
+                  <Ionicons name={different ? DIFFERENT_ICON : icon} size={14} color={colors.clearGreen} />
+                </Pressable>
+              );
+            })}
+          </View>
         </View>
       </View>
     </ZoomArea>
@@ -65,8 +68,8 @@ export const zoom4: Game = {
       hint: "2本の指を ひろげます",
     },
     {
-      instruction: "みぎの 絵で、ひだりと ちがう ところを タップしましょう",
-      hint: "指 1本で 絵を うごかして、くらべます。ひとつだけ 形が ちがいます",
+      instruction: "色の わくの 絵で、おてほんと ちがう ところを タップしましょう",
+      hint: "指 1本で 絵を うごかして、くらべます。ひとつだけ 形が ちがいます。灰色の おてほんは 見るだけです",
     },
   ],
   Component: ZoomLevel4,
@@ -75,13 +78,17 @@ export const zoom4: Game = {
 const styles = StyleSheet.create({
   panels: { flexDirection: "row", gap: 12 },
   label: { fontSize: 10, color: colors.textSub, textAlign: "center", marginBottom: 2 },
+  labelActive: { color: colors.burntOrange, fontWeight: "bold" },
   panel: {
-    width: 88 + 8,
+    width: 88 + 12,
     flexDirection: "row",
     flexWrap: "wrap",
     padding: 4,
     borderRadius: 4,
     backgroundColor: colors.white,
+    borderWidth: 2,
+    borderColor: colors.border,
   },
+  panelActive: { borderColor: colors.burntOrange },
   cell: { width: 22, height: 22, alignItems: "center", justifyContent: "center" },
 });

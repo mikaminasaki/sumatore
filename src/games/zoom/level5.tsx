@@ -36,7 +36,7 @@ function ZoomLevel5({ step, onStepComplete }: GameProps) {
               }}
               style={styles.cell}
             >
-              <Ionicons name={isTarget ? "paw" : icon} size={14} color={isTarget ? colors.burntOrange : colors.clearGreen} />
+              <Ionicons name={isTarget ? "paw" : icon} size={14} color={colors.clearGreen} />
             </Pressable>
           );
         })}
@@ -53,7 +53,7 @@ export const zoom5: Game = {
     },
     {
       instruction: "ねこの あしあとを さがして、タップしましょう",
-      hint: "指 1本で 絵を うごかして さがします。オレンジ色の あしあとです",
+      hint: "指 1本で 絵を うごかして さがします。指の あとが 4つ ならんだ 形です",
     },
   ],
   Component: ZoomLevel5,
