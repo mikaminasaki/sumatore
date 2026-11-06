@@ -50,10 +50,13 @@ export default function LessonScreen() {
           </Pressable>
           <Text style={styles.albumBarTitle}>写真編 · レベル {level?.level}</Text>
           <Pressable accessibilityRole="button" accessibilityState={{ expanded: showHint }} onPress={() => setShowHint(!showHint)} style={styles.albumBarButton}>
-            <Text style={styles.albumHint}>{showHint ? "お題" : "ヒント"}</Text>
+            <Text style={styles.albumHint}>{showHint ? "とじる" : "ヒント"}</Text>
           </Pressable>
         </View>
-        <Text accessibilityLiveRegion="polite" style={styles.albumTask}>{bubbleText}</Text>
+        <Text style={styles.albumTask}>{currentStep?.instruction}</Text>
+        {showHint && (
+          <Text accessibilityLiveRegion="polite" style={styles.albumHelp}>{currentStep?.hint}</Text>
+        )}
         <game.Component step={step} onStepComplete={handleStepComplete} />
       </View>
     );
@@ -115,6 +118,7 @@ const styles = StyleSheet.create({
   albumBarButton: { minHeight: 48, minWidth: 48, paddingHorizontal: 8, alignItems: "center", justifyContent: "center" },
   albumBarTitle: { flexShrink: 1, fontSize: fontSize.small, color: colors.textSub },
   albumHint: { fontSize: fontSize.small, fontWeight: "bold", color: accents.practice.dark },
+  albumHelp: { paddingHorizontal: 14, paddingVertical: 8, fontSize: fontSize.small, lineHeight: 23, color: colors.blue, backgroundColor: colors.bluePale },
   albumTask: { paddingHorizontal: 14, paddingVertical: 8, fontSize: fontSize.small, lineHeight: 23, color: colors.text, backgroundColor: accents.practice.pale },
   container: { flex: 1, backgroundColor: colors.background },
   stepRow: {

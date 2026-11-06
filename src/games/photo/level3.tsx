@@ -4,16 +4,18 @@ import { StyleSheet, View } from "react-native";
 import type { Game, GameProps } from "@/games/types";
 
 import { AlbumAction, AlbumPrompt, PhotoAlbum } from "./album";
-import { riverPhotoIndex } from "./photos";
+import { blanketDogPhotoIndex } from "./photos";
 
-function RiverAnswer({ correctPhoto, zoomed, onCorrect }: { correctPhoto: boolean; zoomed: boolean; onCorrect: () => void }) {
+function BlanketAnswer({ correctPhoto, zoomed, onCorrect }: { correctPhoto: boolean; zoomed: boolean; onCorrect: () => void }) {
   const [feedback, setFeedback] = useState<string | null>(null);
 
   function answer(isCorrect: boolean) {
-    if (!zoomed) {
-      setFeedback("写真を 大きくして、よく 見てみましょう");
-    } else if (!correctPhoto || !isCorrect) {
-      setFeedback("森の 川の 写真を、もういちど 見てみましょう");
+    if (!correctPhoto) {
+      setFeedback("毛布を かぶった 犬の 写真を 見てみましょう");
+    } else if (!zoomed) {
+      setFeedback("2本の 指を ひろげて、毛布を 大きくしてみましょう");
+    } else if (!isCorrect) {
+      setFeedback("犬の 顔の 下を 見ましょう。線が 交わっていますか？");
     } else {
       onCorrect();
     }
@@ -21,10 +23,10 @@ function RiverAnswer({ correctPhoto, zoomed, onCorrect }: { correctPhoto: boolea
 
   return (
     <View>
-      <AlbumPrompt>{feedback ?? "川の 岩の 上に あるものは？"}</AlbumPrompt>
+      <AlbumPrompt>{feedback ?? "毛布は どちらの もようですか？"}</AlbumPrompt>
       <View style={styles.options}>
-        <AlbumAction title="木の 幹" onPress={() => answer(true)} />
-        <AlbumAction title="赤い ボート" onPress={() => answer(false)} />
+        <AlbumAction title="チェック" onPress={() => answer(true)} />
+        <AlbumAction title="水玉" onPress={() => answer(false)} />
       </View>
     </View>
   );
@@ -33,9 +35,10 @@ function RiverAnswer({ correctPhoto, zoomed, onCorrect }: { correctPhoto: boolea
 function PhotoLevel3({ onStepComplete }: GameProps) {
   return (
     <PhotoAlbum
+      initialPhoto={blanketDogPhotoIndex}
       allowZoom
       actions={(index, zoomed) => (
-        <RiverAnswer key={index} correctPhoto={index === riverPhotoIndex} zoomed={zoomed} onCorrect={onStepComplete} />
+        <BlanketAnswer key={index} correctPhoto={index === blanketDogPhotoIndex} zoomed={zoomed} onCorrect={onStepComplete} />
       )}
     />
   );
@@ -43,8 +46,8 @@ function PhotoLevel3({ onStepComplete }: GameProps) {
 
 export const photo3: Game = {
   steps: [{
-    instruction: "森の 川の 写真で、岩の 上に あるものを 調べましょう",
-    hint: "2本の 指で 大きくして、指1本で 写真を 動かします",
+    instruction: "犬が かぶっている 毛布の もようを 調べましょう",
+    hint: "2本の 指を ひろげ、指1本で 動かして 犬の 顔の 下に ある 毛布を 見ましょう",
   }],
   Component: PhotoLevel3,
 };
