@@ -1,7 +1,8 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
-import { useRef, useState, type ComponentRef, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ComponentRef, type ReactNode } from "react";
 import { FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { GestureDetector, usePinchGesture } from "react-native-gesture-handler";
+import { GestureDetector, usePanGesture, usePinchGesture, useSimultaneousGestures } from "react-native-gesture-handler";
 
 import { colors, fontSize, minTouchSize } from "@/constants/theme";
 
@@ -17,49 +18,83 @@ type AlbumProps = {
   actions: (index: number, zoomed: boolean) => ReactNode;
 };
 
-function ZoomPhoto({ index, onZoom }: { index: number; onZoom: (zoomed: boolean) => void }) {
-  const [scale, setScale] = useState(1);
-  const base = useRef(1);
-  const latest = useRef(1);
+type PhotoTransform = { scale: number; x: number; y: number };
+const originalTransform: PhotoTransform = { scale: 1, x: 0, y: 0 };
+const favoritesKey = "photo-practice/favorites-v1";
+
+function ZoomPhoto({ index, onZoom }: { index: number; onZoom: (scale: number) => void }) {
+  const [transform, setTransform] = useState(originalTransform);
+  const [size, setSize] = useState({ width: 0, height: 0 });
+  const current = useRef(originalTransform);
+  const pinchStart = useRef(originalTransform);
+  const panStart = useRef(originalTransform);
+
+  function update(next: PhotoTransform) {
+    const source = Image.resolveAssetSource(photos[index]);
+    if (!source?.width || !source.height) return;
+    const fit = Math.min(size.width / source.width, size.height / source.height);
+    const maxX = Math.max(0, (source.width * fit * next.scale - size.width) / 2);
+    const maxY = Math.max(0, (source.height * fit * next.scale - size.height) / 2);
+    const clamped = {
+      scale: next.scale,
+      x: Math.max(-maxX, Math.min(maxX, next.x)),
+      y: Math.max(-maxY, Math.min(maxY, next.y)),
+    };
+    current.current = clamped;
+    setTransform(clamped);
+  }
+
   const pinch = usePinchGesture({
     runOnJS: true,
-    onUpdate: ({ scale: gestureScale }) => {
-      const next = Math.max(1, Math.min(3, base.current * gestureScale));
-      latest.current = next;
-      setScale(next);
+    onActivate: () => { pinchStart.current = current.current; },
+    onUpdate: ({ scale }) => {
+      const start = pinchStart.current;
+      const next = Math.max(1, Math.min(4, start.scale * scale));
+      const ratio = next / start.scale;
+      update({ scale: next, x: start.x * ratio, y: start.y * ratio });
     },
     onDeactivate: ({ canceled }) => {
-      if (canceled) {
-        latest.current = base.current;
-        setScale(base.current);
-        return;
-      }
-
-      base.current = latest.current;
-      onZoom(base.current >= 1.6);
+      if (canceled) update(pinchStart.current);
+      onZoom(current.current.scale);
     },
   });
+  const pan = usePanGesture({
+    runOnJS: true,
+    enabled: transform.scale > 1.01,
+    maxPointers: 1,
+    minDistance: 4,
+    onActivate: () => { panStart.current = current.current; },
+    onUpdate: ({ translationX, translationY }) => {
+      const start = panStart.current;
+      update({ scale: current.current.scale, x: start.x + translationX, y: start.y + translationY });
+    },
+  });
+  const gesture = useSimultaneousGestures(pinch, pan);
 
   return (
-    <GestureDetector gesture={pinch}>
-      <View style={styles.zoomArea}>
-        <Image source={photos[index]} style={[styles.image, { transform: [{ scale }] }]} resizeMode="contain" />
+    <GestureDetector gesture={gesture}>
+      <View style={styles.zoomArea} onLayout={({ nativeEvent: { layout } }) => setSize({ width: layout.width, height: layout.height })}>
+        <Image
+          source={photos[index]}
+          style={[styles.image, { transform: [{ translateX: transform.x }, { translateY: transform.y }, { scale: transform.scale }] }]}
+          resizeMode="contain"
+        />
       </View>
     </GestureDetector>
   );
 }
 
-function PhotoViewer({ initialPhoto, allowZoom, actions, onBack }: Omit<AlbumProps, "referencePhoto" | "initialPhoto"> & { initialPhoto: number; onBack: () => void }) {
+function PhotoViewer({ initialPhoto, allowZoom, actions, onBack, favorites, onToggleFavorite }: Omit<AlbumProps, "referencePhoto" | "initialPhoto"> & { initialPhoto: number; onBack: () => void; favorites: number[]; onToggleFavorite: (index: number) => void }) {
   const [width, setWidth] = useState(0);
   const [index, setIndex] = useState(initialPhoto);
-  const [zoomed, setZoomed] = useState(false);
+  const [scale, setScale] = useState(1);
   const pager = useRef<FlatList<number>>(null);
   const thumbnails = useRef<ComponentRef<typeof ScrollView>>(null);
 
   function selectPhoto(next: number) {
     if (next === index) return;
     setIndex(next);
-    setZoomed(false);
+    setScale(1);
     thumbnails.current?.scrollTo({ x: thumbnailOffset(next, width), animated: true });
   }
 
@@ -71,7 +106,15 @@ function PhotoViewer({ initialPhoto, allowZoom, actions, onBack }: Omit<AlbumPro
           <Text style={styles.actionText}>一覧へ</Text>
         </Pressable>
         <Text accessibilityRole="header" style={styles.viewerTitle}>写真</Text>
-        <Text style={styles.counter}>{index + 1} / {photos.length}</Text>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={favorites.includes(index) ? "お気に入りから はずす" : "お気に入りに 入れる"}
+          accessibilityState={{ selected: favorites.includes(index) }}
+          onPress={() => onToggleFavorite(index)}
+          style={styles.favoriteButton}
+        >
+          <Ionicons name={favorites.includes(index) ? "heart" : "heart-outline"} size={28} color={favorites.includes(index) ? colors.homeRed : colors.blue} />
+        </Pressable>
       </View>
 
       <View style={styles.stage} onLayout={(event) => setWidth(event.nativeEvent.layout.width)}>
@@ -86,7 +129,7 @@ function PhotoViewer({ initialPhoto, allowZoom, actions, onBack }: Omit<AlbumPro
             initialScrollIndex={index}
             getItemLayout={(_, itemIndex) => ({ length: width, offset: width * itemIndex, index: itemIndex })}
             keyExtractor={(photo) => String(photo)}
-            scrollEnabled={!zoomed}
+            scrollEnabled={scale <= 1.01}
             onMomentumScrollEnd={(event) => {
               const next = Math.round(event.nativeEvent.contentOffset.x / width);
               selectPhoto(Math.max(0, Math.min(photos.length - 1, next)));
@@ -94,7 +137,7 @@ function PhotoViewer({ initialPhoto, allowZoom, actions, onBack }: Omit<AlbumPro
             renderItem={({ item, index: itemIndex }) => (
               <View style={[styles.page, { width }]}>
                 {allowZoom && itemIndex === index ? (
-                  <ZoomPhoto index={itemIndex} onZoom={setZoomed} />
+                  <ZoomPhoto index={itemIndex} onZoom={setScale} />
                 ) : (
                   <Image source={item} style={styles.image} resizeMode="contain" />
                 )}
@@ -131,13 +174,42 @@ function PhotoViewer({ initialPhoto, allowZoom, actions, onBack }: Omit<AlbumPro
           </ScrollView>
         )}
       </View>
-      {actions(index, zoomed)}
+      {actions(index, scale >= 1.6)}
     </View>
   );
 }
 
 export function PhotoAlbum({ initialPhoto, referencePhoto, allowZoom, actions }: AlbumProps) {
   const [opened, setOpened] = useState<number | undefined>(initialPhoto);
+
+  const [favorites, setFavorites] = useState<number[]>([]);
+  const favoritesRef = useRef<number[]>([]);
+  const loaded = useRef(false);
+  const [onlyFavorites, setOnlyFavorites] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    AsyncStorage.getItem(favoritesKey).then((value) => {
+      if (!active) return;
+      const saved: unknown = value ? JSON.parse(value) : [];
+      if (Array.isArray(saved)) {
+        favoritesRef.current = saved.filter((item): item is number => Number.isInteger(item) && item >= 0 && item < photos.length);
+        setFavorites(favoritesRef.current);
+      }
+    }).catch(() => {}).finally(() => {
+      if (active) loaded.current = true;
+    });
+    return () => { active = false; };
+  }, []);
+
+  function toggleFavorite(index: number) {
+    if (!loaded.current) return;
+    const previous = favoritesRef.current;
+    const next = previous.includes(index) ? previous.filter((item) => item !== index) : [...previous, index];
+    favoritesRef.current = next;
+    setFavorites(next);
+    void AsyncStorage.setItem(favoritesKey, JSON.stringify(next)).catch(() => {});
+  }
 
   return (
     <View style={styles.screen}>
@@ -146,7 +218,12 @@ export function PhotoAlbum({ initialPhoto, referencePhoto, allowZoom, actions }:
         accessibilityElementsHidden={opened !== undefined}
         importantForAccessibility={opened === undefined ? "auto" : "no-hide-descendants"}
       >
-        <Text accessibilityRole="header" style={styles.title}>ライブラリ</Text>
+        <View style={styles.libraryBar}>
+          <Text accessibilityRole="header" style={styles.title}>{onlyFavorites ? "お気に入り" : "ライブラリ"}</Text>
+          <Pressable accessibilityRole="button" onPress={() => setOnlyFavorites(!onlyFavorites)} style={styles.favoriteButton}>
+            <Text style={styles.filterText}>{onlyFavorites ? "すべての 写真" : "お気に入り"}</Text>
+          </Pressable>
+        </View>
         {referencePhoto !== undefined && (
           <View style={styles.reference}>
             <Image source={photos[referencePhoto]} accessibilityLabel={photoLabel(referencePhoto)} style={styles.referencePhoto} />
@@ -154,7 +231,8 @@ export function PhotoAlbum({ initialPhoto, referencePhoto, allowZoom, actions }:
           </View>
         )}
         <ScrollView contentContainerStyle={styles.grid}>
-          {photos.map((photo, index) => (
+          {onlyFavorites && favorites.length === 0 && <AlbumPrompt>お気に入りの 写真は まだ ありません</AlbumPrompt>}
+          {photos.map((photo, index) => (!onlyFavorites || favorites.includes(index)) && (
             <Pressable key={photo} accessibilityRole="button" accessibilityLabel={photoLabel(index)} style={styles.tile} onPress={() => setOpened(index)}>
               <Image source={photo} style={styles.image} />
             </Pressable>
@@ -162,7 +240,7 @@ export function PhotoAlbum({ initialPhoto, referencePhoto, allowZoom, actions }:
         </ScrollView>
       </View>
       {opened !== undefined && (
-        <PhotoViewer initialPhoto={opened} allowZoom={allowZoom} actions={actions} onBack={() => setOpened(undefined)} />
+        <PhotoViewer initialPhoto={opened} allowZoom={allowZoom} actions={actions} favorites={favorites} onToggleFavorite={toggleFavorite} onBack={() => setOpened(undefined)} />
       )}
     </View>
   );
@@ -208,11 +286,14 @@ function photoLabel(index: number) {
 const styles = StyleSheet.create({
   screen: { flex: 1, alignSelf: "stretch", backgroundColor: colors.white },
   viewer: { ...StyleSheet.absoluteFill, backgroundColor: colors.white },
+  libraryBar: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingRight: 10 },
+  favoriteButton: { minHeight: 48, minWidth: 48, paddingHorizontal: 8, alignItems: "center", justifyContent: "center" },
+  filterText: { color: colors.blue, fontSize: fontSize.small, fontWeight: "bold" },
   title: { paddingHorizontal: 12, paddingVertical: 8, fontSize: fontSize.large, fontWeight: "bold", color: colors.text },
   reference: { paddingHorizontal: 12, paddingBottom: 8, flexDirection: "row", alignItems: "center", gap: 12 },
   referencePhoto: { width: 60, height: 44, borderRadius: 4 },
   toolbar: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingRight: 12 },
-  back: { minHeight: minTouchSize, paddingHorizontal: 8, flexDirection: "row", alignItems: "center" },
+  back: { minHeight: 48, paddingHorizontal: 8, flexDirection: "row", alignItems: "center" },
   viewerTitle: { fontSize: fontSize.body, fontWeight: "bold", color: colors.text },
   counter: { fontSize: fontSize.small, color: colors.textSub },
   stage: { flex: 1, backgroundColor: colors.text },

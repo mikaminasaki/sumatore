@@ -44,7 +44,7 @@ function PhotoLevel3({ onStepComplete }: GameProps) {
 export const photo3: Game = {
   steps: [{
     instruction: "森の 川の 写真で、岩の 上に あるものを 調べましょう",
-    hint: "川の 写真を 開き、2本の 指を ひろげて 大きくします",
+    hint: "2本の 指で 大きくして、指1本で 写真を 動かします",
   }],
   Component: PhotoLevel3,
 };
