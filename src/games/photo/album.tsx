@@ -15,7 +15,7 @@ type AlbumProps = {
   initialPhoto?: number;
   referencePhoto?: number;
   allowZoom?: boolean;
-  actions: (index: number, zoomed: boolean) => ReactNode;
+  actions: (index: number, zoomed: boolean, selection: { isFavorite: boolean; fromFavorites: boolean }) => ReactNode;
 };
 
 type PhotoTransform = { scale: number; x: number; y: number };
@@ -84,7 +84,7 @@ function ZoomPhoto({ index, onZoom }: { index: number; onZoom: (scale: number) =
   );
 }
 
-function PhotoViewer({ initialPhoto, allowZoom, actions, onBack, favorites, onToggleFavorite }: Omit<AlbumProps, "referencePhoto" | "initialPhoto"> & { initialPhoto: number; onBack: () => void; favorites: number[]; onToggleFavorite: (index: number) => void }) {
+function PhotoViewer({ initialPhoto, allowZoom, actions, onBack, favorites, onToggleFavorite, fromFavorites }: Omit<AlbumProps, "referencePhoto" | "initialPhoto"> & { initialPhoto: number; onBack: () => void; favorites: number[]; onToggleFavorite: (index: number) => void; fromFavorites: boolean }) {
   const [width, setWidth] = useState(0);
   const [index, setIndex] = useState(initialPhoto);
   const [scale, setScale] = useState(1);
@@ -174,7 +174,7 @@ function PhotoViewer({ initialPhoto, allowZoom, actions, onBack, favorites, onTo
           </ScrollView>
         )}
       </View>
-      {actions(index, scale >= 1.6)}
+      {actions(index, scale >= 1.6, { isFavorite: favorites.includes(index), fromFavorites })}
     </View>
   );
 }
@@ -240,7 +240,7 @@ export function PhotoAlbum({ initialPhoto, referencePhoto, allowZoom, actions }:
         </ScrollView>
       </View>
       {opened !== undefined && (
-        <PhotoViewer initialPhoto={opened} allowZoom={allowZoom} actions={actions} favorites={favorites} onToggleFavorite={toggleFavorite} onBack={() => setOpened(undefined)} />
+        <PhotoViewer initialPhoto={opened} allowZoom={allowZoom} actions={actions} favorites={favorites} fromFavorites={onlyFavorites} onToggleFavorite={toggleFavorite} onBack={() => setOpened(undefined)} />
       )}
     </View>
   );

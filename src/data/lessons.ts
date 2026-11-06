@@ -101,6 +101,8 @@ const definitions: { id: string; course: CourseId; title: string; levels: string
     "写真を さがして えらぼう",
     "左右に スワイプして 写真を 切りかえよう",
     "写真を 拡大しよう",
+    "お気に入りに 登録しよう",
+    "お気に入りの アルバムを 見よう",
   ] },
   { id: "home-screen", course: "practice", title: "ホーム画面編", levels: [
     "アプリを ひらこう",
