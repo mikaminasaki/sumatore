@@ -15,9 +15,15 @@ const DIFFERENT_ICON: IconName = "heart";
 const CELLS: IconName[] = Array.from({ length: COLUMNS * COLUMNS }, (_, i) => ICONS[i % ICONS.length]);
 
 // 拡大・縮小編 レベル 4: 2枚の絵を拡大して、違うところをタップする
-function ZoomLevel4({ onStepComplete }: GameProps) {
+function ZoomLevel4({ step, onStepComplete }: GameProps) {
   return (
-    <ZoomArea pannable minScale={1}>
+    <ZoomArea
+      pannable
+      minScale={1}
+      onPinchEnd={(scale) => {
+        if (step === 0 && scale >= 1.8) onStepComplete();
+      }}
+    >
       <View style={styles.panels}>
         {/* おてほんは見るだけ。タップできるのは「さがす絵」だけにする */}
         <View>
@@ -40,7 +46,7 @@ function ZoomLevel4({ onStepComplete }: GameProps) {
                   key={i}
                   accessibilityLabel={different ? "ちがう ところ" : undefined}
                   onPress={() => {
-                    if (different) onStepComplete();
+                    if (different && step === 1) onStepComplete();
                   }}
                   style={styles.cell}
                 >
@@ -58,8 +64,12 @@ function ZoomLevel4({ onStepComplete }: GameProps) {
 export const zoom4: Game = {
   steps: [
     {
+      instruction: "2まいの 絵を 大きくしましょう",
+      hint: "2本の指を ひろげます",
+    },
+    {
       instruction: "色の わくの 絵で、おてほんと ちがう ところを タップしましょう",
-      hint: "指 1本で 絵を うごかして、くらべます。ひとつだけ 形が ちがいます。おてほんは 見るだけです。2本の指で 大きくできます",
+      hint: "指 1本で 絵を うごかして、くらべます。ひとつだけ 形が ちがいます。おてほんは 見るだけです",
     },
   ],
   Component: ZoomLevel4,
