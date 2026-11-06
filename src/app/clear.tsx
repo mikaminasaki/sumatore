@@ -9,7 +9,7 @@ import { getCategory, getLevel, getNextLevel } from "@/data/lessons";
 
 // クリア画面。手に入れたパズルのピースを見せて、次のレベルへ進めるようにする
 export default function ClearScreen() {
-  const { levelId } = useLocalSearchParams<{ levelId: string }>();
+  const { levelId, earnedPiece } = useLocalSearchParams<{ levelId: string; earnedPiece?: string }>();
   const insets = useSafeAreaInsets();
   const level = getLevel(levelId);
   const next = getNextLevel(levelId);
@@ -29,10 +29,12 @@ export default function ClearScreen() {
             レベル {level.level}「{level.description}」が{"\n"}できました
           </Text>
         )}
-        <View style={styles.piece}>
-          <View style={styles.pieceIcon} />
-          <Text style={styles.pieceText}>パズルの ピースを 1まい もらいました</Text>
-        </View>
+        {earnedPiece === "1" && (
+          <View style={styles.piece}>
+            <View style={styles.pieceIcon} />
+            <Text style={styles.pieceText}>パズルの ピースを 1まい もらいました</Text>
+          </View>
+        )}
       </View>
 
       <View style={styles.buttons}>
