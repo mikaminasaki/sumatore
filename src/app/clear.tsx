@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { accents, colors, fontSize, minTouchSize } from "@/constants/theme";
 import { getCategory, getLevel, getNextLevel } from "@/data/lessons";
+import { pickClearCharacter } from "@/data/characters";
 import { pickPraise } from "@/data/praises";
 
 // クリア画面。キーコが跳ねてほめてくれる。次のレベルへ進めるようにする
@@ -19,6 +20,7 @@ export default function ClearScreen() {
 
   // 見出しはクリアするたびに変わる (この画面を開いたときに 1 回だけ選ぶ)
   const [praise] = useState(pickPraise);
+  const [character] = useState(pickClearCharacter);
 
   // 画面が出たら、ぶるっと震わせて、キーコを ぴょんぴょん 跳ねさせる
   const [jump] = useState(() => new Animated.Value(0));
@@ -45,7 +47,7 @@ export default function ClearScreen() {
       <View style={styles.main}>
         <Animated.View style={[styles.character, { transform: [{ translateY: jump }] }]}>
           <Image
-            source={require("@/../assets/images/home/character.png")}
+            source={character}
             accessibilityLabel="キャラクター"
             style={styles.characterImage}
             resizeMode="contain"
@@ -86,8 +88,8 @@ export default function ClearScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.white, paddingHorizontal: 20 },
   main: { flex: 1, alignItems: "center", gap: 16 },
-  character: { height: 200, justifyContent: "flex-end" },
-  characterImage: { width: 190, height: 190 },
+  character: { height: 230, justifyContent: "flex-end" },
+  characterImage: { width: 220, height: 220 },
   title: { fontSize: 40, fontWeight: "bold" },
   message: { fontSize: fontSize.large, lineHeight: 34, color: colors.text, textAlign: "center" },
   buttons: { gap: 12 },
