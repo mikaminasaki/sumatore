@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { accents, colors, fontSize, type Accent } from "@/constants/theme";
@@ -22,9 +22,14 @@ export function AppHeader({ title, subtitle, variant = "section", leftButton = "
   if (variant === "logo") {
     return (
       <View style={[styles.container, styles.logoContainer, { backgroundColor: colors.homeRed, paddingTop: insets.top + 8 }]}>
-        <Text style={[styles.title, styles.logo]} accessibilityRole="header">
-          {title}
-        </Text>
+        {/* ロゴ画像。読み上げでは title を読む */}
+        <Image
+          source={require("@/../assets/images/home/logo.png")}
+          accessibilityRole="header"
+          accessibilityLabel={title}
+          style={styles.logoImage}
+          resizeMode="contain"
+        />
       </View>
     );
   }
@@ -75,6 +80,6 @@ const styles = StyleSheet.create({
   titles: { flex: 1 },
   subtitle: { color: colors.white, fontSize: 14, fontWeight: "bold" },
   title: { color: colors.white, fontSize: fontSize.title, fontWeight: "bold" },
-  logo: { fontSize: fontSize.logo, letterSpacing: 4 },
+  logoImage: { width: 140, height: 56 },
   pressed: { opacity: 0.7 },
 });
