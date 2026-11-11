@@ -24,65 +24,67 @@ export default function RecordScreen() {
   return (
     <View style={styles.screen}>
       <AppHeader title="スマトレ" variant="logo" />
-      <View pointerEvents="none" style={styles.landscape} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-        <View style={styles.hillBack} />
-        <View style={styles.hillFront} />
-      </View>
-
-      <View accessibilityRole="tablist" style={styles.segment}>
-        {(Object.keys(courses) as CourseId[]).map((id) => (
-          <Pressable
-            key={id}
-            accessibilityRole="tab"
-            accessibilityState={{ selected: course === id }}
-            aria-selected={course === id}
-            onPress={() => setCourse(id)}
-            style={({ pressed }) => [styles.segmentItem, course === id && { backgroundColor: accents[id].main }, pressed && styles.pressed]}
-          >
-            <Text style={[styles.segmentText, course === id && styles.segmentTextActive]}>{courses[id].title}</Text>
-          </Pressable>
-        ))}
-      </View>
-
-      <ScrollView key={course} style={styles.scroll} contentContainerStyle={styles.content}>
-        <View style={styles.panel}>
-          {/* パズル画像を後から同じ正方形の領域に配置する。 */}
-          <View style={styles.puzzleFrame} accessible accessibilityLabel="パズルの表示エリア">
-            <View style={styles.puzzleCanvas} />
-          </View>
-          <Text style={styles.summary} accessibilityLiveRegion="polite">
-            {loaded ? `クリアしたカテゴリ ${clearedCategories} / ${categories.length}` : "きろくを 読み込み中"}
-          </Text>
-          <Text accessibilityRole="header" style={styles.heading}>クリアした練習</Text>
-
-          {!loaded ? (
-            <ActivityIndicator color={colors.clearGreen} accessibilityLabel="きろくを読み込み中" style={styles.loading} />
-          ) : clearedLevels.length === 0 ? (
-            <View style={styles.emptyRow}>
-              <Ionicons name="checkmark-circle-outline" size={32} color={colors.gray} accessible={false} />
-              <Text style={styles.emptyText}>練習をクリアすると、ここに記録されます</Text>
-            </View>
-          ) : (
-            clearedLevels.map((level) => (
-              <View key={level.id} style={styles.row} accessible accessibilityLabel={`${level.categoryTitle}、レベル${level.level}、クリア済み`}>
-                <Ionicons name="checkmark-circle" size={32} color={colors.clearGreen} accessible={false} />
-                <View style={styles.rowText}>
-                  <Text style={styles.categoryTitle}>{level.categoryTitle}</Text>
-                  <Text style={styles.levelText}>レベル {level.level}</Text>
-                </View>
-              </View>
-            ))
-          )}
+      <View style={styles.body}>
+        <View pointerEvents="none" style={styles.landscape} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+          <View style={styles.hillBack} />
+          <View style={styles.hillFront} />
         </View>
-      </ScrollView>
 
+        <View accessibilityRole="tablist" style={styles.segment}>
+          {(Object.keys(courses) as CourseId[]).map((id) => (
+            <Pressable
+              key={id}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: course === id }}
+              aria-selected={course === id}
+              onPress={() => setCourse(id)}
+              style={({ pressed }) => [styles.segmentItem, course === id && { backgroundColor: accents[id].main }, pressed && styles.pressed]}
+            >
+              <Text style={[styles.segmentText, course === id && styles.segmentTextActive]}>{courses[id].title}</Text>
+            </Pressable>
+          ))}
+        </View>
+
+        <ScrollView key={course} style={styles.scroll} contentContainerStyle={styles.content}>
+          <View style={styles.panel}>
+            {/* パズル画像を後から同じ正方形の領域に配置する。 */}
+            <View style={styles.puzzleFrame} accessible accessibilityLabel="パズルの表示エリア">
+              <View style={styles.puzzleCanvas} />
+            </View>
+            <Text style={styles.summary} accessibilityLiveRegion="polite">
+              {loaded ? `クリアしたカテゴリ ${clearedCategories} / ${categories.length}` : "きろくを 読み込み中"}
+            </Text>
+            <Text accessibilityRole="header" style={styles.heading}>クリアした練習</Text>
+
+            {!loaded ? (
+              <ActivityIndicator color={colors.clearGreen} accessibilityLabel="きろくを読み込み中" style={styles.loading} />
+            ) : clearedLevels.length === 0 ? (
+              <View style={styles.emptyRow}>
+                <Ionicons name="checkmark-circle-outline" size={32} color={colors.gray} accessible={false} />
+                <Text style={styles.emptyText}>練習をクリアすると、ここに記録されます</Text>
+              </View>
+            ) : (
+              clearedLevels.map((level) => (
+                <View key={level.id} style={styles.row} accessible accessibilityLabel={`${level.categoryTitle}、レベル${level.level}、クリア済み`}>
+                  <Ionicons name="checkmark-circle" size={32} color={colors.clearGreen} accessible={false} />
+                  <View style={styles.rowText}>
+                    <Text style={styles.categoryTitle}>{level.categoryTitle}</Text>
+                    <Text style={styles.levelText}>レベル {level.level}</Text>
+                  </View>
+                </View>
+              ))
+            )}
+          </View>
+        </ScrollView>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bluePale },
-  landscape: { ...StyleSheet.absoluteFill, top: 90, overflow: "hidden" },
+  body: { flex: 1, overflow: "hidden" },
+  landscape: { ...StyleSheet.absoluteFill, overflow: "hidden" },
   hillBack: { position: "absolute", width: "160%", height: "65%", top: "10%", left: "-30%", borderRadius: 300, backgroundColor: colors.background, transform: [{ rotate: "-12deg" }] },
   hillFront: { position: "absolute", width: "160%", height: "50%", bottom: "-10%", right: "-40%", borderRadius: 300, backgroundColor: colors.practiceArea, transform: [{ rotate: "14deg" }] },
   segment: { flexDirection: "row", alignSelf: "center", width: "86%", maxWidth: 440, marginVertical: 14, padding: 4, borderRadius: 40, backgroundColor: colors.white, borderBottomWidth: 2, borderBottomColor: colors.border },
