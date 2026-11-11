@@ -45,7 +45,7 @@ export default function HomeScreen() {
           resizeMode="contain"
         />
 
-        <View style={[styles.buttons, { marginBottom: sceneryHeight * 0.55 }]}>
+        <View style={[styles.buttons, { marginBottom: sceneryHeight * 0.32 }]}>
           <CourseButton
             title="基本操作編"
             icon="book-outline"
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
   cloudLeft: { position: "absolute", top: "38%", left: -16, width: 194, height: 146, opacity: 0.9 },
   cloudRight: { position: "absolute", top: "14%", right: -60, width: 230, height: 172, opacity: 0.9 },
   scenery: { position: "absolute", left: 0, right: 0, bottom: 0, width: "100%" },
-  bubbleArea: { alignItems: "center", marginLeft: 48, marginBottom: 4 },
+  bubbleArea: { alignItems: "center", marginBottom: 4 },
   bubble: {
     alignSelf: "stretch",
     paddingVertical: 24,
@@ -122,7 +122,6 @@ const styles = StyleSheet.create({
     width: 22,
     height: 22,
     marginTop: -12,
-    marginLeft: -40,
     backgroundColor: colors.white,
     borderRightWidth: 1.5,
     borderBottomWidth: 1.5,
@@ -130,8 +129,18 @@ const styles = StyleSheet.create({
     transform: [{ rotate: "45deg" }],
   },
   // 画面の高さに合わせて縮む
-  character: { flex: 1, alignSelf: "center", width: 200, maxHeight: 200, minHeight: 100, marginBottom: 8 },
-  buttons: { flexDirection: "row", gap: 20 },
+  // 絵の中でキャラクターが少し右にいるので、左にずらして真ん中に見せる
+  character: {
+    flex: 1,
+    alignSelf: "center",
+    width: 200,
+    maxHeight: 200,
+    minHeight: 100,
+    marginBottom: 8,
+    transform: [{ translateX: -12 }],
+  },
+  // 余った高さはボタンの上に回して、ボタンを下に寄せる
+  buttons: { flexDirection: "row", gap: 20, marginTop: "auto" },
   courseButton: {
     flex: 1,
     aspectRatio: 1,
