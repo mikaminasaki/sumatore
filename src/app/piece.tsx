@@ -78,16 +78,14 @@ export default function PieceScreen() {
         />
         {category && piece && (
           <Text style={styles.message}>
-            {category.title}を ぜんぶ クリアして{"\n"}「{piece.name}」の
-            ピースを もらいました
+            {category.title} クリア！{"\n"}「{piece.name}」の ピース ゲット！
           </Text>
         )}
         <Text style={styles.count}>
-          {total}まい中{" "}
           <Text style={[styles.countBig, { color: accent.main }]}>
             {others.length + 1}
-          </Text>
-          まい あつまったよ
+          </Text>{" "}
+          / {total} まい
         </Text>
 
         <Pressable
