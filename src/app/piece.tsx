@@ -67,8 +67,10 @@ export default function PieceScreen() {
         <Text
           style={[styles.title, { color: accent.main }]}
           accessibilityRole="header"
+          numberOfLines={1}
+          adjustsFontSizeToFit
         >
-          ピース ゲット！
+          {category ? `${category.title} クリア！` : "クリア！"}
         </Text>
         <PuzzleBoard
           course={course}
@@ -76,9 +78,9 @@ export default function PieceScreen() {
           newCategoryId={categoryId}
           size={cardWidth - 48}
         />
-        {category && piece && (
+        {piece && (
           <Text style={styles.message}>
-            {category.title} クリア！{"\n"}「{piece.name}」の ピース ゲット！
+            「{piece.name}」の ピース ゲット！
           </Text>
         )}
         <Text style={styles.count}>
