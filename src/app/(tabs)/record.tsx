@@ -79,14 +79,6 @@ export default function RecordScreen() {
         </View>
       </ScrollView>
 
-      <View pointerEvents="none" style={styles.flowerBed} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-        {Array.from({ length: 12 }, (_, index) => (
-          <View key={index} style={[styles.flower, index % 2 === 0 && styles.flowerLow]}>
-            <View style={styles.blossom} />
-            <View style={styles.stem} />
-          </View>
-        ))}
-      </View>
     </View>
   );
 }
@@ -118,9 +110,4 @@ const styles = StyleSheet.create({
   emptyRow: { flexDirection: "row", alignItems: "center", gap: 10, minHeight: minTouchSize, paddingHorizontal: 12, paddingVertical: 12, borderRadius: 26, borderWidth: 1, borderColor: colors.textSub, backgroundColor: colors.white },
   emptyText: { flex: 1, fontSize: fontSize.small, lineHeight: 25, color: colors.textSub },
   loading: { paddingVertical: 18 },
-  flowerBed: { height: 32, flexDirection: "row", alignItems: "flex-end", justifyContent: "space-around", backgroundColor: colors.pink, borderTopWidth: 3, borderTopColor: colors.pinkPale, overflow: "hidden" },
-  flower: { alignItems: "center", paddingBottom: 3 },
-  flowerLow: { transform: [{ translateY: 8 }] },
-  blossom: { width: 9, height: 7, borderRadius: 5, backgroundColor: colors.brandRed },
-  stem: { width: 2, height: 15, backgroundColor: colors.clearGreen },
 });
