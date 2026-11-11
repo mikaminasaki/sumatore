@@ -1,20 +1,35 @@
-import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 import { router, useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useEffect } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useEffect, useState } from "react";
+import { Animated, Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { accents, colors, fontSize, minTouchSize } from "@/constants/theme";
 import { getCategory, getLevel, getNextLevel } from "@/data/lessons";
+import { pickPraise } from "@/data/praises";
 
-// クリア画面。手に入れたパズルのピースを見せて、次のレベルへ進めるようにする
+// クリア画面。キーコが跳ねてほめてくれる。次のレベルへ進めるようにする
 export default function ClearScreen() {
   const { levelId, earnedPiece } = useLocalSearchParams<{ levelId: string; earnedPiece?: string }>();
   const insets = useSafeAreaInsets();
   const level = getLevel(levelId);
   const next = getNextLevel(levelId);
   const accent = accents[(level && getCategory(level.categoryId)?.course) ?? "basic"];
+
+  // 見出しはクリアするたびに変わる (この画面を開いたときに 1 回だけ選ぶ)
+  const [praise] = useState(pickPraise);
+
+  // 画面が出たら、ぶるっと震わせて、キーコを ぴょんぴょん 跳ねさせる
+  const [jump] = useState(() => new Animated.Value(0));
+  useEffect(() => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+    const hop = Animated.sequence([
+      Animated.timing(jump, { toValue: -24, duration: 220, useNativeDriver: true }),
+      Animated.spring(jump, { toValue: 0, friction: 4, useNativeDriver: true }),
+    ]);
+    Animated.sequence([hop, Animated.delay(150), hop]).start();
+  }, [jump]);
 
   // このクリアでピースがもらえたら、少し間をおいてピースゲット画面を重ねて出す
   const categoryId = level?.categoryId;
@@ -28,14 +43,20 @@ export default function ClearScreen() {
     <View style={[styles.container, { paddingTop: insets.top + 40, paddingBottom: insets.bottom + 24 }]}>
       <StatusBar style="dark" />
       <View style={styles.main}>
-        <View style={styles.character}>
-          {/* キャラクター画像は #7 で差し替える */}
-          <Ionicons name="happy" size={120} color={colors.brandRed} />
-        </View>
-        <Text style={styles.title}>クリア！</Text>
+        <Animated.View style={[styles.character, { transform: [{ translateY: jump }] }]}>
+          <Image
+            source={require("@/../assets/images/home/character.png")}
+            accessibilityLabel="キャラクター"
+            style={styles.characterImage}
+            resizeMode="contain"
+          />
+        </Animated.View>
+        <Text style={[styles.title, { color: accent.main }]} numberOfLines={1} adjustsFontSizeToFit>
+          {praise}
+        </Text>
         {level && (
           <Text style={styles.message}>
-            レベル {level.level}「{level.description}」が{"\n"}できました
+            レベル {level.level} クリア
           </Text>
         )}
       </View>
@@ -65,9 +86,10 @@ export default function ClearScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.white, paddingHorizontal: 20 },
   main: { flex: 1, alignItems: "center", gap: 16 },
-  character: { height: 150, justifyContent: "center" },
-  title: { fontSize: 40, fontWeight: "bold", color: colors.burntOrange },
-  message: { fontSize: fontSize.body - 2, lineHeight: 28, color: colors.text, textAlign: "center" },
+  character: { height: 200, justifyContent: "flex-end" },
+  characterImage: { width: 190, height: 190 },
+  title: { fontSize: 40, fontWeight: "bold" },
+  message: { fontSize: fontSize.large, lineHeight: 34, color: colors.text, textAlign: "center" },
   buttons: { gap: 12 },
   primary: {
     minHeight: minTouchSize,
