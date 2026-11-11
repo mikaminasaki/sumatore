@@ -3,12 +3,14 @@ import { useState } from "react";
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { AppHeader } from "@/components/app-header";
+import { PuzzleBoard } from "@/components/puzzle-board";
 import { accents, colors, fontSize, minTouchSize } from "@/constants/theme";
 import { courses, getCategoriesByCourse, getLevelsByCategory, type CourseId } from "@/data/lessons";
 import { useProgress } from "@/hooks/use-progress";
 
 export default function RecordScreen() {
   const [course, setCourse] = useState<CourseId>("basic");
+  const [puzzleSize, setPuzzleSize] = useState(0);
   const { loaded, isCleared } = useProgress();
   const categories = getCategoriesByCourse(course);
   const clearedLevels = categories.flatMap((category) =>
@@ -16,10 +18,10 @@ export default function RecordScreen() {
       .filter((level) => isCleared(level.id))
       .map((level) => ({ ...level, categoryTitle: category.title })),
   );
-  const clearedCategories = categories.filter((category) => {
+  const collectedCategoryIds = categories.filter((category) => {
     const levels = getLevelsByCategory(category.id);
-    return levels.length > 0 && levels.every((level) => isCleared(level.id));
-  }).length;
+    return loaded && levels.length > 0 && levels.every((level) => isCleared(level.id));
+  }).map((category) => category.id);
 
   return (
     <View style={styles.screen}>
@@ -47,12 +49,15 @@ export default function RecordScreen() {
 
         <ScrollView key={course} style={styles.scroll} contentContainerStyle={styles.content}>
           <View style={styles.panel}>
-            {/* パズル画像を後から同じ正方形の領域に配置する。 */}
-            <View style={styles.puzzleFrame} accessible accessibilityLabel="パズルの表示エリア">
-              <View style={styles.puzzleCanvas} />
+            <View style={styles.puzzleFrame} accessible accessibilityLabel={loaded ? `${courses[course].title}のパズル、${collectedCategoryIds.length} / ${categories.length} ピース獲得` : "パズルの記録を読み込み中"}>
+              <View style={styles.puzzleCanvas} onLayout={(event) => setPuzzleSize(event.nativeEvent.layout.width)}>
+                {loaded && puzzleSize > 0 && (
+                  <PuzzleBoard course={course} collectedCategoryIds={collectedCategoryIds} size={puzzleSize} />
+                )}
+              </View>
             </View>
             <Text style={styles.summary} accessibilityLiveRegion="polite">
-              {loaded ? `クリアしたカテゴリ ${clearedCategories} / ${categories.length}` : "きろくを 読み込み中"}
+              {loaded ? `集めたピース ${collectedCategoryIds.length} / ${categories.length} まい` : "きろくを 読み込み中"}
             </Text>
             <Text accessibilityRole="header" style={styles.heading}>クリアした練習</Text>
 
