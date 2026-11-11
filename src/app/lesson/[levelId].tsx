@@ -94,7 +94,10 @@ export default function LessonScreen() {
             <Text style={styles.albumHint}>{showHint ? "とじる" : "ヒント"}</Text>
           </Pressable>
         </View>
-        <Text style={styles.albumTask}>{currentStep?.instruction}</Text>
+        <View style={styles.albumTaskBox}>
+          <Text style={styles.albumTaskLabel}>お題</Text>
+          <Text style={styles.albumTask}>{currentStep?.instruction}</Text>
+        </View>
         {showHint && (
           <Text accessibilityLiveRegion="polite" style={styles.albumHelp}>{currentStep?.hint}</Text>
         )}
@@ -160,9 +163,11 @@ const styles = StyleSheet.create({
   albumBar: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 4 },
   albumBarButton: { minHeight: 48, minWidth: 48, paddingHorizontal: 8, alignItems: "center", justifyContent: "center" },
   albumBarTitle: { flexShrink: 1, fontSize: fontSize.small, color: colors.textSub },
-  albumHint: { fontSize: fontSize.small, fontWeight: "bold", color: accents.practice.dark },
-  albumHelp: { paddingHorizontal: 14, paddingVertical: 8, fontSize: fontSize.small, lineHeight: 23, color: colors.blue, backgroundColor: colors.bluePale },
-  albumTask: { paddingHorizontal: 14, paddingVertical: 8, fontSize: fontSize.small, lineHeight: 23, color: colors.text, backgroundColor: accents.practice.pale },
+  albumHint: { fontSize: fontSize.body, fontWeight: "bold", color: accents.practice.dark },
+  albumHelp: { paddingHorizontal: 14, paddingVertical: 10, fontSize: fontSize.body, lineHeight: 30, color: accents.practice.dark, backgroundColor: accents.practice.pale },
+  albumTaskBox: { paddingHorizontal: 14, paddingVertical: 10, gap: 4, backgroundColor: accents.practice.pale, borderLeftWidth: 4, borderLeftColor: accents.practice.main },
+  albumTaskLabel: { fontSize: fontSize.small, fontWeight: "bold", color: accents.practice.dark },
+  albumTask: { fontSize: fontSize.body, lineHeight: 30, fontWeight: "bold", color: colors.text },
   container: { flex: 1, backgroundColor: colors.background },
   stepRow: {
     flexDirection: "row",

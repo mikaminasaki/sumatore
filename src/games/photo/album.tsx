@@ -4,12 +4,13 @@ import { useEffect, useRef, useState, type ComponentRef, type ReactNode } from "
 import { FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { GestureDetector, usePanGesture, usePinchGesture, useSimultaneousGestures } from "react-native-gesture-handler";
 
-import { colors, fontSize, minTouchSize } from "@/constants/theme";
+import { accents, colors, fontSize, minTouchSize } from "@/constants/theme";
 
 import { blanketDogPhotoIndex, dogPhotoIndex, photos, riverPhotoIndex, snowPhotoIndex } from "./photos";
 
 const thumbnailSize = minTouchSize;
 const thumbnailGap = 4;
+const allPhotoIndices = photos.map((_, index) => index);
 
 type AlbumProps = {
   initialPhoto?: number;
@@ -84,8 +85,17 @@ function ZoomPhoto({ index, onZoom }: { index: number; onZoom: (scale: number) =
   );
 }
 
-function PhotoViewer({ initialPhoto, allowZoom, actions, onBack, favorites, onToggleFavorite, fromFavorites }: Omit<AlbumProps, "referencePhoto" | "initialPhoto"> & { initialPhoto: number; onBack: () => void; favorites: number[]; onToggleFavorite: (index: number) => void; fromFavorites: boolean }) {
+function PhotoViewer({ initialPhoto, allowZoom, actions, onBack, favorites, onToggleFavorite, fromFavorites, photoIndices, favoritesLoaded }: Omit<AlbumProps, "referencePhoto" | "initialPhoto"> & {
+  initialPhoto: number;
+  onBack: () => void;
+  favorites: number[];
+  onToggleFavorite: (index: number) => void;
+  fromFavorites: boolean;
+  photoIndices: number[];
+  favoritesLoaded: boolean;
+}) {
   const [width, setWidth] = useState(0);
+  const [height, setHeight] = useState(0);
   const [index, setIndex] = useState(initialPhoto);
   const [scale, setScale] = useState(1);
   const pager = useRef<FlatList<number>>(null);
@@ -95,51 +105,55 @@ function PhotoViewer({ initialPhoto, allowZoom, actions, onBack, favorites, onTo
     if (next === index) return;
     setIndex(next);
     setScale(1);
-    thumbnails.current?.scrollTo({ x: thumbnailOffset(next, width), animated: true });
+    thumbnails.current?.scrollTo({ x: thumbnailOffset(photoIndices.indexOf(next), photoIndices.length, width), animated: true });
   }
 
   return (
     <View style={styles.viewer} accessibilityViewIsModal>
       <View style={styles.toolbar}>
         <Pressable accessibilityRole="button" onPress={onBack} style={styles.back}>
-          <Ionicons name="chevron-back" size={22} color={colors.blue} />
+          <Ionicons name="chevron-back" size={22} color={accents.practice.dark} />
           <Text style={styles.actionText}>一覧へ</Text>
         </Pressable>
-        <Text accessibilityRole="header" style={styles.viewerTitle}>写真</Text>
+        <Text accessibilityRole="header" style={styles.viewerTitle}>{fromFavorites ? "お気に入り" : "すべての写真"}</Text>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={favorites.includes(index) ? "お気に入りから はずす" : "お気に入りに 入れる"}
-          accessibilityState={{ selected: favorites.includes(index) }}
+          accessibilityState={{ selected: favorites.includes(index), disabled: !favoritesLoaded }}
+          disabled={!favoritesLoaded}
           onPress={() => onToggleFavorite(index)}
           style={styles.favoriteButton}
         >
-          <Ionicons name={favorites.includes(index) ? "heart" : "heart-outline"} size={28} color={favorites.includes(index) ? colors.homeRed : colors.blue} />
+          <Ionicons name={favorites.includes(index) ? "heart" : "heart-outline"} size={28} color={favorites.includes(index) ? colors.homeRed : accents.practice.dark} />
         </Pressable>
       </View>
 
-      <View style={styles.stage} onLayout={(event) => setWidth(event.nativeEvent.layout.width)}>
-        {width > 0 && (
+      <View style={styles.stage} onLayout={({ nativeEvent: { layout } }) => {
+        setWidth(layout.width);
+        setHeight(layout.height);
+      }}>
+        {width > 0 && height > 0 && (
           <FlatList
             key={width}
             ref={pager}
-            data={photos}
+            data={photoIndices}
             horizontal
             pagingEnabled
             showsHorizontalScrollIndicator={false}
-            initialScrollIndex={index}
+            initialScrollIndex={photoIndices.indexOf(index)}
             getItemLayout={(_, itemIndex) => ({ length: width, offset: width * itemIndex, index: itemIndex })}
-            keyExtractor={(photo) => String(photo)}
+            keyExtractor={(photoIndex) => String(photoIndex)}
             scrollEnabled={scale <= 1.01}
             onMomentumScrollEnd={(event) => {
               const next = Math.round(event.nativeEvent.contentOffset.x / width);
-              selectPhoto(Math.max(0, Math.min(photos.length - 1, next)));
+              selectPhoto(photoIndices[Math.max(0, Math.min(photoIndices.length - 1, next))]);
             }}
-            renderItem={({ item, index: itemIndex }) => (
-              <View style={[styles.page, { width }]}>
-                {allowZoom && itemIndex === index ? (
-                  <ZoomPhoto index={itemIndex} onZoom={setScale} />
+            renderItem={({ item: photoIndex }) => (
+              <View style={[styles.page, { width, height }]}>
+                {allowZoom && photoIndex === index ? (
+                  <ZoomPhoto index={photoIndex} onZoom={setScale} />
                 ) : (
-                  <Image source={item} style={styles.image} resizeMode="contain" />
+                  <Image source={photos[photoIndex]} style={styles.image} resizeMode="contain" />
                 )}
               </View>
             )}
@@ -152,23 +166,26 @@ function PhotoViewer({ initialPhoto, allowZoom, actions, onBack, favorites, onTo
           <ScrollView
             ref={thumbnails}
             horizontal
-            contentOffset={{ x: thumbnailOffset(initialPhoto, width), y: 0 }}
+            onContentSizeChange={() => thumbnails.current?.scrollTo({
+              x: thumbnailOffset(photoIndices.indexOf(index), photoIndices.length, width),
+              animated: false,
+            })}
             contentContainerStyle={styles.thumbnails}
             showsHorizontalScrollIndicator={false}
           >
-            {photos.map((photo, photoIndex) => (
+            {photoIndices.map((photoIndex, position) => (
               <Pressable
-                key={photo}
+                key={photoIndex}
                 accessibilityRole="button"
                 accessibilityLabel={photoLabel(photoIndex)}
                 accessibilityState={{ selected: index === photoIndex }}
                 style={[styles.thumbnail, index === photoIndex && styles.selected]}
                 onPress={() => {
-                  pager.current?.scrollToIndex({ index: photoIndex, animated: false });
+                  pager.current?.scrollToIndex({ index: position, animated: false });
                   selectPhoto(photoIndex);
                 }}
               >
-                <Image source={photo} style={styles.image} />
+                <Image source={photos[photoIndex]} style={styles.image} />
               </Pressable>
             ))}
           </ScrollView>
@@ -184,8 +201,9 @@ export function PhotoAlbum({ initialPhoto, referencePhoto, allowZoom, actions }:
 
   const [favorites, setFavorites] = useState<number[]>([]);
   const favoritesRef = useRef<number[]>([]);
-  const loaded = useRef(false);
+  const [favoritesLoaded, setFavoritesLoaded] = useState(false);
   const [onlyFavorites, setOnlyFavorites] = useState(false);
+  const photoIndices = onlyFavorites ? allPhotoIndices.filter((index) => favorites.includes(index)) : allPhotoIndices;
 
   useEffect(() => {
     let active = true;
@@ -197,15 +215,20 @@ export function PhotoAlbum({ initialPhoto, referencePhoto, allowZoom, actions }:
         setFavorites(favoritesRef.current);
       }
     }).catch(() => {}).finally(() => {
-      if (active) loaded.current = true;
+      if (active) setFavoritesLoaded(true);
     });
     return () => { active = false; };
   }, []);
 
   function toggleFavorite(index: number) {
-    if (!loaded.current) return;
+    if (!favoritesLoaded) return;
     const previous = favoritesRef.current;
     const next = previous.includes(index) ? previous.filter((item) => item !== index) : [...previous, index];
+    // お気に入り内で解除したら、隣の写真へ。最後の1枚なら一覧へ戻る。
+    if (onlyFavorites && previous.includes(index)) {
+      const position = photoIndices.indexOf(index);
+      setOpened(photoIndices[position + 1] ?? photoIndices[position - 1]);
+    }
     favoritesRef.current = next;
     setFavorites(next);
     void AsyncStorage.setItem(favoritesKey, JSON.stringify(next)).catch(() => {});
@@ -215,32 +238,58 @@ export function PhotoAlbum({ initialPhoto, referencePhoto, allowZoom, actions }:
     <View style={styles.screen}>
       <View
         style={styles.screen}
+        aria-hidden={opened !== undefined}
         accessibilityElementsHidden={opened !== undefined}
         importantForAccessibility={opened === undefined ? "auto" : "no-hide-descendants"}
       >
         <View style={styles.libraryBar}>
-          <Text accessibilityRole="header" style={styles.title}>{onlyFavorites ? "お気に入り" : "ライブラリ"}</Text>
-          <Pressable accessibilityRole="button" onPress={() => setOnlyFavorites(!onlyFavorites)} style={styles.favoriteButton}>
-            <Text style={styles.filterText}>{onlyFavorites ? "すべての 写真" : "お気に入り"}</Text>
-          </Pressable>
+          <Text accessibilityRole="header" style={styles.title}>ライブラリ</Text>
+        </View>
+        <View accessibilityRole="tablist" style={styles.filters}>
+          {[false, true].map((favoriteTab) => (
+            <Pressable
+              key={String(favoriteTab)}
+              accessibilityRole="tab"
+              aria-selected={onlyFavorites === favoriteTab}
+              accessibilityState={{ selected: onlyFavorites === favoriteTab }}
+              onPress={() => setOnlyFavorites(favoriteTab)}
+              style={[styles.filter, onlyFavorites === favoriteTab && styles.activeFilter]}
+            >
+              <Text style={[styles.filterText, onlyFavorites === favoriteTab && styles.activeFilterText]}>{favoriteTab ? "お気に入り" : "すべての写真"}</Text>
+            </Pressable>
+          ))}
         </View>
         {referencePhoto !== undefined && (
           <View style={styles.reference}>
             <Image source={photos[referencePhoto]} accessibilityLabel={photoLabel(referencePhoto)} style={styles.referencePhoto} />
-            <Text style={styles.counter}>さがす 写真</Text>
+            <View style={styles.referenceText}>
+              <Text style={styles.referenceTitle}>この写真を さがしましょう</Text>
+              <Text style={styles.counter}>{photoLabel(referencePhoto)}</Text>
+            </View>
           </View>
         )}
         <ScrollView contentContainerStyle={styles.grid}>
-          {onlyFavorites && favorites.length === 0 && <AlbumPrompt>お気に入りの 写真は まだ ありません</AlbumPrompt>}
-          {photos.map((photo, index) => (!onlyFavorites || favorites.includes(index)) && (
-            <Pressable key={photo} accessibilityRole="button" accessibilityLabel={photoLabel(index)} style={styles.tile} onPress={() => setOpened(index)}>
-              <Image source={photo} style={styles.image} />
+          {onlyFavorites && favoritesLoaded && favorites.length === 0 && <AlbumPrompt>お気に入りは まだ ありません。「すべての写真」で写真を開き、ハートを押すと登録できます。</AlbumPrompt>}
+          {photoIndices.map((index) => (
+            <Pressable key={index} accessibilityRole="button" accessibilityLabel={photoLabel(index)} style={styles.tile} onPress={() => setOpened(index)}>
+              <Image source={photos[index]} style={styles.image} />
             </Pressable>
           ))}
         </ScrollView>
       </View>
       {opened !== undefined && (
-        <PhotoViewer initialPhoto={opened} allowZoom={allowZoom} actions={actions} favorites={favorites} fromFavorites={onlyFavorites} onToggleFavorite={toggleFavorite} onBack={() => setOpened(undefined)} />
+        <PhotoViewer
+          key={`${onlyFavorites}:${photoIndices.join(",")}`}
+          initialPhoto={opened}
+          allowZoom={allowZoom}
+          actions={actions}
+          favorites={favorites}
+          favoritesLoaded={favoritesLoaded}
+          photoIndices={photoIndices}
+          fromFavorites={onlyFavorites}
+          onToggleFavorite={toggleFavorite}
+          onBack={() => setOpened(undefined)}
+        />
       )}
     </View>
   );
@@ -269,9 +318,9 @@ export function ConfirmPhoto({ correct, onCorrect }: { correct: boolean; onCorre
   );
 }
 
-function thumbnailOffset(index: number, width: number) {
+function thumbnailOffset(index: number, count: number, width: number) {
   return Math.max(0, Math.min(
-    photos.length * (thumbnailSize + thumbnailGap) - width,
+    count * (thumbnailSize + thumbnailGap) - width,
     (index + 0.5) * (thumbnailSize + thumbnailGap) - width / 2,
   ));
 }
@@ -289,25 +338,31 @@ const styles = StyleSheet.create({
   viewer: { ...StyleSheet.absoluteFill, backgroundColor: colors.white },
   libraryBar: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingRight: 10 },
   favoriteButton: { minHeight: 48, minWidth: 48, paddingHorizontal: 8, alignItems: "center", justifyContent: "center" },
-  filterText: { color: colors.blue, fontSize: fontSize.small, fontWeight: "bold" },
+  filters: { flexDirection: "row", marginHorizontal: 10, marginBottom: 10, padding: 4, gap: 4, borderRadius: 14, backgroundColor: colors.background },
+  filter: { flex: 1, minHeight: minTouchSize, alignItems: "center", justifyContent: "center", paddingHorizontal: 6, borderRadius: 10, borderWidth: 2, borderColor: colors.border },
+  activeFilter: { backgroundColor: accents.practice.main, borderColor: accents.practice.main },
+  filterText: { color: accents.practice.dark, fontSize: fontSize.body, fontWeight: "bold", textAlign: "center" },
+  activeFilterText: { color: colors.white },
   title: { paddingHorizontal: 12, paddingVertical: 8, fontSize: fontSize.large, fontWeight: "bold", color: colors.text },
-  reference: { paddingHorizontal: 12, paddingBottom: 8, flexDirection: "row", alignItems: "center", gap: 12 },
-  referencePhoto: { width: 60, height: 44, borderRadius: 4 },
+  reference: { marginHorizontal: 10, marginBottom: 10, padding: 10, flexDirection: "row", alignItems: "center", gap: 12, borderWidth: 2, borderColor: accents.practice.main, borderRadius: 12, backgroundColor: accents.practice.pale },
+  referencePhoto: { width: 112, height: 84, borderRadius: 6 },
+  referenceText: { flex: 1, gap: 6 },
+  referenceTitle: { color: accents.practice.dark, fontSize: fontSize.body, fontWeight: "bold" },
   toolbar: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingRight: 12 },
   back: { minHeight: 48, paddingHorizontal: 8, flexDirection: "row", alignItems: "center" },
-  viewerTitle: { fontSize: fontSize.body, fontWeight: "bold", color: colors.text },
+  viewerTitle: { flex: 1, textAlign: "center", fontSize: fontSize.body, fontWeight: "bold", color: colors.text },
   counter: { fontSize: fontSize.small, color: colors.textSub },
   stage: { flex: 1, backgroundColor: colors.text },
-  page: { height: "100%", overflow: "hidden" },
+  page: { overflow: "hidden" },
   zoomArea: { flex: 1, overflow: "hidden" },
   image: { width: "100%", height: "100%" },
   strip: { height: thumbnailSize + 8, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
   thumbnails: { gap: thumbnailGap, paddingHorizontal: 2, alignItems: "center" },
   thumbnail: { width: thumbnailSize, height: thumbnailSize, borderWidth: 3, borderColor: colors.white, borderRadius: 5, overflow: "hidden" },
-  selected: { borderColor: colors.blue },
+  selected: { borderColor: accents.practice.main },
   grid: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between", rowGap: 4, padding: 4 },
   tile: { width: "32.5%", minHeight: minTouchSize, aspectRatio: 1, overflow: "hidden", backgroundColor: colors.background },
-  prompt: { minHeight: 34, paddingHorizontal: 8, paddingTop: 6, textAlign: "center", fontSize: fontSize.small, color: colors.text },
+  prompt: { minHeight: 34, paddingHorizontal: 8, paddingTop: 6, textAlign: "center", fontSize: fontSize.body, color: colors.text },
   action: { minHeight: minTouchSize, flexShrink: 1, paddingHorizontal: 12, justifyContent: "center", alignItems: "center" },
-  actionText: { fontSize: fontSize.body, color: colors.blue, fontWeight: "bold" },
+  actionText: { fontSize: fontSize.body, color: accents.practice.dark, fontWeight: "bold" },
 });
