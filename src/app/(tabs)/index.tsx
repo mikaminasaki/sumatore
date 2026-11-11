@@ -107,10 +107,11 @@ const styles = StyleSheet.create({
   cloudRight: { position: "absolute", top: "14%", right: -60, width: 230, height: 172, opacity: 0.9 },
   scenery: { position: "absolute", left: 0, right: 0, bottom: 0, width: "100%" },
   bubbleArea: { alignItems: "center", marginBottom: 4 },
+  // 幅は文字の量に合わせる (画面からはみ出す長さなら折り返す)
   bubble: {
-    alignSelf: "stretch",
-    paddingVertical: 24,
-    paddingHorizontal: 20,
+    maxWidth: "100%",
+    paddingVertical: 20,
+    paddingHorizontal: 28,
     borderRadius: 20,
     borderWidth: 1.5,
     borderColor: colors.gray,
