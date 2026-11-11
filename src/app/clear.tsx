@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { useEffect } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -15,6 +16,14 @@ export default function ClearScreen() {
   const next = getNextLevel(levelId);
   const accent = accents[(level && getCategory(level.categoryId)?.course) ?? "basic"];
 
+  // このクリアでピースがもらえたら、少し間をおいてピースゲット画面を重ねて出す
+  const categoryId = level?.categoryId;
+  useEffect(() => {
+    if (earnedPiece !== "1" || !categoryId) return;
+    const timer = setTimeout(() => router.push({ pathname: "/piece", params: { categoryId } }), 900);
+    return () => clearTimeout(timer);
+  }, [earnedPiece, categoryId]);
+
   return (
     <View style={[styles.container, { paddingTop: insets.top + 40, paddingBottom: insets.bottom + 24 }]}>
       <StatusBar style="dark" />
@@ -28,12 +37,6 @@ export default function ClearScreen() {
           <Text style={styles.message}>
             レベル {level.level}「{level.description}」が{"\n"}できました
           </Text>
-        )}
-        {earnedPiece === "1" && (
-          <View style={styles.piece}>
-            <View style={styles.pieceIcon} />
-            <Text style={styles.pieceText}>パズルの ピースを 1まい もらいました</Text>
-          </View>
         )}
       </View>
 
@@ -65,19 +68,6 @@ const styles = StyleSheet.create({
   character: { height: 150, justifyContent: "center" },
   title: { fontSize: 40, fontWeight: "bold", color: colors.burntOrange },
   message: { fontSize: fontSize.body - 2, lineHeight: 28, color: colors.text, textAlign: "center" },
-  piece: {
-    alignSelf: "stretch",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    padding: 14,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: "#F1DFAF",
-    backgroundColor: colors.piecePale,
-  },
-  pieceIcon: { width: 32, height: 32, borderRadius: 6, backgroundColor: colors.piece },
-  pieceText: { flex: 1, fontSize: fontSize.small, color: colors.text },
   buttons: { gap: 12 },
   primary: {
     minHeight: minTouchSize,
