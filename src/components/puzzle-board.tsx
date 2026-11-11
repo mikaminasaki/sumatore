@@ -39,13 +39,13 @@ export function PuzzleBoard({ course, collectedCategoryIds, newCategoryId, size 
               accessibilityLabel={`${p.name}の ピース`}
               style={{
                 position: "absolute",
-                left: p.layout.left * size,
-                top: p.layout.top * size,
-                width: p.layout.width * size,
-                height: p.layout.height * size,
+                left: 0,
+                top: 0,
+                width: size,
+                height: size,
                 ...(isNew && {
                   opacity: pop,
-                  transform: [{ scale: pop.interpolate({ inputRange: [0, 1], outputRange: [1.6, 1] }) }],
+                  transform: [{ scale: pop.interpolate({ inputRange: [0, 1], outputRange: [1.15, 1] }) }],
                 }),
               }}
             />

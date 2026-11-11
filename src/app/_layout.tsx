@@ -14,7 +14,7 @@ export default function RootLayout() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="clear" options={{ animation: "fade" }} />
         {/* ピースゲット画面は、クリア画面の上に重ねて出す */}
-        <Stack.Screen name="piece" options={{ presentation: "modal" }} />
+        <Stack.Screen name="piece" options={{ presentation: "transparentModal", animation: "fade" }} />
       </Stack>
       </ProgressProvider>
     </GestureHandlerRootView>
