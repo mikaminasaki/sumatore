@@ -1,9 +1,12 @@
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { router, usePathname } from "expo-router";
+import { useState } from "react";
 import { Image, Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 
 import { AppHeader } from "@/components/app-header";
 import { accents, colors, fontSize } from "@/constants/theme";
+import { pickGreeting } from "@/data/greetings";
+import { useProgress } from "@/hooks/use-progress";
 
 // Figma「ホーム画面ver.6」: 空と海の背景、キャラクターの吹き出し、2つのコースボタン
 const SCENERY_RATIO = 232 / 412; // 下の海と花の絵の 高さ / 幅
@@ -11,6 +14,20 @@ const SCENERY_RATIO = 232 / 412; // 下の海と花の絵の 高さ / 幅
 export default function HomeScreen() {
   const { width } = useWindowDimensions();
   const sceneryHeight = width * SCENERY_RATIO;
+  const { loaded, clearedLevelIds } = useProgress();
+
+  // ホームを開くたび (ほかの画面から戻ったときも) に、吹き出しの文を選び直す。
+  // 下のタブの切り替えでは focus の通知が来ないので、表示中の URL がホームに戻った回数を数える
+  const isHome = usePathname() === "/";
+  const [visits, setVisits] = useState({ isHome, count: 0 });
+  if (visits.isHome !== isHome) setVisits({ isHome, count: isHome ? visits.count + 1 : visits.count });
+
+  const progressKey = clearedLevelIds.join(",");
+  const greetingKey = `${visits.count}|${progressKey}`;
+  const [greeting, setGreeting] = useState({ key: "", text: "" });
+  if (loaded && greeting.key !== greetingKey) {
+    setGreeting({ key: greetingKey, text: pickGreeting(clearedLevelIds) });
+  }
 
   return (
     <View style={styles.container}>
@@ -33,7 +50,7 @@ export default function HomeScreen() {
 
         <View style={styles.bubbleArea}>
           <View style={styles.bubble}>
-            <Text style={styles.bubbleText}>{"きょうも いっしょに\nれんしゅう しよう♪"}</Text>
+            <Text style={styles.bubbleText}>{greeting.text || " "}</Text>
           </View>
           <View style={styles.bubbleTail} />
         </View>
