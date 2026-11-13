@@ -13,8 +13,8 @@ const CONFETTI = [
   { x: 0.72, y: 0.08, w: 12, h: 12, rotate: 0, color: "#F2B600", round: true },
   { x: 0.1, y: 0.43, w: 12, h: 12, rotate: 0, color: "#1F5FAF", round: true },
   { x: 0.88, y: 0.45, w: 12, h: 12, rotate: 0, color: "#E53935", round: true },
-  { x: 0.05, y: 0.55, w: 12, h: 26, rotate: 15, color: "#43A047" },
-  { x: 0.9, y: 0.57, w: 12, h: 26, rotate: -20, color: "#F2B600" },
+  { x: 0.04, y: 0.33, w: 12, h: 26, rotate: 15, color: "#43A047" },
+  { x: 0.9, y: 0.34, w: 12, h: 26, rotate: -20, color: "#F2B600" },
 ];
 const STARS = [
   { x: 0.5, y: 0.07, size: 40 },
