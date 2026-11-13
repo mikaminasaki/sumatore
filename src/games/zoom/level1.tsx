@@ -9,7 +9,7 @@ import type { Game, GameProps } from "@/games/types";
 const MIN_SCALE = 0.5;
 const MAX_SCALE = 3;
 
-// 拡大・縮小編 レベル 1: 写真をピンチで 大きく → 小さく → もとの大きさ にする
+// 拡大・縮小編 レベル 1: 写真をピンチで 大きく → 小さく する
 function ZoomLevel1({ step, onStepComplete }: GameProps) {
   const [scale, setScale] = useState(1);
   // ピンチを始めたときの大きさ。指を離すたびに、今の大きさを引き継ぐ
@@ -29,7 +29,6 @@ function ZoomLevel1({ step, onStepComplete }: GameProps) {
       baseScale.current = scale;
       if (step === 0 && scale >= 2) onStepComplete();
       else if (step === 1 && scale <= 0.7) onStepComplete();
-      else if (step === 2 && scale >= 0.85 && scale <= 1.25) onStepComplete();
     },
   });
 
@@ -54,10 +53,6 @@ export const zoom1: Game = {
     {
       instruction: "今度は2本の指を縮めて、写真を小さくしましょう",
       hint: "2本の指を写真の上に置いて、指と指を近づけます",
-    },
-    {
-      instruction: "最後に、写真を元の大きさに戻しましょう",
-      hint: "少しずつ広げたり縮めたりして、初めの大きさに合わせます",
     },
   ],
   Component: ZoomLevel1,
