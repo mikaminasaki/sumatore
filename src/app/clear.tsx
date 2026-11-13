@@ -83,7 +83,7 @@ export default function ClearScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#FFFDF6", paddingHorizontal: 20, justifyContent: "center", gap: 32 },
+  container: { flex: 1, backgroundColor: "#FFFDF6", paddingHorizontal: 20, justifyContent: "center", gap: 72 },
   // キーコ・見出し・ボタンをまとめて、画面の真ん中に寄せる
   main: { alignItems: "center", gap: 24 },
   character: { justifyContent: "flex-end" },
