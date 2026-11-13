@@ -48,16 +48,16 @@ function ZoomLevel1({ step, onStepComplete }: GameProps) {
 export const zoom1: Game = {
   steps: [
     {
-      instruction: "2本の指を 写真の上に おいて、ひろげて 大きくしましょう",
-      hint: "親指と ひとさし指で 写真を つまんで、ゆっくり 指を はなしていきます",
+      instruction: "2本の指を 写真の上に 置いて、広げて 大きくしましょう",
+      hint: "親指と 人差し指で 写真を つまんで、ゆっくり 指を 離していきます",
     },
     {
-      instruction: "こんどは 2本の指を ちぢめて、写真を 小さくしましょう",
-      hint: "2本の指を 写真の上に おいて、指と指を ちかづけます",
+      instruction: "今度は 2本の指を 縮めて、写真を 小さくしましょう",
+      hint: "2本の指を 写真の上に 置いて、指と指を 近づけます",
     },
     {
-      instruction: "さいごに、写真を もとの 大きさに もどしましょう",
-      hint: "少しずつ ひろげたり ちぢめたりして、はじめの 大きさに あわせます",
+      instruction: "最後に、写真を 元の 大きさに 戻しましょう",
+      hint: "少しずつ 広げたり 縮めたりして、初めの 大きさに 合わせます",
     },
   ],
   Component: ZoomLevel1,

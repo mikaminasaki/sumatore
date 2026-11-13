@@ -9,7 +9,7 @@ type IconName = React.ComponentProps<typeof Ionicons>["name"];
 
 const COLUMNS = 4;
 const ICONS: IconName[] = ["flower", "leaf", "sunny", "star"];
-// 2枚とも同じ模様。「さがす絵」だけ、この場所が違う
+// 2枚とも同じ模様。「探す絵」だけ、この場所が違う
 const DIFFERENT_INDEX = 9;
 const DIFFERENT_ICON: IconName = "heart";
 const CELLS: IconName[] = Array.from({ length: COLUMNS * COLUMNS }, (_, i) => ICONS[i % ICONS.length]);
@@ -25,9 +25,9 @@ function ZoomLevel4({ step, onStepComplete }: GameProps) {
       }}
     >
       <View style={styles.panels}>
-        {/* おてほんは見るだけ。タップできるのは「さがす絵」だけにする */}
+        {/* おてほんは見るだけ。タップできるのは「探す絵」だけにする */}
         <View>
-          <Text style={styles.label}>おてほん</Text>
+          <Text style={styles.label}>お手本</Text>
           <View style={styles.panel}>
             {CELLS.map((icon, i) => (
               <View key={i} style={styles.cell}>
@@ -37,14 +37,14 @@ function ZoomLevel4({ step, onStepComplete }: GameProps) {
           </View>
         </View>
         <View>
-          <Text style={[styles.label, styles.labelActive]}>さがす絵</Text>
+          <Text style={[styles.label, styles.labelActive]}>探す絵</Text>
           <View style={[styles.panel, styles.panelActive]}>
             {CELLS.map((icon, i) => {
               const different = i === DIFFERENT_INDEX;
               return (
                 <Pressable
                   key={i}
-                  accessibilityLabel={different ? "ちがう ところ" : undefined}
+                  accessibilityLabel={different ? "違う ところ" : undefined}
                   onPress={() => {
                     if (different && step === 1) onStepComplete();
                   }}
@@ -64,12 +64,12 @@ function ZoomLevel4({ step, onStepComplete }: GameProps) {
 export const zoom4: Game = {
   steps: [
     {
-      instruction: "2まいの 絵を 大きくしましょう",
-      hint: "2本の指を ひろげます",
+      instruction: "2枚の 絵を 大きくしましょう",
+      hint: "2本の指を 広げます",
     },
     {
-      instruction: "色の わくの 絵で、おてほんと ちがう ところを タップしましょう",
-      hint: "指 1本で 絵を うごかして、くらべます。ひとつだけ 形が ちがいます。おてほんは 見るだけです",
+      instruction: "色の 枠の 絵で、お手本と 違う ところを タップしましょう",
+      hint: "指 1本で 絵を 動かして、比べます。1つだけ 形が 違います。お手本は 見るだけです",
     },
   ],
   Component: ZoomLevel4,

@@ -38,9 +38,9 @@ function ZoomLevel2({ step, onStepComplete }: GameProps) {
 }
 
 const steps = [
-  { instruction: "写真を 大きくして、点線の わくに あわせましょう", hint: "2本の指を ゆっくり ひろげます。わくと 同じくらいで 指を はなします" },
-  { instruction: "こんどは 小さな わくに あわせましょう", hint: "2本の指を ちかづけて 写真を 小さくします" },
-  { instruction: "さいごは 大きな わくに あわせましょう", hint: "1回で とどかなければ、指を はなして もう一度 ひろげます" },
+  { instruction: "写真を 大きくして、点線の 枠に 合わせましょう", hint: "2本の指を ゆっくり 広げます。枠と 同じくらいで 指を 離します" },
+  { instruction: "今度は 小さな 枠に 合わせましょう", hint: "2本の指を 近づけて 写真を 小さくします" },
+  { instruction: "最後は 大きな 枠に 合わせましょう", hint: "1回で 届かなければ、指を 離して もう一度 広げます" },
 ];
 
 export const zoom2: Game = { steps, Component: ZoomLevel2 };
