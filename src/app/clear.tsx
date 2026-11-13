@@ -67,7 +67,7 @@ export default function ClearScreen() {
             onPress={() => router.replace({ pathname: "/lesson/[levelId]", params: { levelId: next.id } })}
             style={({ pressed }) => [styles.primary, { backgroundColor: accent.main, borderBottomColor: accent.dark }, pressed && styles.pressed]}
           >
-            <Text style={styles.primaryText}>つぎの レベルへ</Text>
+            <Text style={styles.primaryText}>次の レベルへ</Text>
           </Pressable>
         )}
         <Pressable
@@ -75,7 +75,7 @@ export default function ClearScreen() {
           onPress={() => router.back()}
           style={({ pressed }) => [styles.secondary, pressed && styles.pressed]}
         >
-          <Text style={styles.secondaryText}>レベル いちらんに もどる</Text>
+          <Text style={styles.secondaryText}>レベル 一覧に 戻る</Text>
         </Pressable>
       </View>
     </View>
@@ -83,8 +83,9 @@ export default function ClearScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#FFFDF6", paddingHorizontal: 20 },
-  main: { flex: 1, alignItems: "center", justifyContent: "center", gap: 24 },
+  container: { flex: 1, backgroundColor: "#FFFDF6", paddingHorizontal: 20, justifyContent: "center", gap: 32 },
+  // キーコ・見出し・ボタンをまとめて、画面の真ん中に寄せる
+  main: { alignItems: "center", gap: 24 },
   character: { justifyContent: "flex-end" },
   characterImage: { width: 300, height: 300 },
   title: { fontSize: 48, fontWeight: "bold" },
