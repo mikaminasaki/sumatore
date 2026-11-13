@@ -14,8 +14,8 @@ function PhotoLevel1({ onStepComplete }: GameProps) {
 
 export const photo1: Game = {
   steps: [{
-    instruction: "下の 見本と 同じ、毛布を かぶった 犬の 写真を ひらきましょう",
-    hint: "オレンジの 枠が 見本です。その下の 写真一覧を 上に すべらせて、同じ 犬を さがします",
+    instruction: "見本と同じ、毛布をかぶった犬の写真を開いてください",
+    hint: "オレンジの枠内が見本です。下の写真一覧を上にスクロールして、同じ犬を探してください",
   }],
   Component: PhotoLevel1,
 };

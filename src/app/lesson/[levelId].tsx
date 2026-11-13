@@ -86,7 +86,7 @@ export default function LessonScreen() {
       <View style={[styles.albumLesson, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
         <StatusBar style="dark" />
         <View style={styles.albumBar}>
-          <Pressable accessibilityRole="button" accessibilityLabel="練習を とじる" onPress={() => router.back()} style={styles.albumBarButton}>
+          <Pressable accessibilityRole="button" accessibilityLabel="練習を閉じる" onPress={() => router.back()} style={styles.albumBarButton}>
             <Ionicons name="close" size={24} color={colors.text} />
           </Pressable>
           <Text style={styles.albumBarTitle}>写真編 · レベル {level?.level}</Text>
