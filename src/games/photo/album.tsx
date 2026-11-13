@@ -115,10 +115,10 @@ function PhotoViewer({ initialPhoto, allowZoom, actions, onBack, favorites, onTo
           <Ionicons name="chevron-back" size={22} color={accents.practice.dark} />
           <Text style={styles.actionText}>一覧へ</Text>
         </Pressable>
-        <Text accessibilityRole="header" style={styles.viewerTitle}>{fromFavorites ? "お気に入り" : "すべての写真"}</Text>
+        <Text accessibilityRole="header" style={styles.viewerTitle}>{fromFavorites ? "お気に入り" : "全ての写真"}</Text>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={favorites.includes(index) ? "お気に入りから はずす" : "お気に入りに 入れる"}
+          accessibilityLabel={favorites.includes(index) ? "お気に入りから解除" : "お気に入りに登録"}
           accessibilityState={{ selected: favorites.includes(index), disabled: !favoritesLoaded }}
           disabled={!favoritesLoaded}
           onPress={() => onToggleFavorite(index)}
@@ -255,7 +255,7 @@ export function PhotoAlbum({ initialPhoto, referencePhoto, allowZoom, actions }:
               onPress={() => setOnlyFavorites(favoriteTab)}
               style={[styles.filter, onlyFavorites === favoriteTab && styles.activeFilter]}
             >
-              <Text style={[styles.filterText, onlyFavorites === favoriteTab && styles.activeFilterText]}>{favoriteTab ? "お気に入り" : "すべての写真"}</Text>
+              <Text style={[styles.filterText, onlyFavorites === favoriteTab && styles.activeFilterText]}>{favoriteTab ? "お気に入り" : "全ての写真"}</Text>
             </Pressable>
           ))}
         </View>
@@ -263,13 +263,13 @@ export function PhotoAlbum({ initialPhoto, referencePhoto, allowZoom, actions }:
           <View style={styles.reference}>
             <Image source={photos[referencePhoto]} accessibilityLabel={photoLabel(referencePhoto)} style={styles.referencePhoto} />
             <View style={styles.referenceText}>
-              <Text style={styles.referenceTitle}>この写真を さがしましょう</Text>
+              <Text style={styles.referenceTitle}>見本の写真を探してください</Text>
               <Text style={styles.counter}>{photoLabel(referencePhoto)}</Text>
             </View>
           </View>
         )}
         <ScrollView contentContainerStyle={styles.grid}>
-          {onlyFavorites && favoritesLoaded && favorites.length === 0 && <AlbumPrompt>お気に入りは まだ ありません。「すべての写真」で写真を開き、ハートを押すと登録できます。</AlbumPrompt>}
+          {onlyFavorites && favoritesLoaded && favorites.length === 0 && <AlbumPrompt>お気に入りはまだありません。「全ての写真」で写真を開き、ハートを押すと登録できます。</AlbumPrompt>}
           {photoIndices.map((index) => (
             <Pressable key={index} accessibilityRole="button" accessibilityLabel={photoLabel(index)} style={styles.tile} onPress={() => setOpened(index)}>
               <Image source={photos[index]} style={styles.image} />
@@ -312,8 +312,8 @@ export function ConfirmPhoto({ correct, onCorrect }: { correct: boolean; onCorre
 
   return (
     <View>
-      <AlbumPrompt>{tryAgain ? "もういちど 写真を さがしてみましょう" : "見せたい 写真を えらびましょう"}</AlbumPrompt>
-      <AlbumAction title="この 写真を 見せる" onPress={correct ? onCorrect : () => setTryAgain(true)} />
+      <AlbumPrompt>{tryAgain ? "別の写真です。もう一度ご確認ください" : "見せたい写真を選んでください"}</AlbumPrompt>
+      <AlbumAction title="この写真を見せる" onPress={correct ? onCorrect : () => setTryAgain(true)} />
     </View>
   );
 }
@@ -326,10 +326,10 @@ function thumbnailOffset(index: number, count: number, width: number) {
 }
 
 function photoLabel(index: number) {
-  if (index === blanketDogPhotoIndex) return "毛布を かぶった 犬の 写真";
-  if (index === dogPhotoIndex) return "黒い 犬の 写真";
-  if (index === riverPhotoIndex) return "森の 川の 写真";
-  if (index === snowPhotoIndex) return "雪山の 写真";
+  if (index === blanketDogPhotoIndex) return "毛布をかぶった犬の写真";
+  if (index === dogPhotoIndex) return "黒い犬の写真";
+  if (index === riverPhotoIndex) return "森の川の写真";
+  if (index === snowPhotoIndex) return "雪山の写真";
   return `写真 ${index + 1}`;
 }
 

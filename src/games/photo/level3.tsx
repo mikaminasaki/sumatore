@@ -11,11 +11,11 @@ function BlanketAnswer({ correctPhoto, zoomed, onCorrect }: { correctPhoto: bool
 
   function answer(isCorrect: boolean) {
     if (!correctPhoto) {
-      setFeedback("毛布を かぶった 犬の 写真を 見てみましょう");
+      setFeedback("毛布をかぶった犬の写真を選んでください");
     } else if (!zoomed) {
-      setFeedback("2本の 指を ひろげて、毛布を 大きくしてみましょう");
+      setFeedback("2本の指を広げて、毛布を拡大してください");
     } else if (!isCorrect) {
-      setFeedback("犬の 顔の 下を 見ましょう。線が 交わっていますか？");
+      setFeedback("犬の顔の下にある毛布をご確認ください。線が交差していますか？");
     } else {
       onCorrect();
     }
@@ -23,7 +23,7 @@ function BlanketAnswer({ correctPhoto, zoomed, onCorrect }: { correctPhoto: bool
 
   return (
     <View>
-      <AlbumPrompt>{feedback ?? "毛布は どちらの もようですか？"}</AlbumPrompt>
+      <AlbumPrompt>{feedback ?? "毛布はどちらの模様ですか？"}</AlbumPrompt>
       <View style={styles.options}>
         <AlbumAction title="チェック" onPress={() => answer(true)} />
         <AlbumAction title="水玉" onPress={() => answer(false)} />
@@ -46,8 +46,8 @@ function PhotoLevel3({ onStepComplete }: GameProps) {
 
 export const photo3: Game = {
   steps: [{
-    instruction: "犬が かぶっている 毛布の もようを 調べましょう",
-    hint: "2本の 指を ひろげ、指1本で 動かして 犬の 顔の 下に ある 毛布を 見ましょう",
+    instruction: "犬がかぶっている毛布を拡大し、模様を確認してください",
+    hint: "2本の指を広げて拡大し、1本の指で写真を動かして、犬の顔の下の毛布をご確認ください",
   }],
   Component: PhotoLevel3,
 };
