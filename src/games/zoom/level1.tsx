@@ -35,7 +35,7 @@ function ZoomLevel1({ step, onStepComplete }: GameProps) {
 
   return (
     <GestureDetector gesture={pinch}>
-      <View style={styles.area} accessibilityLabel="写真。2本の指で 大きく・小さく できます">
+      <View style={styles.area} accessibilityLabel="写真。2本の指で大きく・小さくできます">
         {/* 写真は #7 で差し替える */}
         <View style={[styles.photo, { transform: [{ scale }] }]}>
           <Ionicons name="image" size={96} color={colors.clearGreen} />
@@ -48,16 +48,16 @@ function ZoomLevel1({ step, onStepComplete }: GameProps) {
 export const zoom1: Game = {
   steps: [
     {
-      instruction: "2本の指を 写真の上に おいて、ひろげて 大きくしましょう",
-      hint: "親指と ひとさし指で 写真を つまんで、ゆっくり 指を はなしていきます",
+      instruction: "2本の指を写真の上に置いて、広げて大きくしましょう",
+      hint: "親指と人差し指で写真をつまんで、ゆっくり指を離していきます",
     },
     {
-      instruction: "こんどは 2本の指を ちぢめて、写真を 小さくしましょう",
-      hint: "2本の指を 写真の上に おいて、指と指を ちかづけます",
+      instruction: "今度は2本の指を縮めて、写真を小さくしましょう",
+      hint: "2本の指を写真の上に置いて、指と指を近づけます",
     },
     {
-      instruction: "さいごに、写真を もとの 大きさに もどしましょう",
-      hint: "少しずつ ひろげたり ちぢめたりして、はじめの 大きさに あわせます",
+      instruction: "最後に、写真を元の大きさに戻しましょう",
+      hint: "少しずつ広げたり縮めたりして、初めの大きさに合わせます",
     },
   ],
   Component: ZoomLevel1,

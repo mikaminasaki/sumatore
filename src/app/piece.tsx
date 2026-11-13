@@ -87,7 +87,7 @@ export default function PieceScreen() {
           <Text style={[styles.countBig, { color: accent.main }]}>
             {others.length + 1}
           </Text>{" "}
-          / {total} まい
+          / {total} 枚
         </Text>
 
         <Pressable

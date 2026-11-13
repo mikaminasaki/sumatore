@@ -22,14 +22,14 @@ function ZoomLevel3({ step, onStepComplete }: GameProps) {
         }}
       >
         <View style={styles.note}>
-          <Text style={styles.noteText}>きょうの おやつは {ANSWER} です</Text>
+          <Text style={styles.noteText}>今日のおやつは{ANSWER}です</Text>
         </View>
       </ZoomArea>
 
       {/* 拡大してから答えてもらうため、選択肢は 2 ステップ目で出す */}
       {step === 1 && (
         <View style={styles.choices}>
-          {wrong && <Text style={styles.retry}>もういちど 読んでみましょう</Text>}
+          {wrong && <Text style={styles.retry}>もう一度読んでみましょう</Text>}
           <View style={styles.choiceRow}>
             {CHOICES.map((choice) => (
               <Pressable
@@ -51,12 +51,12 @@ function ZoomLevel3({ step, onStepComplete }: GameProps) {
 export const zoom3: Game = {
   steps: [
     {
-      instruction: "小さな 文字を、読めるまで 大きくしましょう",
-      hint: "2本の指を ひろげます。1回で 足りなければ、もう一度 ひろげます",
+      instruction: "小さな文字を、読めるまで大きくしましょう",
+      hint: "2本の指を広げます。1回で足りなければ、もう一度広げます",
     },
     {
-      instruction: "おやつは なんでしたか？ 下から えらびましょう",
-      hint: "指 1本で 文字を うごかして、さいごまで 読みます",
+      instruction: "おやつは何でしたか？下から選びましょう",
+      hint: "指1本で文字を動かして、最後まで読みます",
     },
   ],
   Component: ZoomLevel3,
