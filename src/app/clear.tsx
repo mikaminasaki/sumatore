@@ -2,15 +2,15 @@ import * as Haptics from "expo-haptics";
 import { router, useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
-import { Animated, Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Animated, Image, Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { CelebrationBackground } from "@/components/celebration-background";
 import { accents, colors, fontSize, minTouchSize } from "@/constants/theme";
 import { getCategory, getLevel, getNextLevel } from "@/data/lessons";
 import { pickClearCharacter } from "@/data/characters";
-import { pickPraise } from "@/data/praises";
 
-// クリア画面。キーコが跳ねてほめてくれる。次のレベルへ進めるようにする
+// クリア画面。光と紙吹雪の中でキーコが跳ねる。次のレベルへ進めるようにする
 export default function ClearScreen() {
   const { levelId, earnedPiece } = useLocalSearchParams<{ levelId: string; earnedPiece?: string }>();
   const insets = useSafeAreaInsets();
@@ -18,9 +18,9 @@ export default function ClearScreen() {
   const next = getNextLevel(levelId);
   const accent = accents[(level && getCategory(level.categoryId)?.course) ?? "basic"];
 
-  // 見出しはクリアするたびに変わる (この画面を開いたときに 1 回だけ選ぶ)
-  const [praise] = useState(pickPraise);
+  // キーコの画像はクリアするたびに変わる (この画面を開いたときに 1 回だけ選ぶ)
   const [character] = useState(pickClearCharacter);
+  const { height } = useWindowDimensions();
 
   // 画面が出たら、ぶるっと震わせて、キーコを ぴょんぴょん 跳ねさせる
   const [jump] = useState(() => new Animated.Value(0));
@@ -44,6 +44,8 @@ export default function ClearScreen() {
   return (
     <View style={[styles.container, { paddingTop: insets.top + 40, paddingBottom: insets.bottom + 24 }]}>
       <StatusBar style="dark" />
+      {/* 光の中心は、キーコのあたり */}
+      <CelebrationBackground centerY={height * 0.36} />
       <View style={styles.main}>
         <Animated.View style={[styles.character, { transform: [{ translateY: jump }] }]}>
           <Image
@@ -54,13 +56,8 @@ export default function ClearScreen() {
           />
         </Animated.View>
         <Text style={[styles.title, { color: accent.main }]} numberOfLines={1} adjustsFontSizeToFit>
-          {praise}
+          {level ? `レベル${level.level}クリア！` : "クリア！"}
         </Text>
-        {level && (
-          <Text style={styles.message}>
-            レベル {level.level} クリア
-          </Text>
-        )}
       </View>
 
       <View style={styles.buttons}>
@@ -86,12 +83,11 @@ export default function ClearScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.white, paddingHorizontal: 20 },
-  main: { flex: 1, alignItems: "center", gap: 16 },
-  character: { height: 230, justifyContent: "flex-end" },
-  characterImage: { width: 220, height: 220 },
-  title: { fontSize: 40, fontWeight: "bold" },
-  message: { fontSize: fontSize.large, lineHeight: 34, color: colors.text, textAlign: "center" },
+  container: { flex: 1, backgroundColor: "#FFFDF6", paddingHorizontal: 20 },
+  main: { flex: 1, alignItems: "center", justifyContent: "center", gap: 24 },
+  character: { justifyContent: "flex-end" },
+  characterImage: { width: 300, height: 300 },
+  title: { fontSize: 48, fontWeight: "bold" },
   buttons: { gap: 12 },
   primary: {
     minHeight: minTouchSize,
@@ -103,6 +99,7 @@ const styles = StyleSheet.create({
   primaryText: { fontSize: fontSize.body, fontWeight: "bold", color: colors.white },
   secondary: {
     minHeight: 56,
+    backgroundColor: colors.white,
     borderRadius: 16,
     borderWidth: 2,
     borderColor: colors.border,
