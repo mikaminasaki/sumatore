@@ -1,20 +1,37 @@
-import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 import { router, useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useEffect } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useEffect, useState } from "react";
+import { Animated, Image, Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { CelebrationBackground } from "@/components/celebration-background";
 import { accents, colors, fontSize, minTouchSize } from "@/constants/theme";
 import { getCategory, getLevel, getNextLevel } from "@/data/lessons";
+import { pickClearCharacter } from "@/data/characters";
 
-// クリア画面。手に入れたパズルのピースを見せて、次のレベルへ進めるようにする
+// クリア画面。光と紙吹雪の中でキーコが跳ねる。次のレベルへ進めるようにする
 export default function ClearScreen() {
   const { levelId, earnedPiece } = useLocalSearchParams<{ levelId: string; earnedPiece?: string }>();
   const insets = useSafeAreaInsets();
   const level = getLevel(levelId);
   const next = getNextLevel(levelId);
   const accent = accents[(level && getCategory(level.categoryId)?.course) ?? "basic"];
+
+  // キーコの画像はクリアするたびに変わる (この画面を開いたときに 1 回だけ選ぶ)
+  const [character] = useState(pickClearCharacter);
+  const { height } = useWindowDimensions();
+
+  // 画面が出たら、ぶるっと震わせて、キーコを ぴょんぴょん 跳ねさせる
+  const [jump] = useState(() => new Animated.Value(0));
+  useEffect(() => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+    const hop = Animated.sequence([
+      Animated.timing(jump, { toValue: -24, duration: 220, useNativeDriver: true }),
+      Animated.spring(jump, { toValue: 0, friction: 4, useNativeDriver: true }),
+    ]);
+    Animated.sequence([hop, Animated.delay(150), hop]).start();
+  }, [jump]);
 
   // このクリアでピースがもらえたら、少し間をおいてピースゲット画面を重ねて出す
   const categoryId = level?.categoryId;
@@ -27,17 +44,20 @@ export default function ClearScreen() {
   return (
     <View style={[styles.container, { paddingTop: insets.top + 40, paddingBottom: insets.bottom + 24 }]}>
       <StatusBar style="dark" />
+      {/* 光の中心は、キーコのあたり */}
+      <CelebrationBackground centerY={height * 0.36} />
       <View style={styles.main}>
-        <View style={styles.character}>
-          {/* キャラクター画像は #7 で差し替える */}
-          <Ionicons name="happy" size={120} color={colors.brandRed} />
-        </View>
-        <Text style={styles.title}>クリア！</Text>
-        {level && (
-          <Text style={styles.message}>
-            レベル {level.level}「{level.description}」が{"\n"}できました
-          </Text>
-        )}
+        <Animated.View style={[styles.character, { transform: [{ translateY: jump }] }]}>
+          <Image
+            source={character}
+            accessibilityLabel="キャラクター"
+            style={styles.characterImage}
+            resizeMode="contain"
+          />
+        </Animated.View>
+        <Text style={[styles.title, { color: accent.main }]} numberOfLines={1} adjustsFontSizeToFit>
+          {level ? `レベル${level.level}クリア！` : "クリア！"}
+        </Text>
       </View>
 
       <View style={styles.buttons}>
@@ -47,7 +67,7 @@ export default function ClearScreen() {
             onPress={() => router.replace({ pathname: "/lesson/[levelId]", params: { levelId: next.id } })}
             style={({ pressed }) => [styles.primary, { backgroundColor: accent.main, borderBottomColor: accent.dark }, pressed && styles.pressed]}
           >
-            <Text style={styles.primaryText}>つぎの レベルへ</Text>
+            <Text style={styles.primaryText}>次の レベルへ</Text>
           </Pressable>
         )}
         <Pressable
@@ -55,7 +75,7 @@ export default function ClearScreen() {
           onPress={() => router.back()}
           style={({ pressed }) => [styles.secondary, pressed && styles.pressed]}
         >
-          <Text style={styles.secondaryText}>レベル いちらんに もどる</Text>
+          <Text style={styles.secondaryText}>レベル 一覧に 戻る</Text>
         </Pressable>
       </View>
     </View>
@@ -63,11 +83,12 @@ export default function ClearScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.white, paddingHorizontal: 20 },
-  main: { flex: 1, alignItems: "center", gap: 16 },
-  character: { height: 150, justifyContent: "center" },
-  title: { fontSize: 40, fontWeight: "bold", color: colors.burntOrange },
-  message: { fontSize: fontSize.body - 2, lineHeight: 28, color: colors.text, textAlign: "center" },
+  container: { flex: 1, backgroundColor: "#FFFDF6", paddingHorizontal: 20, justifyContent: "center", gap: 72 },
+  // キーコ・見出し・ボタンをまとめて、画面の真ん中に寄せる
+  main: { alignItems: "center", gap: 24 },
+  character: { justifyContent: "flex-end" },
+  characterImage: { width: 300, height: 300 },
+  title: { fontSize: 48, fontWeight: "bold" },
   buttons: { gap: 12 },
   primary: {
     minHeight: minTouchSize,
@@ -79,6 +100,7 @@ const styles = StyleSheet.create({
   primaryText: { fontSize: fontSize.body, fontWeight: "bold", color: colors.white },
   secondary: {
     minHeight: 56,
+    backgroundColor: colors.white,
     borderRadius: 16,
     borderWidth: 2,
     borderColor: colors.border,
