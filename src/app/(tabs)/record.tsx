@@ -59,7 +59,7 @@ export default function RecordScreen() {
             <Text style={styles.summary} accessibilityLiveRegion="polite">
               {loaded ? `獲得したピース ${collectedCategoryIds.length} / ${categories.length} 枚` : "記録を読み込み中"}
             </Text>
-            <Text accessibilityRole="header" style={styles.heading}>完了した練習</Text>
+            <Text accessibilityRole="header" style={styles.heading}>クリアした練習</Text>
 
             {!loaded ? (
               <ActivityIndicator color={colors.clearGreen} accessibilityLabel="記録を読み込み中" style={styles.loading} />
