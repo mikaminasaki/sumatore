@@ -57,20 +57,20 @@ export default function RecordScreen() {
               </View>
             </View>
             <Text style={styles.summary} accessibilityLiveRegion="polite">
-              {loaded ? `集めたピース ${collectedCategoryIds.length} / ${categories.length} まい` : "きろくを 読み込み中"}
+              {loaded ? `獲得したピース ${collectedCategoryIds.length} / ${categories.length} 枚` : "記録を読み込み中"}
             </Text>
-            <Text accessibilityRole="header" style={styles.heading}>クリアした練習</Text>
+            <Text accessibilityRole="header" style={styles.heading}>完了した練習</Text>
 
             {!loaded ? (
-              <ActivityIndicator color={colors.clearGreen} accessibilityLabel="きろくを読み込み中" style={styles.loading} />
+              <ActivityIndicator color={colors.clearGreen} accessibilityLabel="記録を読み込み中" style={styles.loading} />
             ) : clearedLevels.length === 0 ? (
               <View style={styles.emptyRow}>
                 <Ionicons name="checkmark-circle-outline" size={32} color={colors.gray} accessible={false} />
-                <Text style={styles.emptyText}>練習をクリアすると、ここに記録されます</Text>
+                <Text style={styles.emptyText}>練習を完了すると、ここに記録が表示されます</Text>
               </View>
             ) : (
               clearedLevels.map((level) => (
-                <View key={level.id} style={styles.row} accessible accessibilityLabel={`${level.categoryTitle}、レベル${level.level}、クリア済み`}>
+                <View key={level.id} style={styles.row} accessible accessibilityLabel={`${level.categoryTitle}、レベル${level.level}、完了済み`}>
                   <Ionicons name="checkmark-circle" size={32} color={colors.clearGreen} accessible={false} />
                   <View style={styles.rowText}>
                     <Text style={styles.categoryTitle}>{level.categoryTitle}</Text>
