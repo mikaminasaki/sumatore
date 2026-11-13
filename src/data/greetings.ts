@@ -8,22 +8,22 @@ type TimeOfDay = "morning" | "day" | "evening" | "night";
 
 const timeMessages: Record<TimeOfDay, string[]> = {
   morning: [
-    "おはよう！\nきょうも いっしょに\nれんしゅう しよう♪",
-    "おはよう！\nあさの れんしゅう、\nきもちいいね♪",
-    "おはよう！\nきょうも げんきに いこう♪",
+    "おはよう！\n今日も 一緒に\n練習 しよう♪",
+    "おはよう！\n朝の 練習、\n気持ちいいね♪",
+    "おはよう！\n今日も 元気に いこう♪",
   ],
   day: [
-    "こんにちは！\nすこしずつ やってみよう♪",
-    "こんにちは！\nきょうは どれを\nれんしゅう する？",
-    "こんにちは！\nゆっくりで\nだいじょうぶだよ♪",
+    "こんにちは！\n少しずつ やってみよう♪",
+    "こんにちは！\n今日は どれを\n練習 する？",
+    "こんにちは！\nゆっくりで\n大丈夫だよ♪",
   ],
   evening: [
-    "こんばんは！\nきょうも おつかれさま♪",
-    "こんばんは！\nすこしだけ\nれんしゅう しようか♪",
+    "こんばんは！\n今日も お疲れさま♪",
+    "こんばんは！\n少しだけ\n練習 しようか♪",
   ],
   night: [
-    "おそくまで えらいね。\nむりせず やろうね♪",
-    "こんばんは！\nねる まえに\nすこしだけ やろうか♪",
+    "遅くまで えらいね。\n無理せず やろうね♪",
+    "こんばんは！\n寝る 前に\n少しだけ やろうか♪",
   ],
 };
 
@@ -39,9 +39,9 @@ export function getProgressMessages(clearedLevelIds: string[]): string[] {
   const cleared = new Set(clearedLevelIds);
   const count = cleared.size;
 
-  if (count === 0) return ["はじめての れんしゅう、\nいっしょに やってみよう♪"];
+  if (count === 0) return ["初めての 練習、\n一緒に やってみよう♪"];
 
-  const messages = [`これまでに ${count}こ\nクリア したよ！\nすごいね♪`];
+  const messages = [`これまでに ${count}個\nクリア したよ！\nすごいね♪`];
 
   for (const category of categories) {
     const levels = getLevelsByCategory(category.id);
@@ -50,7 +50,7 @@ export function getProgressMessages(clearedLevelIds: string[]): string[] {
     if (done > 0 && left > 0 && left <= 2) {
       messages.push(`${category.title}は\nあと ${left}つで\nピースが もらえるよ♪`);
     } else if (done > 0 && left > 0) {
-      messages.push(`${category.title}の\nつづきを やってみよう♪`);
+      messages.push(`${category.title}の\n続きを やってみよう♪`);
     }
   }
   return messages;
