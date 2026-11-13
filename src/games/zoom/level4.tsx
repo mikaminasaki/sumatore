@@ -44,7 +44,7 @@ function ZoomLevel4({ step, onStepComplete }: GameProps) {
               return (
                 <Pressable
                   key={i}
-                  accessibilityLabel={different ? "違う ところ" : undefined}
+                  accessibilityLabel={different ? "違うところ" : undefined}
                   onPress={() => {
                     if (different && step === 1) onStepComplete();
                   }}
@@ -64,12 +64,12 @@ function ZoomLevel4({ step, onStepComplete }: GameProps) {
 export const zoom4: Game = {
   steps: [
     {
-      instruction: "2枚の 絵を 大きくしましょう",
-      hint: "2本の指を 広げます",
+      instruction: "2枚の絵を大きくしましょう",
+      hint: "2本の指を広げます",
     },
     {
-      instruction: "色の 枠の 絵で、お手本と 違う ところを タップしましょう",
-      hint: "指 1本で 絵を 動かして、比べます。1つだけ 形が 違います。お手本は 見るだけです",
+      instruction: "色の枠の絵で、お手本と違うところをタップしましょう",
+      hint: "指1本で絵を動かして、比べます。1つだけ形が違います。お手本は見るだけです",
     },
   ],
   Component: ZoomLevel4,

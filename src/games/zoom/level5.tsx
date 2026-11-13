@@ -30,7 +30,7 @@ function ZoomLevel5({ step, onStepComplete }: GameProps) {
           return (
             <Pressable
               key={i}
-              accessibilityLabel={isTarget ? "猫の 足あと" : undefined}
+              accessibilityLabel={isTarget ? "猫の足あと" : undefined}
               onPress={() => {
                 if (isTarget && step === 1) onStepComplete();
               }}
@@ -48,12 +48,12 @@ function ZoomLevel5({ step, onStepComplete }: GameProps) {
 export const zoom5: Game = {
   steps: [
     {
-      instruction: "お庭の 絵を 大きくしましょう",
-      hint: "2本の指を 広げます",
+      instruction: "お庭の絵を大きくしましょう",
+      hint: "2本の指を広げます",
     },
     {
-      instruction: "猫の 足あとを 探して、タップしましょう",
-      hint: "指 1本で 絵を 動かして 探します。指の 跡が 4つ 並んだ 形です",
+      instruction: "猫の足あとを探して、タップしましょう",
+      hint: "指1本で絵を動かして探します。指の跡が4つ並んだ形です",
     },
   ],
   Component: ZoomLevel5,
