@@ -1,9 +1,8 @@
-import { Ionicons } from "@expo/vector-icons";
+import { Image } from "expo-image";
 import { useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { GestureDetector, usePinchGesture } from "react-native-gesture-handler";
 
-import { colors } from "@/constants/theme";
 import type { Game, GameProps } from "@/games/types";
 
 const MIN_SCALE = 0.5;
@@ -35,10 +34,11 @@ function ZoomLevel1({ step, onStepComplete }: GameProps) {
   return (
     <GestureDetector gesture={pinch}>
       <View style={styles.area} accessibilityLabel="写真。2本の指で大きく・小さくできます">
-        {/* 写真は #7 で差し替える */}
-        <View style={[styles.photo, { transform: [{ scale }] }]}>
-          <Ionicons name="image" size={96} color={colors.clearGreen} />
-        </View>
+        <Image
+          source={require("@/assets/images/zoom/sky.jpg")}
+          contentFit="cover"
+          style={[styles.photo, { transform: [{ scale }] }]}
+        />
       </View>
     </GestureDetector>
   );
@@ -61,11 +61,8 @@ export const zoom1: Game = {
 const styles = StyleSheet.create({
   area: { flex: 1, alignSelf: "stretch", alignItems: "center", justifyContent: "center", overflow: "hidden" },
   photo: {
-    width: 160,
-    height: 120,
+    width: 200,
+    height: 112,
     borderRadius: 12,
-    backgroundColor: colors.white,
-    alignItems: "center",
-    justifyContent: "center",
   },
 });
