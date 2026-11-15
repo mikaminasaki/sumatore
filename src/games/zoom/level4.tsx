@@ -26,11 +26,13 @@ function ZoomLevel4({ step, onStepComplete }: GameProps) {
         {/* お手本は見るだけ。タップできるのは「探す絵」だけにする */}
         <View>
           <Text style={styles.label}>お手本</Text>
-          <Image
-            source={require("@/assets/images/zoom/station-a.jpg")}
-            style={[styles.photo, styles.panel]}
-            accessibilityLabel="お手本の写真。キーコと木古内駅の看板"
-          />
+          <View style={styles.panel}>
+            <Image
+              source={require("@/assets/images/zoom/station-a.jpg")}
+              style={styles.photo}
+              accessibilityLabel="お手本の写真。キーコと木古内駅の看板"
+            />
+          </View>
         </View>
         <View>
           <Text style={[styles.label, styles.labelActive]}>探す絵</Text>
