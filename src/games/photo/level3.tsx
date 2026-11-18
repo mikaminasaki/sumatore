@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+
+import { accents, colors, fontSize, minTouchSize } from "@/constants/theme";
 
 import type { Game, GameProps } from "@/games/types";
 
-import { AlbumAction, AlbumPrompt, PhotoAlbum } from "./album";
+import { AlbumPrompt, PhotoAlbum } from "./album";
 import { blanketDogPhotoIndex } from "./photos";
 
 function BlanketAnswer({ correctPhoto, zoomed, onCorrect }: { correctPhoto: boolean; zoomed: boolean; onCorrect: () => void }) {
@@ -25,8 +27,12 @@ function BlanketAnswer({ correctPhoto, zoomed, onCorrect }: { correctPhoto: bool
     <View>
       <AlbumPrompt>{feedback ?? "毛布はどちらの模様ですか？"}</AlbumPrompt>
       <View style={styles.options}>
-        <AlbumAction title="チェック" onPress={() => answer(true)} />
-        <AlbumAction title="水玉" onPress={() => answer(false)} />
+        <Pressable accessibilityRole="button" onPress={() => answer(true)} style={({ pressed }) => [styles.answerButton, pressed && styles.answerButtonPressed]}>
+          <Text style={styles.answerText}>チェック</Text>
+        </Pressable>
+        <Pressable accessibilityRole="button" onPress={() => answer(false)} style={({ pressed }) => [styles.answerButton, pressed && styles.answerButtonPressed]}>
+          <Text style={styles.answerText}>水玉</Text>
+        </Pressable>
       </View>
     </View>
   );
@@ -53,5 +59,8 @@ export const photo3: Game = {
 };
 
 const styles = StyleSheet.create({
-  options: { flexDirection: "row", justifyContent: "space-evenly" },
+  options: { flexDirection: "row", gap: 12, paddingHorizontal: 12, paddingVertical: 8 },
+  answerButton: { flex: 1, minWidth: 0, minHeight: minTouchSize, paddingHorizontal: 12, paddingVertical: 12, alignItems: "center", justifyContent: "center", borderWidth: 2, borderColor: accents.practice.main, borderRadius: 12, backgroundColor: colors.white },
+  answerButtonPressed: { backgroundColor: accents.practice.pale, transform: [{ scale: 0.98 }] },
+  answerText: { color: accents.practice.dark, fontSize: fontSize.body, fontWeight: "bold", textAlign: "center" },
 });
