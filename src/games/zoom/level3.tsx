@@ -17,6 +17,8 @@ function ZoomLevel3({ step, onStepComplete }: GameProps) {
       <ZoomArea
         pannable
         minScale={1}
+        // 文字が 7px と小さいので、他のレベル (4倍) より大きく 8倍まで拡大できるようにする
+        maxScale={8}
         onPinchEnd={(scale) => {
           if (step === 0 && scale >= 2) onStepComplete();
         }}
