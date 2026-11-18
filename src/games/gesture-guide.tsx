@@ -7,12 +7,10 @@ import type { GestureGuideType } from "@/games/types";
 
 type Props = {
   type: GestureGuideType;
-  // 矢印の色 (コースの色)
-  color: string;
 };
 
-const HAND_SIZE = 72;
-const ARROW_SIZE = 48;
+// 手の絵の大きさ
+const ICON_SIZE = 120;
 // 1 回の動きにかける時間
 const MOVE_MS = 1100;
 // 指が動く距離
@@ -40,22 +38,17 @@ function OutlinedIcon({ name, size, color, outline }: { name: IconName; size: nu
   );
 }
 
-// 白い手 (黒いふち付き)
-function Hand({ rotate = "0deg" }: { rotate?: string }) {
-  return (
-    <View style={{ transform: [{ rotate }] }}>
-      <OutlinedIcon name="hand-pointing-up" size={HAND_SIZE} color={colors.white} outline={colors.text} />
-    </View>
-  );
-}
+// 動きごとの手の絵 (片手の指の動きと矢印が 1 つの絵になっている)
+const ICONS: Record<GestureGuideType, IconName> = {
+  "pinch-out": "gesture-spread",
+  "pinch-in": "gesture-pinch",
+  pan: "gesture-swipe-horizontal",
+  tap: "gesture-tap",
+};
 
-// 矢印 (白いふち付き)
-function Arrow({ name, color }: { name: IconName; color: string }) {
-  return <OutlinedIcon name={name} size={ARROW_SIZE} color={color} outline={colors.white} />;
-}
-
-// 練習エリアに重ねる、指の動かし方の案内。触ってもその下の操作の邪魔をしない
-export function GestureGuide({ type, color }: Props) {
+// 練習エリアに重ねる、指の動かし方の案内。触ってもその下の操作の邪魔をしない。
+// 白い絵に黒いふちを付けて、青空などの写真の上でも見えるようにする
+export function GestureGuide({ type }: Props) {
   const [progress] = useState(() => new Animated.Value(0));
 
   useEffect(() => {
@@ -72,49 +65,20 @@ export function GestureGuide({ type, color }: Props) {
     return () => loop.stop();
   }, [progress, type]);
 
-  if (type === "pinch-out" || type === "pinch-in") {
-    // 広げるときは内→外、縮めるときは外→内に指を動かす
-    const [from, to] = type === "pinch-out" ? [0, SPREAD] : [SPREAD, 0];
-    const offset = progress.interpolate({ inputRange: [0, 1], outputRange: [from, to] });
-    const negative = Animated.multiply(offset, -1);
-    return (
-      <View pointerEvents="none" style={styles.overlay} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-        <View style={styles.pair}>
-          <Animated.View style={[styles.side, { transform: [{ translateX: negative }, { translateY: offset }] }]}>
-            <Arrow name="arrow-top-right-bottom-left" color={color} />
-            <Hand rotate="-20deg" />
-          </Animated.View>
-          <Animated.View style={[styles.side, { transform: [{ translateX: offset }, { translateY: offset }] }]}>
-            <Arrow name="arrow-top-left-bottom-right" color={color} />
-            <Hand rotate="20deg" />
-          </Animated.View>
-        </View>
-      </View>
-    );
-  }
+  // 広げるときは小→大、縮めるときは大→小、動かすときは左右、タップは押し込む
+  const transform =
+    type === "pinch-out"
+      ? [{ scale: progress.interpolate({ inputRange: [0, 1], outputRange: [0.8, 1.15] }) }]
+      : type === "pinch-in"
+        ? [{ scale: progress.interpolate({ inputRange: [0, 1], outputRange: [1.15, 0.8] }) }]
+        : type === "pan"
+          ? [{ translateX: progress.interpolate({ inputRange: [0, 0.5, 1], outputRange: [-SPREAD, SPREAD, -SPREAD] }) }]
+          : [{ translateY: progress.interpolate({ inputRange: [0, 0.4, 0.6, 1], outputRange: [0, 10, 10, 0] }) }];
 
-  if (type === "pan") {
-    // 指 1 本で左右に動かす
-    const x = progress.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, SPREAD * 1.5, 0] });
-    return (
-      <View pointerEvents="none" style={styles.overlay} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-        <Animated.View style={[styles.side, { transform: [{ translateX: x }] }]}>
-          <Arrow name="arrow-all" color={color} />
-          <Hand />
-        </Animated.View>
-      </View>
-    );
-  }
-
-  // tap: 指を押し込みながら、押す場所に丸が広がる
-  const pressY = progress.interpolate({ inputRange: [0, 0.4, 0.6, 1], outputRange: [0, 12, 12, 0] });
-  const ringScale = progress.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0.6, 1.2, 1.2] });
-  const ringOpacity = progress.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, 0.9, 0] });
   return (
     <View pointerEvents="none" style={styles.overlay} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-      <Animated.View style={[styles.ring, { borderColor: color, opacity: ringOpacity, transform: [{ scale: ringScale }] }]} />
-      <Animated.View style={{ transform: [{ translateY: pressY }] }}>
-        <Hand />
+      <Animated.View style={{ transform }}>
+        <OutlinedIcon name={ICONS[type]} size={ICON_SIZE} color={colors.white} outline={colors.text} />
       </Animated.View>
     </View>
   );
@@ -130,8 +94,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  pair: { flexDirection: "row", gap: 40, marginTop: 40 },
-  side: { alignItems: "center" },
   layer: { position: "absolute", left: 0, top: 0 },
-  ring: { position: "absolute", width: 64, height: 64, borderRadius: 32, borderWidth: 4, marginTop: -40 },
 });

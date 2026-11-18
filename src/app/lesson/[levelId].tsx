@@ -102,7 +102,7 @@ export default function LessonScreen() {
 
   // 指の動かし方の案内。基本操作編は毎回、実践編はヒントを開いているときだけ出す。「できた！」の間は消す
   const showGuide = !!currentStep?.guide && !celebrating && (category?.course === "basic" || showHint);
-  const gestureGuide = showGuide && currentStep?.guide && <GestureGuide type={currentStep.guide} color={accent.main} />;
+  const gestureGuide = showGuide && currentStep?.guide && <GestureGuide type={currentStep.guide} />;
 
   if (category?.id === "photo" && game) {
     return (
