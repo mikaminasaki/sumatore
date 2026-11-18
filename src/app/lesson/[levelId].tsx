@@ -67,8 +67,6 @@ export default function LessonScreen() {
     }, CELEBRATE_MS);
   };
 
-  const bubbleText = showHint && currentStep ? currentStep.hint : (currentStep?.instruction ?? level?.description);
-
   const celebration = celebrating && (
     <View pointerEvents="none" style={styles.celebrate}>
       <Animated.View
@@ -121,16 +119,40 @@ export default function LessonScreen() {
       </View>
 
       <View style={[styles.body, { paddingBottom: insets.bottom + 16 }]}>
+        {/* お題と、右上のヒントボタン (実践編と同じ並び) */}
         <View style={styles.guide}>
-          <View style={styles.character}>
-            {/* キャラクター画像は #7 で差し替える */}
-            <Ionicons name="happy" size={48} color={colors.brandRed} />
+          <View style={[styles.taskBox, { backgroundColor: accent.pale, borderLeftColor: accent.main }]}>
+            <Text style={[styles.taskLabel, { color: accent.dark }]}>お題</Text>
+            <Text style={styles.taskText}>{currentStep?.instruction ?? level?.description}</Text>
           </View>
-          <View style={[styles.bubble, showHint && { borderColor: accent.main }]}>
-            {showHint && <Text style={[styles.hintLabel, { color: accent.main }]}>ヒント</Text>}
-            <Text style={styles.bubbleText}>{bubbleText}</Text>
-          </View>
+          {game && (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={showHint ? "ヒントをとじる" : "ヒントを見る"}
+              accessibilityState={{ expanded: showHint }}
+              onPress={() => setShowHint(!showHint)}
+              style={({ pressed }) => [
+                styles.hintButton,
+                { borderColor: accent.main },
+                showHint && { backgroundColor: accent.main },
+                pressed && styles.pressed,
+              ]}
+            >
+              <Ionicons name={showHint ? "close" : "bulb-outline"} size={24} color={showHint ? colors.white : accent.main} />
+              <Text style={[styles.hintText, { color: showHint ? colors.white : accent.main }]}>
+                {showHint ? "とじる" : "ヒント"}
+              </Text>
+            </Pressable>
+          )}
         </View>
+        {showHint && currentStep && (
+          <Text
+            accessibilityLiveRegion="polite"
+            style={[styles.hintBand, { color: accent.dark, backgroundColor: accent.pale, borderColor: accent.main }]}
+          >
+            {currentStep.hint}
+          </Text>
+        )}
 
         <View style={styles.practiceArea}>
           {game ? (
@@ -144,15 +166,6 @@ export default function LessonScreen() {
           {celebration}
         </View>
 
-        {game && (
-          <Pressable
-            accessibilityRole="button"
-            onPress={() => setShowHint(!showHint)}
-            style={({ pressed }) => [styles.hintButton, { borderColor: accent.main }, pressed && styles.pressed]}
-          >
-            <Text style={[styles.hintText, { color: accent.main }]}>{showHint ? "ヒントを とじる" : "ヒントを 見る"}</Text>
-          </Pressable>
-        )}
       </View>
     </View>
   );
@@ -182,18 +195,29 @@ const styles = StyleSheet.create({
   stepText: { fontSize: fontSize.small, color: colors.text, marginRight: 6 },
   stepBar: { flex: 1, height: 8, borderRadius: 4, backgroundColor: colors.border },
   body: { flex: 1, padding: 16, gap: 16 },
-  guide: { flexDirection: "row", alignItems: "flex-start", gap: 10 },
-  character: { width: 64, height: 64, alignItems: "center", justifyContent: "center" },
-  bubble: {
-    flex: 1,
-    padding: 14,
+  guide: { flexDirection: "row", alignItems: "stretch", gap: 10 },
+  taskBox: { flex: 1, paddingHorizontal: 14, paddingVertical: 10, gap: 4, borderRadius: 8, borderLeftWidth: 4 },
+  taskLabel: { fontSize: fontSize.small, fontWeight: "bold" },
+  taskText: { fontSize: fontSize.body, lineHeight: 30, fontWeight: "bold", color: colors.text },
+  hintButton: {
+    width: 84,
+    minHeight: minTouchSize,
     borderRadius: 16,
     borderWidth: 2,
-    borderColor: colors.border,
     backgroundColor: colors.white,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 2,
   },
-  hintLabel: { fontSize: fontSize.small, fontWeight: "bold", marginBottom: 4 },
-  bubbleText: { fontSize: fontSize.body, lineHeight: 30, color: colors.text },
+  hintText: { fontSize: fontSize.small, fontWeight: "bold" },
+  hintBand: {
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 8,
+    borderWidth: 2,
+    fontSize: fontSize.body,
+    lineHeight: 30,
+  },
   practiceArea: {
     flex: 1,
     borderRadius: 16,
@@ -218,14 +242,5 @@ const styles = StyleSheet.create({
   celebrateText: { fontSize: fontSize.title, fontWeight: "bold", color: colors.clearGreen, marginTop: 4 },
   tempButton: { paddingHorizontal: 20, paddingVertical: 10, borderRadius: 20, backgroundColor: colors.white },
   tempButtonText: { fontSize: fontSize.small, color: colors.textSub },
-  hintButton: {
-    minHeight: minTouchSize,
-    borderRadius: 16,
-    borderWidth: 2,
-    backgroundColor: colors.white,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  hintText: { fontSize: fontSize.body, fontWeight: "bold" },
   pressed: { opacity: 0.7 },
 });
