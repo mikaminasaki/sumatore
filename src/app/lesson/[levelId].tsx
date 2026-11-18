@@ -80,7 +80,7 @@ export default function LessonScreen() {
         pressed && styles.pressed,
       ]}
     >
-      <Ionicons name={showHint ? "close" : "bulb-outline"} size={24} color={showHint ? colors.white : accent.main} />
+      <Ionicons name={showHint ? "close" : "bulb-outline"} size={18} color={showHint ? colors.white : accent.main} />
       <Text style={[styles.hintText, { color: showHint ? colors.white : accent.main }]}>
         {showHint ? "とじる" : "ヒント"}
       </Text>
@@ -129,6 +129,16 @@ export default function LessonScreen() {
     <View style={styles.container}>
       <AppHeader title={level ? `レベル ${level.level}` : ""} subtitle={category?.title} leftButton="close" accent={accent} right={hintButton} />
 
+      {/* ヒントはボタンのすぐ下に、吹き出しのように出す */}
+      {showHint && currentStep && (
+        <View style={[styles.hintPanel, { backgroundColor: accent.main }]}>
+          <View style={[styles.hintCaret, { borderBottomColor: colors.white }]} />
+          <Text accessibilityLiveRegion="polite" style={styles.hintBand}>
+            {currentStep.hint}
+          </Text>
+        </View>
+      )}
+
       <View style={styles.stepRow}>
         <Text style={styles.stepText}>
           ステップ {step + 1} / {totalSteps}
@@ -146,14 +156,6 @@ export default function LessonScreen() {
             <Text style={styles.taskText}>{currentStep?.instruction ?? level?.description}</Text>
           </View>
         </View>
-        {showHint && currentStep && (
-          <Text
-            accessibilityLiveRegion="polite"
-            style={[styles.hintBand, { borderColor: accent.main }]}
-          >
-            {currentStep.hint}
-          </Text>
-        )}
 
         <View style={styles.practiceArea}>
           {game ? (
@@ -203,25 +205,39 @@ const styles = StyleSheet.create({
   hintButton: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
-    minHeight: 52,
-    paddingHorizontal: 14,
-    borderRadius: 24,
+    gap: 2,
+    minHeight: 40,
+    paddingHorizontal: 10,
+    borderRadius: 20,
     borderWidth: 2,
     borderColor: colors.white,
     backgroundColor: colors.white,
   },
-  hintText: { fontSize: 20, fontWeight: "bold" },
+  hintText: { fontSize: 16, fontWeight: "bold" },
+  hintPanel: { paddingHorizontal: 16, paddingBottom: 12 },
+  // ボタンを指す小さな三角
+  hintCaret: {
+    alignSelf: "flex-end",
+    marginRight: 36,
+    width: 0,
+    height: 0,
+    borderLeftWidth: 10,
+    borderRightWidth: 10,
+    borderBottomWidth: 10,
+    borderLeftColor: "transparent",
+    borderRightColor: "transparent",
+  },
   hintBand: {
     paddingHorizontal: 14,
     paddingVertical: 10,
-    borderRadius: 8,
-    borderWidth: 2,
+    borderRadius: 12,
     fontSize: fontSize.body,
     lineHeight: 30,
     color: colors.text,
     backgroundColor: colors.white,
+    overflow: "hidden",
   },
+
   practiceArea: {
     flex: 1,
     borderRadius: 16,
