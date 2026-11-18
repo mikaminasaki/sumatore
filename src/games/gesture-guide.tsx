@@ -38,10 +38,57 @@ function OutlinedIcon({ name, size, color, outline }: { name: IconName; size: nu
   );
 }
 
+// ---- 2本の指でつまむ・広げる手 ----
+// 手のひらと、根元で回る人差し指・親指で描く。指先は斜めに開いたり閉じたりする
+const FINGER_WIDTH = 22;
+const BORDER = 3;
+// 指の根元の位置と長さ (手の絵の中の座標)
+const INDEX = { x: 88, y: 84, length: 50 };
+const THUMB = { x: 70, y: 100, length: 48 };
+// 指の角度 (真上を 0 として時計回り)。閉じると指先がくっつき、開くと右上と左下に離れる
+const ANGLES = {
+  closed: { index: -60, thumb: -31 },
+  open: { index: -8, thumb: -82 },
+};
+
+function Finger({ base, length, rotate }: { base: { x: number; y: number }; length: number; rotate: Animated.AnimatedInterpolation<string> }) {
+  return (
+    <Animated.View
+      style={[
+        styles.finger,
+        {
+          left: base.x - FINGER_WIDTH / 2,
+          top: base.y - length,
+          height: length + FINGER_WIDTH / 2,
+          transformOrigin: `50% ${((length) / (length + FINGER_WIDTH / 2)) * 100}%`,
+          transform: [{ rotate }],
+        },
+      ]}
+    />
+  );
+}
+
+function PinchHand({ progress, spread }: { progress: Animated.Value; spread: boolean }) {
+  const [from, to] = spread ? [ANGLES.closed, ANGLES.open] : [ANGLES.open, ANGLES.closed];
+  const index = progress.interpolate({ inputRange: [0, 1], outputRange: [`${from.index}deg`, `${to.index}deg`] });
+  const thumb = progress.interpolate({ inputRange: [0, 1], outputRange: [`${from.thumb}deg`, `${to.thumb}deg`] });
+  return (
+    <View style={styles.hand}>
+      <View style={styles.arrow}>
+        <OutlinedIcon name="arrow-top-right-bottom-left" size={44} color={colors.white} outline={colors.text} />
+      </View>
+      <Finger base={THUMB} length={THUMB.length} rotate={thumb} />
+      <Finger base={INDEX} length={INDEX.length} rotate={index} />
+      <View style={styles.palm} />
+    </View>
+  );
+}
+
 // 動きごとの手の絵 (片手の指の動きと矢印が 1 つの絵になっている)
 const ICONS: Record<GestureGuideType, IconName> = {
   "pinch-out": "gesture-spread",
   "pinch-in": "gesture-pinch",
+  // pinch-out / pinch-in は PinchHand で描くので、ここの絵は使わない
   pan: "gesture-swipe-horizontal",
   tap: "gesture-tap",
 };
@@ -65,15 +112,19 @@ export function GestureGuide({ type }: Props) {
     return () => loop.stop();
   }, [progress, type]);
 
-  // 広げるときは小→大、縮めるときは大→小、動かすときは左右、タップは押し込む
+  // 動かすときは左右、タップは押し込む
   const transform =
-    type === "pinch-out"
-      ? [{ scale: progress.interpolate({ inputRange: [0, 1], outputRange: [0.8, 1.15] }) }]
-      : type === "pinch-in"
-        ? [{ scale: progress.interpolate({ inputRange: [0, 1], outputRange: [1.15, 0.8] }) }]
-        : type === "pan"
-          ? [{ translateX: progress.interpolate({ inputRange: [0, 0.5, 1], outputRange: [-SPREAD, SPREAD, -SPREAD] }) }]
-          : [{ translateY: progress.interpolate({ inputRange: [0, 0.4, 0.6, 1], outputRange: [0, 10, 10, 0] }) }];
+    type === "pan"
+      ? [{ translateX: progress.interpolate({ inputRange: [0, 0.5, 1], outputRange: [-SPREAD, SPREAD, -SPREAD] }) }]
+      : [{ translateY: progress.interpolate({ inputRange: [0, 0.4, 0.6, 1], outputRange: [0, 10, 10, 0] }) }];
+
+  if (type === "pinch-out" || type === "pinch-in") {
+    return (
+      <View pointerEvents="none" style={styles.overlay} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+        <PinchHand progress={progress} spread={type === "pinch-out"} />
+      </View>
+    );
+  }
 
   return (
     <View pointerEvents="none" style={styles.overlay} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
@@ -95,4 +146,25 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   layer: { position: "absolute", left: 0, top: 0 },
+  hand: { width: 150, height: 160, transform: [{ scale: 1.2 }] },
+  arrow: { position: "absolute", left: 4, top: 8 },
+  finger: {
+    position: "absolute",
+    width: FINGER_WIDTH,
+    borderRadius: FINGER_WIDTH / 2,
+    borderWidth: BORDER,
+    borderColor: colors.text,
+    backgroundColor: colors.white,
+  },
+  palm: {
+    position: "absolute",
+    left: 64,
+    top: 80,
+    width: 66,
+    height: 76,
+    borderRadius: 26,
+    borderWidth: BORDER,
+    borderColor: colors.text,
+    backgroundColor: colors.white,
+  },
 });
