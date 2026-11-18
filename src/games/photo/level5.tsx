@@ -1,6 +1,7 @@
 import type { Game, GameProps } from "@/games/types";
 
-import { AlbumPrompt, ConfirmPhoto, PhotoAlbum } from "./album";
+import { AlbumPrompt, PhotoAlbum } from "./album";
+import { ConfirmSelection } from "./confirm-selection";
 import { snowPhotoIndex } from "./photos";
 
 function PhotoLevel5({ onStepComplete }: GameProps) {
@@ -8,10 +9,17 @@ function PhotoLevel5({ onStepComplete }: GameProps) {
     <PhotoAlbum
       actions={(index, _zoomed, { isFavorite, fromFavorites }) => {
         if (fromFavorites) {
-          return <ConfirmPhoto key={index} correct={index === snowPhotoIndex && isFavorite} onCorrect={onStepComplete} />;
+          return (
+            <ConfirmSelection
+              key={index}
+              correct={index === snowPhotoIndex && isFavorite}
+              onCorrect={onStepComplete}
+              retryMessage="別の写真です。「お気に入り」から雪山の写真を探しましょう。"
+            />
+          );
         }
 
-        return <AlbumPrompt>一覧に戻り、「お気に入り」を開いてください</AlbumPrompt>;
+        return <AlbumPrompt>一覧へ戻り、「お気に入り」から雪山の写真を開いてください。</AlbumPrompt>;
       }}
     />
   );
@@ -19,8 +27,8 @@ function PhotoLevel5({ onStepComplete }: GameProps) {
 
 export const photo5: Game = {
   steps: [{
-    instruction: "「お気に入り」から雪山の写真を開いて、家族に見せてください",
-    hint: "一覧の「お気に入り」をタップしてください。雪山の写真がない場合は、先にハートを押して登録してください",
+    instruction: "「お気に入り」を開いて、雪山の写真を探しましょう。",
+    hint: "一覧の「お気に入り」をタップしてください。雪山の写真がない場合は、先にハートを押して登録してください。見つけたら「この写真を選ぶ」を押してください。",
   }],
   Component: PhotoLevel5,
 };
