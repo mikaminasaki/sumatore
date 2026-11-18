@@ -1,19 +1,16 @@
-import { Ionicons } from "@expo/vector-icons";
+import { Image } from "expo-image";
 import { Pressable, StyleSheet, View } from "react-native";
 
-import { colors } from "@/constants/theme";
 import type { Game, GameProps } from "@/games/types";
 import { ZoomArea } from "@/games/zoom/zoom-area";
 
-type IconName = React.ComponentProps<typeof Ionicons>["name"];
+// 写真の縦横比 (横 1120 × 縦 1400)
+const PHOTO_ASPECT = 1120 / 1400;
+// 猫がいる場所 (写真の幅・高さに対する割合)。猫は横 72〜80%・縦 60〜75% あたり。
+// シニア向けに、まわりを少し広めに取る
+const CAT_AREA = { left: "69%", top: "57%", width: "14%", height: "21%" } as const;
 
-const COLUMNS = 8;
-const ROWS = 10;
-const ICONS: IconName[] = ["leaf", "flower", "rose", "nutrition"];
-const TARGET_INDEX = 53;
-const CELLS: IconName[] = Array.from({ length: COLUMNS * ROWS }, (_, i) => ICONS[(i * 3 + (i % 5)) % ICONS.length]);
-
-// 拡大・縮小編 レベル 5: 絵の中から指定されたものをさがす
+// 拡大・縮小編 レベル 5: 町の写真を拡大して、隠れている猫を探す
 function ZoomLevel5({ step, onStepComplete }: GameProps) {
   return (
     <ZoomArea
@@ -23,23 +20,21 @@ function ZoomLevel5({ step, onStepComplete }: GameProps) {
         if (step === 0 && scale >= 1.8) onStepComplete();
       }}
     >
-      {/* 写真は #7 で差し替える */}
       <View style={styles.scene}>
-        {CELLS.map((icon, i) => {
-          const isTarget = i === TARGET_INDEX;
-          return (
-            <Pressable
-              key={i}
-              accessibilityLabel={isTarget ? "猫の足あと" : undefined}
-              onPress={() => {
-                if (isTarget && step === 1) onStepComplete();
-              }}
-              style={styles.cell}
-            >
-              <Ionicons name={isTarget ? "paw" : icon} size={14} color={colors.clearGreen} />
-            </Pressable>
-          );
-        })}
+        <Image
+          source={require("@/assets/images/zoom/street.jpg")}
+          contentFit="cover"
+          style={StyleSheet.absoluteFill}
+          accessibilityLabel="雪の残る商店街の写真"
+        />
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="猫"
+          onPress={() => {
+            if (step === 1) onStepComplete();
+          }}
+          style={[styles.cat, CAT_AREA]}
+        />
       </View>
     </ZoomArea>
   );
@@ -48,12 +43,12 @@ function ZoomLevel5({ step, onStepComplete }: GameProps) {
 export const zoom5: Game = {
   steps: [
     {
-      instruction: "お庭の絵を大きくしましょう",
+      instruction: "町の写真を大きくしましょう",
       hint: "2本の指を広げます",
     },
     {
-      instruction: "猫の足あとを探して、タップしましょう",
-      hint: "指1本で絵を動かして探します。指の跡が4つ並んだ形です",
+      instruction: "ねこを探して、タップしましょう",
+      hint: "八百屋さんの木の箱のあたりを見てみましょう",
     },
   ],
   Component: ZoomLevel5,
@@ -61,12 +56,11 @@ export const zoom5: Game = {
 
 const styles = StyleSheet.create({
   scene: {
-    width: 8 * 26 + 8,
-    flexDirection: "row",
-    flexWrap: "wrap",
-    padding: 4,
+    height: "100%",
+    aspectRatio: PHOTO_ASPECT,
+    maxWidth: "100%",
     borderRadius: 4,
-    backgroundColor: colors.white,
+    overflow: "hidden",
   },
-  cell: { width: 26, height: 26, alignItems: "center", justifyContent: "center" },
+  cat: { position: "absolute" },
 });

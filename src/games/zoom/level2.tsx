@@ -1,4 +1,4 @@
-import { Ionicons } from "@expo/vector-icons";
+import { Image } from "expo-image";
 import { StyleSheet, View } from "react-native";
 
 import { colors } from "@/constants/theme";
@@ -28,10 +28,12 @@ function ZoomLevel2({ step, onStepComplete }: GameProps) {
           if (Math.abs(scale - target) / target <= TOLERANCE) onStepComplete();
         }}
       >
-        <View style={styles.photo} accessibilityLabel="写真。2本の指で大きく・小さくできます">
-          {/* 写真は #7 で差し替える */}
-          <Ionicons name="image" size={64} color={colors.clearGreen} />
-        </View>
+        <Image
+          source={require("@/assets/images/zoom/rose.jpg")}
+          contentFit="cover"
+          style={styles.photo}
+          accessibilityLabel="バラの写真。2本の指で大きく・小さくできます"
+        />
       </ZoomArea>
     </View>
   );
@@ -59,8 +61,5 @@ const styles = StyleSheet.create({
     width: PHOTO_WIDTH,
     height: PHOTO_HEIGHT,
     borderRadius: 8,
-    backgroundColor: colors.white,
-    alignItems: "center",
-    justifyContent: "center",
   },
 });
