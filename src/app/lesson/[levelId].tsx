@@ -122,7 +122,7 @@ export default function LessonScreen() {
         {/* お題と、右上のヒントボタン (実践編と同じ並び) */}
         <View style={styles.guide}>
           <View style={[styles.taskBox, { backgroundColor: accent.pale, borderLeftColor: accent.main }]}>
-            <Text style={[styles.taskLabel, { color: accent.dark }]}>お題</Text>
+            <Text style={styles.taskLabel}>お題</Text>
             <Text style={styles.taskText}>{currentStep?.instruction ?? level?.description}</Text>
           </View>
           {game && (
@@ -148,7 +148,7 @@ export default function LessonScreen() {
         {showHint && currentStep && (
           <Text
             accessibilityLiveRegion="polite"
-            style={[styles.hintBand, { color: accent.dark, backgroundColor: accent.pale, borderColor: accent.main }]}
+            style={[styles.hintBand, { borderColor: accent.main }]}
           >
             {currentStep.hint}
           </Text>
@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
   body: { flex: 1, padding: 16, gap: 16 },
   guide: { flexDirection: "row", alignItems: "stretch", gap: 10 },
   taskBox: { flex: 1, paddingHorizontal: 14, paddingVertical: 10, gap: 4, borderRadius: 8, borderLeftWidth: 4 },
-  taskLabel: { fontSize: fontSize.small, fontWeight: "bold" },
+  taskLabel: { fontSize: fontSize.small, fontWeight: "bold", color: colors.text },
   taskText: { fontSize: fontSize.body, lineHeight: 30, fontWeight: "bold", color: colors.text },
   hintButton: {
     width: 84,
@@ -217,6 +217,8 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     fontSize: fontSize.body,
     lineHeight: 30,
+    color: colors.text,
+    backgroundColor: colors.white,
   },
   practiceArea: {
     flex: 1,
