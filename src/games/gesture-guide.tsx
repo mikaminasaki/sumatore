@@ -134,6 +134,6 @@ const styles = StyleSheet.create({
   },
   layer: { position: "absolute", left: 0, top: 0 },
   pinch: { width: HAND_WIDTH, height: HAND_HEIGHT, marginTop: 40 },
-  pinchArrow: { position: "absolute", left: 6, top: 30, transform: [{ rotate: "90deg" }] },
+  pinchArrow: { position: "absolute", left: 6, top: 30 },
   handLayer: { position: "absolute", left: 0, top: 0, width: HAND_WIDTH, height: HAND_HEIGHT },
 });
