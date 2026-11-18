@@ -1,5 +1,5 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ComponentProps } from "react";
 import { Animated, Easing, StyleSheet, View } from "react-native";
 
 import { colors } from "@/constants/theme";
@@ -18,14 +18,40 @@ const MOVE_MS = 1100;
 // 指が動く距離
 const SPREAD = 28;
 
-// 白い手 (黒いふち付き)。アイコンを少し大きくした黒の上に白を重ねて、ふちに見せる
-function Hand({ rotate = "0deg" }: { rotate?: string }) {
+type IconName = ComponentProps<typeof MaterialCommunityIcons>["name"];
+
+// ふちの太さ。同じアイコンを 8 方向に少しずらして下に重ね、ふちに見せる
+const OUTLINE = 2.5;
+const OUTLINE_OFFSETS = [
+  [-1, -1], [0, -1], [1, -1],
+  [-1, 0], [1, 0],
+  [-1, 1], [0, 1], [1, 1],
+].map(([x, y]) => [x * OUTLINE, y * OUTLINE]);
+
+// ふち付きのアイコン (写真の上でも見えるように)
+function OutlinedIcon({ name, size, color, outline }: { name: IconName; size: number; color: string; outline: string }) {
   return (
-    <View style={[styles.hand, { transform: [{ rotate }] }]}>
-      <MaterialCommunityIcons name="hand-pointing-up" size={HAND_SIZE + 8} color={colors.text} style={styles.handOutline} />
-      <MaterialCommunityIcons name="hand-pointing-up" size={HAND_SIZE} color={colors.white} />
+    <View style={{ width: size, height: size }}>
+      {OUTLINE_OFFSETS.map(([x, y], i) => (
+        <MaterialCommunityIcons key={i} name={name} size={size} color={outline} style={[styles.layer, { left: x, top: y }]} />
+      ))}
+      <MaterialCommunityIcons name={name} size={size} color={color} style={styles.layer} />
     </View>
   );
+}
+
+// 白い手 (黒いふち付き)
+function Hand({ rotate = "0deg" }: { rotate?: string }) {
+  return (
+    <View style={{ transform: [{ rotate }] }}>
+      <OutlinedIcon name="hand-pointing-up" size={HAND_SIZE} color={colors.white} outline={colors.text} />
+    </View>
+  );
+}
+
+// 矢印 (白いふち付き)
+function Arrow({ name, color }: { name: IconName; color: string }) {
+  return <OutlinedIcon name={name} size={ARROW_SIZE} color={color} outline={colors.white} />;
 }
 
 // 練習エリアに重ねる、指の動かし方の案内。触ってもその下の操作の邪魔をしない
@@ -55,11 +81,11 @@ export function GestureGuide({ type, color }: Props) {
       <View pointerEvents="none" style={styles.overlay} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
         <View style={styles.pair}>
           <Animated.View style={[styles.side, { transform: [{ translateX: negative }, { translateY: offset }] }]}>
-            <MaterialCommunityIcons name="arrow-top-right-bottom-left" size={ARROW_SIZE} color={color} />
+            <Arrow name="arrow-top-right-bottom-left" color={color} />
             <Hand rotate="-20deg" />
           </Animated.View>
           <Animated.View style={[styles.side, { transform: [{ translateX: offset }, { translateY: offset }] }]}>
-            <MaterialCommunityIcons name="arrow-top-left-bottom-right" size={ARROW_SIZE} color={color} />
+            <Arrow name="arrow-top-left-bottom-right" color={color} />
             <Hand rotate="20deg" />
           </Animated.View>
         </View>
@@ -73,7 +99,7 @@ export function GestureGuide({ type, color }: Props) {
     return (
       <View pointerEvents="none" style={styles.overlay} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
         <Animated.View style={[styles.side, { transform: [{ translateX: x }] }]}>
-          <MaterialCommunityIcons name="arrow-all" size={ARROW_SIZE} color={color} />
+          <Arrow name="arrow-all" color={color} />
           <Hand />
         </Animated.View>
       </View>
@@ -104,9 +130,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  pair: { flexDirection: "row", gap: 48, marginTop: 80 },
+  pair: { flexDirection: "row", gap: 40, marginTop: 40 },
   side: { alignItems: "center" },
-  hand: { width: HAND_SIZE + 8, height: HAND_SIZE + 8, alignItems: "center", justifyContent: "center" },
-  handOutline: { position: "absolute" },
+  layer: { position: "absolute", left: 0, top: 0 },
   ring: { position: "absolute", width: 64, height: 64, borderRadius: 32, borderWidth: 4, marginTop: -40 },
 });
