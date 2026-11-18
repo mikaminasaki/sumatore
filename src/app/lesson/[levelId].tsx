@@ -7,7 +7,7 @@ import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AppHeader } from "@/components/app-header";
-import { accents, colors, fontSize, minTouchSize } from "@/constants/theme";
+import { accents, colors, fontSize } from "@/constants/theme";
 import { getCategory, getLevel, getLevelsByCategory } from "@/data/lessons";
 import { getGame } from "@/games/registry";
 import { useProgress } from "@/hooks/use-progress";
@@ -67,6 +67,26 @@ export default function LessonScreen() {
     }, CELEBRATE_MS);
   };
 
+  // ヘッダーの右に置くヒントボタン。開いているときは色を反転させて「とじる」にする
+  const hintButton = game && (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={showHint ? "ヒントをとじる" : "ヒントを見る"}
+      accessibilityState={{ expanded: showHint }}
+      onPress={() => setShowHint(!showHint)}
+      style={({ pressed }) => [
+        styles.hintButton,
+        showHint && { backgroundColor: accent.dark },
+        pressed && styles.pressed,
+      ]}
+    >
+      <Ionicons name={showHint ? "close" : "bulb-outline"} size={24} color={showHint ? colors.white : accent.main} />
+      <Text style={[styles.hintText, { color: showHint ? colors.white : accent.main }]}>
+        {showHint ? "とじる" : "ヒント"}
+      </Text>
+    </Pressable>
+  );
+
   const celebration = celebrating && (
     <View pointerEvents="none" style={styles.celebrate}>
       <Animated.View
@@ -107,7 +127,7 @@ export default function LessonScreen() {
 
   return (
     <View style={styles.container}>
-      <AppHeader title={level ? `レベル ${level.level}` : ""} subtitle={category?.title} leftButton="close" accent={accent} />
+      <AppHeader title={level ? `レベル ${level.level}` : ""} subtitle={category?.title} leftButton="close" accent={accent} right={hintButton} />
 
       <View style={styles.stepRow}>
         <Text style={styles.stepText}>
@@ -119,31 +139,12 @@ export default function LessonScreen() {
       </View>
 
       <View style={[styles.body, { paddingBottom: insets.bottom + 16 }]}>
-        {/* お題と、右上のヒントボタン (実践編と同じ並び) */}
+        {/* お題 (実践編と同じ箱) */}
         <View style={styles.guide}>
           <View style={[styles.taskBox, { backgroundColor: accent.pale, borderLeftColor: accent.main }]}>
             <Text style={styles.taskLabel}>お題</Text>
             <Text style={styles.taskText}>{currentStep?.instruction ?? level?.description}</Text>
           </View>
-          {game && (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={showHint ? "ヒントをとじる" : "ヒントを見る"}
-              accessibilityState={{ expanded: showHint }}
-              onPress={() => setShowHint(!showHint)}
-              style={({ pressed }) => [
-                styles.hintButton,
-                { borderColor: accent.main },
-                showHint && { backgroundColor: accent.main },
-                pressed && styles.pressed,
-              ]}
-            >
-              <Ionicons name={showHint ? "close" : "bulb-outline"} size={24} color={showHint ? colors.white : accent.main} />
-              <Text style={[styles.hintText, { color: showHint ? colors.white : accent.main }]}>
-                {showHint ? "とじる" : "ヒント"}
-              </Text>
-            </Pressable>
-          )}
         </View>
         {showHint && currentStep && (
           <Text
@@ -195,21 +196,22 @@ const styles = StyleSheet.create({
   stepText: { fontSize: fontSize.small, color: colors.text, marginRight: 6 },
   stepBar: { flex: 1, height: 8, borderRadius: 4, backgroundColor: colors.border },
   body: { flex: 1, padding: 16, gap: 16 },
-  guide: { flexDirection: "row", alignItems: "stretch", gap: 10 },
+  guide: { flexDirection: "row" },
   taskBox: { flex: 1, paddingHorizontal: 14, paddingVertical: 10, gap: 4, borderRadius: 8, borderLeftWidth: 4 },
   taskLabel: { fontSize: fontSize.small, fontWeight: "bold", color: colors.text },
   taskText: { fontSize: fontSize.body, lineHeight: 30, fontWeight: "bold", color: colors.text },
   hintButton: {
-    width: 84,
-    minHeight: minTouchSize,
-    borderRadius: 16,
-    borderWidth: 2,
-    backgroundColor: colors.white,
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    gap: 2,
+    gap: 4,
+    minHeight: 52,
+    paddingHorizontal: 14,
+    borderRadius: 24,
+    borderWidth: 2,
+    borderColor: colors.white,
+    backgroundColor: colors.white,
   },
-  hintText: { fontSize: fontSize.small, fontWeight: "bold" },
+  hintText: { fontSize: 20, fontWeight: "bold" },
   hintBand: {
     paddingHorizontal: 14,
     paddingVertical: 10,
