@@ -39,50 +39,23 @@ function OutlinedIcon({ name, size, color, outline }: { name: IconName; size: nu
 }
 
 // ---- 2本の指でつまむ・広げる手 ----
-// 手のひらと、根元で回る人差し指・親指で描く。指先は斜めに開いたり閉じたりする
-const FINGER_WIDTH = 22;
-const BORDER = 3;
-// 指の根元の位置と長さ (手の絵の中の座標)
-const INDEX = { x: 88, y: 84, length: 50 };
-const THUMB = { x: 70, y: 100, length: 48 };
-// 指の角度 (真上を 0 として時計回り)。閉じると指先がくっつき、開くと右上と左下に離れる
-const ANGLES = {
-  closed: { index: -60, thumb: -31 },
-  open: { index: -8, thumb: -82 },
+// フリー素材の手のイラストを「つまんだ手」と「広げた手」の 2 枚にして、交互に切り替えて見せる
+const PINCH_IMAGES = {
+  closed: require("@/assets/images/gestures/pinch-closed.png"),
+  open: require("@/assets/images/gestures/pinch-open.png"),
 };
-
-function Finger({ base, length, rotate }: { base: { x: number; y: number }; length: number; rotate: Animated.AnimatedInterpolation<string> }) {
-  return (
-    <Animated.View
-      style={[
-        styles.finger,
-        {
-          left: base.x - FINGER_WIDTH / 2,
-          top: base.y - length,
-          height: length + FINGER_WIDTH / 2,
-          transformOrigin: `50% ${((length) / (length + FINGER_WIDTH / 2)) * 100}%`,
-          transform: [{ rotate }],
-        },
-      ]}
-    />
-  );
-}
+const PINCH_WIDTH = 165;
+const PINCH_HEIGHT = 216;
 
 function PinchHand({ progress, spread }: { progress: Animated.Value; spread: boolean }) {
-  const [from, to] = spread ? [ANGLES.closed, ANGLES.open] : [ANGLES.open, ANGLES.closed];
-  const index = progress.interpolate({ inputRange: [0, 1], outputRange: [`${from.index}deg`, `${to.index}deg`] });
-  const thumb = progress.interpolate({ inputRange: [0, 1], outputRange: [`${from.thumb}deg`, `${to.thumb}deg`] });
+  // 広げるときは つまんだ手 → 広げた手、縮めるときはその逆
+  const [first, second] = spread ? [PINCH_IMAGES.closed, PINCH_IMAGES.open] : [PINCH_IMAGES.open, PINCH_IMAGES.closed];
+  const firstOpacity = progress.interpolate({ inputRange: [0, 0.4, 0.6, 1], outputRange: [1, 1, 0, 0] });
+  const secondOpacity = progress.interpolate({ inputRange: [0, 0.4, 0.6, 1], outputRange: [0, 0, 1, 1] });
   return (
-    <View style={styles.hand}>
-      <View style={styles.arrow}>
-        <OutlinedIcon name="arrow-top-right-bottom-left" size={44} color={colors.white} outline={colors.text} />
-      </View>
-      <Finger base={THUMB} length={THUMB.length} rotate={thumb} />
-      <Finger base={INDEX} length={INDEX.length} rotate={index} />
-      {/* 曲げている中指・薬指 */}
-      <View style={[styles.curled, { left: 98 }]} />
-      <View style={[styles.curled, { left: 114, top: 76 }]} />
-      <View style={styles.palm} />
+    <View style={styles.pinch}>
+      <Animated.Image source={first} style={[styles.pinchImage, { opacity: firstOpacity }]} />
+      <Animated.Image source={second} style={[styles.pinchImage, { opacity: secondOpacity }]} />
     </View>
   );
 }
@@ -149,35 +122,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   layer: { position: "absolute", left: 0, top: 0 },
-  hand: { width: 150, height: 160, transform: [{ scale: 1.2 }] },
-  arrow: { position: "absolute", left: 4, top: 8 },
-  finger: {
-    position: "absolute",
-    width: FINGER_WIDTH,
-    borderRadius: FINGER_WIDTH / 2,
-    borderWidth: BORDER,
-    borderColor: colors.text,
-    backgroundColor: colors.white,
-  },
-  curled: {
-    position: "absolute",
-    top: 70,
-    width: 20,
-    height: 32,
-    borderRadius: 10,
-    borderWidth: BORDER,
-    borderColor: colors.text,
-    backgroundColor: colors.white,
-  },
-  palm: {
-    position: "absolute",
-    left: 64,
-    top: 80,
-    width: 66,
-    height: 76,
-    borderRadius: 26,
-    borderWidth: BORDER,
-    borderColor: colors.text,
-    backgroundColor: colors.white,
-  },
+  pinch: { width: PINCH_WIDTH, height: PINCH_HEIGHT, marginTop: 60 },
+  pinchImage: { position: "absolute", width: PINCH_WIDTH, height: PINCH_HEIGHT, resizeMode: "contain" },
 });
