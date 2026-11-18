@@ -11,17 +11,18 @@ import { useProgress } from "@/hooks/use-progress";
 export default function RecordScreen() {
   const [course, setCourse] = useState<CourseId>("basic");
   const [puzzleSize, setPuzzleSize] = useState(0);
+  const [expandedCategoryIds, setExpandedCategoryIds] = useState<string[]>([]);
   const { loaded, isCleared } = useProgress();
   const categories = getCategoriesByCourse(course);
-  const clearedLevels = categories.flatMap((category) =>
-    getLevelsByCategory(category.id)
-      .filter((level) => isCleared(level.id))
-      .map((level) => ({ ...level, categoryTitle: category.title })),
-  );
-  const collectedCategoryIds = categories.filter((category) => {
+  const categoryProgress = categories.map((category) => {
     const levels = getLevelsByCategory(category.id);
-    return loaded && levels.length > 0 && levels.every((level) => isCleared(level.id));
-  }).map((category) => category.id);
+    const clearedLevels = levels.filter((level) => isCleared(level.id));
+    return { category, levels, clearedLevels };
+  });
+  const collectedCategoryIds = categoryProgress
+    .filter(({ levels, clearedLevels }) => loaded && levels.length > 0 && clearedLevels.length === levels.length)
+    .map(({ category }) => category.id);
+  const clearedGroups = categoryProgress.filter(({ clearedLevels }) => clearedLevels.length > 0);
 
   return (
     <View style={styles.screen}>
@@ -63,21 +64,49 @@ export default function RecordScreen() {
 
             {!loaded ? (
               <ActivityIndicator color={colors.clearGreen} accessibilityLabel="記録を読み込み中" style={styles.loading} />
-            ) : clearedLevels.length === 0 ? (
+            ) : clearedGroups.length === 0 ? (
               <View style={styles.emptyRow}>
                 <Ionicons name="checkmark-circle-outline" size={32} color={colors.gray} accessible={false} />
                 <Text style={styles.emptyText}>練習を完了すると、ここに記録が表示されます</Text>
               </View>
             ) : (
-              clearedLevels.map((level) => (
-                <View key={level.id} style={styles.row} accessible accessibilityLabel={`${level.categoryTitle}、レベル${level.level}、完了済み`}>
-                  <Ionicons name="checkmark-circle" size={32} color={colors.clearGreen} accessible={false} />
-                  <View style={styles.rowText}>
-                    <Text style={styles.categoryTitle}>{level.categoryTitle}</Text>
-                    <Text style={styles.levelText}>レベル {level.level}</Text>
+              clearedGroups.map(({ category, levels, clearedLevels }) => {
+                const complete = clearedLevels.length === levels.length;
+                const expanded = expandedCategoryIds.includes(category.id);
+                return (
+                  <View key={category.id}>
+                    {complete && (
+                      <Pressable
+                        accessibilityRole="button"
+                        accessibilityLabel={`${category.title}、全${levels.length}レベルクリア`}
+                        accessibilityHint="クリアしたレベルの一覧を開閉します"
+                        accessibilityState={{ expanded }}
+                        onPress={() => setExpandedCategoryIds((ids) => expanded
+                          ? ids.filter((id) => id !== category.id)
+                          : [...ids, category.id])}
+                        style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+                      >
+                        <Ionicons name="checkmark-circle" size={32} color={colors.clearGreen} accessible={false} />
+                        <View style={styles.rowText}>
+                          <Text style={styles.categoryTitle}>{category.title}</Text>
+                          <Text style={styles.levelText}>全{levels.length}レベルクリア</Text>
+                          <Text style={[styles.levelText, { color: accents[course].dark }]}>{expanded ? "レベルを閉じる" : "レベルを見る"}</Text>
+                        </View>
+                        <Ionicons name={expanded ? "chevron-up" : "chevron-down"} size={24} color={accents[course].main} accessible={false} />
+                      </Pressable>
+                    )}
+                    {(!complete || expanded) && clearedLevels.map((level) => (
+                      <View key={level.id} style={[styles.row, complete && styles.detailRow]} accessible accessibilityLabel={`${category.title}、レベル${level.level}、完了済み`}>
+                        <Ionicons name="checkmark-circle" size={32} color={colors.clearGreen} accessible={false} />
+                        <View style={styles.rowText}>
+                          <Text style={styles.categoryTitle}>{category.title}</Text>
+                          <Text style={styles.levelText}>レベル {level.level}</Text>
+                        </View>
+                      </View>
+                    ))}
                   </View>
-                </View>
-              ))
+                );
+              })
             )}
           </View>
         </ScrollView>
@@ -106,6 +135,7 @@ const styles = StyleSheet.create({
   heading: { marginBottom: 12, fontSize: fontSize.body, fontWeight: "bold", color: colors.text },
   row: { flexDirection: "row", alignItems: "center", minHeight: minTouchSize, gap: 10, paddingHorizontal: 12, paddingVertical: 10, marginBottom: 12, borderRadius: 30, borderWidth: 1, borderColor: colors.textSub, backgroundColor: colors.white },
   rowText: { flex: 1, gap: 3 },
+  detailRow: { marginLeft: 12 },
   categoryTitle: { fontSize: fontSize.body, color: colors.text },
   levelText: { fontSize: fontSize.small, color: colors.textSub },
   emptyRow: { flexDirection: "row", alignItems: "center", gap: 10, minHeight: minTouchSize, paddingHorizontal: 12, paddingVertical: 12, borderRadius: 26, borderWidth: 1, borderColor: colors.textSub, backgroundColor: colors.white },
