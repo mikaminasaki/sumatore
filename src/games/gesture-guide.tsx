@@ -79,6 +79,9 @@ function PinchHand({ progress, spread }: { progress: Animated.Value; spread: boo
       </View>
       <Finger base={THUMB} length={THUMB.length} rotate={thumb} />
       <Finger base={INDEX} length={INDEX.length} rotate={index} />
+      {/* 曲げている中指・薬指 */}
+      <View style={[styles.curled, { left: 98 }]} />
+      <View style={[styles.curled, { left: 114, top: 76 }]} />
       <View style={styles.palm} />
     </View>
   );
@@ -152,6 +155,16 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: FINGER_WIDTH,
     borderRadius: FINGER_WIDTH / 2,
+    borderWidth: BORDER,
+    borderColor: colors.text,
+    backgroundColor: colors.white,
+  },
+  curled: {
+    position: "absolute",
+    top: 70,
+    width: 20,
+    height: 32,
+    borderRadius: 10,
     borderWidth: BORDER,
     borderColor: colors.text,
     backgroundColor: colors.white,
