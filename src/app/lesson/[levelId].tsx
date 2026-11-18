@@ -101,24 +101,21 @@ export default function LessonScreen() {
 
   if (category?.id === "photo" && game) {
     return (
-      <View style={[styles.albumLesson, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
-        <StatusBar style="dark" />
-        <View style={styles.albumBar}>
-          <Pressable accessibilityRole="button" accessibilityLabel="練習を閉じる" onPress={() => router.back()} style={styles.albumBarButton}>
-            <Ionicons name="close" size={24} color={colors.text} />
-          </Pressable>
-          <Text style={styles.albumBarTitle}>写真編 · レベル {level?.level}</Text>
-          <Pressable accessibilityRole="button" accessibilityState={{ expanded: showHint }} onPress={() => setShowHint(!showHint)} style={styles.albumBarButton}>
-            <Text style={styles.albumHint}>{showHint ? "とじる" : "ヒント"}</Text>
-          </Pressable>
-        </View>
+      <View style={[styles.albumLesson, { paddingBottom: insets.bottom }]}>
+        <StatusBar style="light" />
+        <AppHeader title={`レベル ${level?.level}`} subtitle="実践編・写真編" leftButton="close" accent={accent} right={hintButton} />
+        {showHint && currentStep && (
+          <View style={[styles.hintPanel, { backgroundColor: accent.main }]}>
+            <View style={[styles.hintCaret, { borderBottomColor: colors.white }]} />
+            <Text accessibilityLiveRegion="polite" style={styles.hintBand}>
+              {currentStep.hint}
+            </Text>
+          </View>
+        )}
         <View style={styles.albumTaskBox}>
           <Text style={styles.albumTaskLabel}>お題</Text>
           <Text style={styles.albumTask}>{currentStep?.instruction}</Text>
         </View>
-        {showHint && (
-          <Text accessibilityLiveRegion="polite" style={styles.albumHelp}>{currentStep?.hint}</Text>
-        )}
         <game.Component step={step} onStepComplete={handleStepComplete} />
         {celebration}
       </View>
@@ -176,13 +173,8 @@ export default function LessonScreen() {
 
 const styles = StyleSheet.create({
   albumLesson: { flex: 1, backgroundColor: colors.white },
-  albumBar: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 4 },
-  albumBarButton: { minHeight: 48, minWidth: 48, paddingHorizontal: 8, alignItems: "center", justifyContent: "center" },
-  albumBarTitle: { flexShrink: 1, fontSize: fontSize.small, color: colors.textSub },
-  albumHint: { fontSize: fontSize.body, fontWeight: "bold", color: accents.practice.dark },
-  albumHelp: { paddingHorizontal: 14, paddingVertical: 10, fontSize: fontSize.body, lineHeight: 30, color: accents.practice.dark, backgroundColor: accents.practice.pale },
-  albumTaskBox: { paddingHorizontal: 14, paddingVertical: 10, gap: 4, backgroundColor: accents.practice.pale, borderLeftWidth: 4, borderLeftColor: accents.practice.main },
-  albumTaskLabel: { fontSize: fontSize.small, fontWeight: "bold", color: accents.practice.dark },
+  albumTaskBox: { marginHorizontal: 16, marginVertical: 12, paddingHorizontal: 14, paddingVertical: 10, gap: 4, borderRadius: 8, backgroundColor: accents.practice.pale, borderLeftWidth: 4, borderLeftColor: accents.practice.main },
+  albumTaskLabel: { fontSize: fontSize.small, fontWeight: "bold", color: colors.text },
   albumTask: { fontSize: fontSize.body, lineHeight: 30, fontWeight: "bold", color: colors.text },
   container: { flex: 1, backgroundColor: colors.background },
   stepRow: {
