@@ -7,7 +7,7 @@ import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AppHeader } from "@/components/app-header";
-import { accents, colors, fontSize, minTouchSize } from "@/constants/theme";
+import { accents, colors, fontSize } from "@/constants/theme";
 import { getCategory, getLevel, getLevelsByCategory } from "@/data/lessons";
 import { getGame } from "@/games/registry";
 import { useProgress } from "@/hooks/use-progress";
@@ -67,7 +67,25 @@ export default function LessonScreen() {
     }, CELEBRATE_MS);
   };
 
-  const bubbleText = showHint && currentStep ? currentStep.hint : (currentStep?.instruction ?? level?.description);
+  // ヘッダーの右に置くヒントボタン。開いているときは色を反転させて「とじる」にする
+  const hintButton = game && (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={showHint ? "ヒントをとじる" : "ヒントを見る"}
+      accessibilityState={{ expanded: showHint }}
+      onPress={() => setShowHint(!showHint)}
+      style={({ pressed }) => [
+        styles.hintButton,
+        showHint && { backgroundColor: accent.dark },
+        pressed && styles.pressed,
+      ]}
+    >
+      <Ionicons name={showHint ? "close" : "bulb-outline"} size={18} color={showHint ? colors.white : accent.main} />
+      <Text style={[styles.hintText, { color: showHint ? colors.white : accent.main }]}>
+        {showHint ? "とじる" : "ヒント"}
+      </Text>
+    </Pressable>
+  );
 
   const celebration = celebrating && (
     <View pointerEvents="none" style={styles.celebrate}>
@@ -109,7 +127,17 @@ export default function LessonScreen() {
 
   return (
     <View style={styles.container}>
-      <AppHeader title={level ? `レベル ${level.level}` : ""} subtitle={category?.title} leftButton="close" accent={accent} />
+      <AppHeader title={level ? `レベル ${level.level}` : ""} subtitle={category?.title} leftButton="close" accent={accent} right={hintButton} />
+
+      {/* ヒントはボタンのすぐ下に、吹き出しのように出す */}
+      {showHint && currentStep && (
+        <View style={[styles.hintPanel, { backgroundColor: accent.main }]}>
+          <View style={[styles.hintCaret, { borderBottomColor: colors.white }]} />
+          <Text accessibilityLiveRegion="polite" style={styles.hintBand}>
+            {currentStep.hint}
+          </Text>
+        </View>
+      )}
 
       <View style={styles.stepRow}>
         <Text style={styles.stepText}>
@@ -121,14 +149,11 @@ export default function LessonScreen() {
       </View>
 
       <View style={[styles.body, { paddingBottom: insets.bottom + 16 }]}>
+        {/* お題 (実践編と同じ箱) */}
         <View style={styles.guide}>
-          <View style={styles.character}>
-            {/* キャラクター画像は #7 で差し替える */}
-            <Ionicons name="happy" size={48} color={colors.brandRed} />
-          </View>
-          <View style={[styles.bubble, showHint && { borderColor: accent.main }]}>
-            {showHint && <Text style={[styles.hintLabel, { color: accent.main }]}>ヒント</Text>}
-            <Text style={styles.bubbleText}>{bubbleText}</Text>
+          <View style={[styles.taskBox, { backgroundColor: accent.pale, borderLeftColor: accent.main }]}>
+            <Text style={styles.taskLabel}>お題</Text>
+            <Text style={styles.taskText}>{currentStep?.instruction ?? level?.description}</Text>
           </View>
         </View>
 
@@ -144,15 +169,6 @@ export default function LessonScreen() {
           {celebration}
         </View>
 
-        {game && (
-          <Pressable
-            accessibilityRole="button"
-            onPress={() => setShowHint(!showHint)}
-            style={({ pressed }) => [styles.hintButton, { borderColor: accent.main }, pressed && styles.pressed]}
-          >
-            <Text style={[styles.hintText, { color: accent.main }]}>{showHint ? "ヒントを とじる" : "ヒントを 見る"}</Text>
-          </Pressable>
-        )}
       </View>
     </View>
   );
@@ -182,18 +198,46 @@ const styles = StyleSheet.create({
   stepText: { fontSize: fontSize.small, color: colors.text, marginRight: 6 },
   stepBar: { flex: 1, height: 8, borderRadius: 4, backgroundColor: colors.border },
   body: { flex: 1, padding: 16, gap: 16 },
-  guide: { flexDirection: "row", alignItems: "flex-start", gap: 10 },
-  character: { width: 64, height: 64, alignItems: "center", justifyContent: "center" },
-  bubble: {
-    flex: 1,
-    padding: 14,
-    borderRadius: 16,
+  guide: { flexDirection: "row" },
+  taskBox: { flex: 1, paddingHorizontal: 14, paddingVertical: 10, gap: 4, borderRadius: 8, borderLeftWidth: 4 },
+  taskLabel: { fontSize: fontSize.small, fontWeight: "bold", color: colors.text },
+  taskText: { fontSize: fontSize.body, lineHeight: 30, fontWeight: "bold", color: colors.text },
+  hintButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 2,
+    minHeight: 40,
+    paddingHorizontal: 10,
+    borderRadius: 20,
     borderWidth: 2,
-    borderColor: colors.border,
+    borderColor: colors.white,
     backgroundColor: colors.white,
   },
-  hintLabel: { fontSize: fontSize.small, fontWeight: "bold", marginBottom: 4 },
-  bubbleText: { fontSize: fontSize.body, lineHeight: 30, color: colors.text },
+  hintText: { fontSize: 16, fontWeight: "bold" },
+  hintPanel: { paddingHorizontal: 16, paddingBottom: 12 },
+  // ボタンを指す小さな三角
+  hintCaret: {
+    alignSelf: "flex-end",
+    marginRight: 36,
+    width: 0,
+    height: 0,
+    borderLeftWidth: 10,
+    borderRightWidth: 10,
+    borderBottomWidth: 10,
+    borderLeftColor: "transparent",
+    borderRightColor: "transparent",
+  },
+  hintBand: {
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 12,
+    fontSize: fontSize.body,
+    lineHeight: 30,
+    color: colors.text,
+    backgroundColor: colors.white,
+    overflow: "hidden",
+  },
+
   practiceArea: {
     flex: 1,
     borderRadius: 16,
@@ -218,14 +262,5 @@ const styles = StyleSheet.create({
   celebrateText: { fontSize: fontSize.title, fontWeight: "bold", color: colors.clearGreen, marginTop: 4 },
   tempButton: { paddingHorizontal: 20, paddingVertical: 10, borderRadius: 20, backgroundColor: colors.white },
   tempButtonText: { fontSize: fontSize.small, color: colors.textSub },
-  hintButton: {
-    minHeight: minTouchSize,
-    borderRadius: 16,
-    borderWidth: 2,
-    backgroundColor: colors.white,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  hintText: { fontSize: fontSize.body, fontWeight: "bold" },
   pressed: { opacity: 0.7 },
 });

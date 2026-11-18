@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import type { ReactNode } from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -14,9 +15,11 @@ type Props = {
   leftButton?: "back" | "close" | "none";
   // ヘッダーの色 (logo のときは使わない)
   accent?: Accent;
+  // 右側に置くもの (例: 練習画面のヒントボタン)
+  right?: ReactNode;
 };
 
-export function AppHeader({ title, subtitle, variant = "section", leftButton = "none", accent = accents.basic }: Props) {
+export function AppHeader({ title, subtitle, variant = "section", leftButton = "none", accent = accents.basic, right }: Props) {
   const insets = useSafeAreaInsets();
 
   if (variant === "logo") {
@@ -52,6 +55,7 @@ export function AppHeader({ title, subtitle, variant = "section", leftButton = "
           {title}
         </Text>
       </View>
+      {right}
     </View>
   );
 }
