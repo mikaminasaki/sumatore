@@ -49,10 +49,12 @@ export const zoom1: Game = {
     {
       instruction: "2本の指を写真の上に置いて、広げて大きくしましょう",
       hint: "親指と人差し指で写真をつまんで、ゆっくり指と指の間を広げていきます",
+      guide: "pinch-out",
     },
     {
       instruction: "今度は2本の指を縮めて、写真を小さくしましょう",
       hint: "2本の指を写真の上に置いて、指と指を近づけます",
+      guide: "pinch-in",
     },
   ],
   Component: ZoomLevel1,

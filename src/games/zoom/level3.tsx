@@ -55,10 +55,12 @@ export const zoom3: Game = {
     {
       instruction: "小さな文字を、読めるまで大きくしましょう",
       hint: "2本の指を広げます。1回で足りなければ、もう一度広げます",
+      guide: "pinch-out",
     },
     {
       instruction: "おやつは何でしたか？下から選びましょう",
       hint: "指1本で文字を動かして、最後まで読みます",
+      guide: "pan",
     },
   ],
   Component: ZoomLevel3,

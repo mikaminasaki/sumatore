@@ -45,10 +45,12 @@ export const zoom5: Game = {
     {
       instruction: "町の写真を大きくしましょう",
       hint: "2本の指を広げます",
+      guide: "pinch-out",
     },
     {
       instruction: "ねこを探して、タップしましょう",
       hint: "八百屋さんの木の箱のあたりを見てみましょう",
+      guide: "pan",
     },
   ],
   Component: ZoomLevel5,

@@ -62,10 +62,12 @@ export const zoom4: Game = {
     {
       instruction: "2枚の絵を大きくしましょう",
       hint: "2本の指を広げます",
+      guide: "pinch-out",
     },
     {
       instruction: "下の絵で、お手本と違うところをタップしましょう",
       hint: "指1本で絵を動かして、比べます。1つだけ色が違います。お手本は見るだけです",
+      guide: "pan",
     },
   ],
   Component: ZoomLevel4,

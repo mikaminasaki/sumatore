@@ -2,7 +2,7 @@ import { Image } from "expo-image";
 import { StyleSheet, View } from "react-native";
 
 import { colors } from "@/constants/theme";
-import type { Game, GameProps } from "@/games/types";
+import type { Game, GameProps, GameStep } from "@/games/types";
 import { ZoomArea } from "@/games/zoom/zoom-area";
 
 const PHOTO_WIDTH = 120;
@@ -39,10 +39,10 @@ function ZoomLevel2({ step, onStepComplete }: GameProps) {
   );
 }
 
-const steps = [
-  { instruction: "写真を大きくして、点線の枠に合わせましょう", hint: "2本の指をゆっくり広げます。枠と同じくらいで指を離します" },
-  { instruction: "今度は小さな枠に合わせましょう", hint: "2本の指を近づけて写真を小さくします" },
-  { instruction: "最後は大きな枠に合わせましょう", hint: "1回で届かなければ、指を離してもう一度広げます" },
+const steps: GameStep[] = [
+  { instruction: "写真を大きくして、点線の枠に合わせましょう", hint: "2本の指をゆっくり広げます。枠と同じくらいで指を離します", guide: "pinch-out" },
+  { instruction: "今度は小さな枠に合わせましょう", hint: "2本の指を近づけて写真を小さくします", guide: "pinch-in" },
+  { instruction: "最後は大きな枠に合わせましょう", hint: "1回で届かなければ、指を離してもう一度広げます", guide: "pinch-out" },
 ];
 
 export const zoom2: Game = { steps, Component: ZoomLevel2 };

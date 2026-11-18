@@ -9,6 +9,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppHeader } from "@/components/app-header";
 import { accents, colors, fontSize } from "@/constants/theme";
 import { getCategory, getLevel, getLevelsByCategory } from "@/data/lessons";
+import { GestureGuide } from "@/games/gesture-guide";
 import { getGame } from "@/games/registry";
 import { useProgress } from "@/hooks/use-progress";
 
@@ -99,6 +100,10 @@ export default function LessonScreen() {
     </View>
   );
 
+  // 指の動かし方の案内。基本操作編は毎回、実践編はヒントを開いているときだけ出す。「できた！」の間は消す
+  const showGuide = !!currentStep?.guide && !celebrating && (category?.course === "basic" || showHint);
+  const gestureGuide = showGuide && currentStep?.guide && <GestureGuide type={currentStep.guide} color={accent.main} />;
+
   if (category?.id === "photo" && game) {
     return (
       <View style={[styles.albumLesson, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
@@ -120,6 +125,7 @@ export default function LessonScreen() {
           <Text accessibilityLiveRegion="polite" style={styles.albumHelp}>{currentStep?.hint}</Text>
         )}
         <game.Component step={step} onStepComplete={handleStepComplete} />
+        {gestureGuide}
         {celebration}
       </View>
     );
@@ -166,6 +172,7 @@ export default function LessonScreen() {
               <Text style={styles.tempButtonText}>（仮）クリアする</Text>
             </Pressable>
           )}
+          {gestureGuide}
           {celebration}
         </View>
 
