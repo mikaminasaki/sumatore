@@ -23,10 +23,6 @@ export function LevelCard({ level, cleared, isNext = false, onPress, accent = ac
       onPress={onPress}
       style={({ pressed }) => [styles.card, isNext && { borderColor: accent.main }, pressed && styles.pressed]}
     >
-      <View style={[styles.image, { borderColor: accent.main, backgroundColor: accent.pale }]}>
-        {/* レベルごとの画像は #7 で差し替える */}
-        <Text style={[styles.imageText, { color: accent.main }]}>画像</Text>
-      </View>
       <View style={styles.texts}>
         {isNext && <NextBadge />}
         <Text style={styles.level}>レベル {level}</Text>
@@ -41,7 +37,9 @@ const styles = StyleSheet.create({
   card: {
     minHeight: minTouchSize + 24,
     borderRadius: 16,
-    padding: 12,
+    paddingVertical: 12,
+    paddingLeft: 20,
+    paddingRight: 12,
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
@@ -49,16 +47,6 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: colors.border,
   },
-  image: {
-    width: 64,
-    height: 64,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderStyle: "dashed",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  imageText: { fontSize: 14, },
   texts: { flex: 1, gap: 2 },
   level: { fontSize: fontSize.title, fontWeight: "bold", color: colors.text },
   pressed: { transform: [{ scale: 0.98 }] },
