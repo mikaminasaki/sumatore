@@ -48,7 +48,7 @@ export default function RecordScreen() {
         </View>
 
         <ScrollView key={course} style={styles.scroll} contentContainerStyle={styles.content}>
-          <View style={styles.panel}>
+          <View style={[styles.panel, { borderColor: accents[course].main }]}>
             <View style={styles.puzzleFrame} accessible accessibilityLabel={loaded ? `${courses[course].title}のパズル、${collectedCategoryIds.length} / ${categories.length} ピース獲得` : "パズルの記録を読み込み中"}>
               <View style={styles.puzzleCanvas} onLayout={(event) => setPuzzleSize(event.nativeEvent.layout.width)}>
                 {loaded && puzzleSize > 0 && (
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
   pressed: { opacity: 0.75 },
   scroll: { flex: 1 },
   content: { paddingHorizontal: 22, paddingBottom: 18, alignItems: "center" },
-  panel: { width: "100%", maxWidth: 480, padding: 18, borderWidth: 2, borderRadius: 16, borderColor: colors.green, backgroundColor: colors.greenPale },
+  panel: { width: "100%", maxWidth: 480, padding: 18, borderWidth: 2, borderRadius: 16, backgroundColor: colors.greenPale },
   puzzleFrame: { width: "100%", maxWidth: 320, aspectRatio: 1, alignSelf: "center", padding: 12, borderRadius: 16, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.border },
   puzzleCanvas: { flex: 1, borderRadius: 8, backgroundColor: colors.background },
   summary: { marginTop: 12, marginBottom: 16, fontSize: fontSize.small, textAlign: "center", color: colors.textSub },
