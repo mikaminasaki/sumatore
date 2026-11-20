@@ -116,7 +116,12 @@ export default function LessonScreen() {
           <Text style={styles.albumTaskLabel}>お題</Text>
           <Text style={styles.albumTask}>{currentStep?.instruction}</Text>
         </View>
-        <game.Component step={step} onStepComplete={handleStepComplete} />
+        <View style={styles.albumPractice}>
+          <Text style={styles.albumPracticeLabel}>写真アプリの練習画面</Text>
+          <View style={styles.albumPracticeFrame}>
+            <game.Component step={step} onStepComplete={handleStepComplete} />
+          </View>
+        </View>
         {celebration}
       </View>
     );
@@ -176,6 +181,9 @@ const styles = StyleSheet.create({
   albumTaskBox: { marginHorizontal: 16, marginVertical: 12, paddingHorizontal: 14, paddingVertical: 10, gap: 6, borderRadius: 8, backgroundColor: colors.white, borderWidth: 2, borderColor: accents.practice.main, borderLeftWidth: 6 },
   albumTaskLabel: { fontSize: fontSize.body, fontWeight: "bold", color: accents.practice.dark },
   albumTask: { fontSize: fontSize.large, lineHeight: 34, fontWeight: "bold", color: colors.text },
+  albumPractice: { flex: 1, minHeight: 0, paddingHorizontal: 12, paddingBottom: 8, gap: 6 },
+  albumPracticeLabel: { fontSize: fontSize.body, fontWeight: "bold", color: accents.practice.dark, marginLeft: 4 },
+  albumPracticeFrame: { flex: 1, minHeight: 0, borderWidth: 2, borderColor: accents.practice.main, borderRadius: 16, backgroundColor: colors.white, overflow: "hidden" },
   container: { flex: 1, backgroundColor: colors.background },
   stepRow: {
     flexDirection: "row",
