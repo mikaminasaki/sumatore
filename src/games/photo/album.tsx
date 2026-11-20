@@ -16,6 +16,9 @@ type AlbumProps = {
   initialPhoto?: number;
   referencePhoto?: number;
   allowZoom?: boolean;
+  onFavoriteChange?: (index: number, isFavorite: boolean) => void;
+  // この練習だけ未登録の表示から始める。保存済みのお気に入りは消さない。
+  practiceFavoriteIndex?: number;
   actions: (index: number, zoomed: boolean, selection: { isFavorite: boolean; fromFavorites: boolean }) => ReactNode;
 };
 
@@ -85,7 +88,7 @@ function ZoomPhoto({ index, onZoom }: { index: number; onZoom: (scale: number) =
   );
 }
 
-function PhotoViewer({ initialPhoto, allowZoom, actions, onBack, favorites, onToggleFavorite, fromFavorites, photoIndices, favoritesLoaded }: Omit<AlbumProps, "referencePhoto" | "initialPhoto"> & {
+function PhotoViewer({ initialPhoto, allowZoom, actions, onBack, favorites, onToggleFavorite, fromFavorites, photoIndices, favoritesLoaded }: Omit<AlbumProps, "referencePhoto" | "initialPhoto" | "onFavoriteChange" | "practiceFavoriteIndex"> & {
   initialPhoto: number;
   onBack: () => void;
   favorites: number[];
@@ -196,11 +199,12 @@ function PhotoViewer({ initialPhoto, allowZoom, actions, onBack, favorites, onTo
   );
 }
 
-export function PhotoAlbum({ initialPhoto, referencePhoto, allowZoom, actions }: AlbumProps) {
+export function PhotoAlbum({ initialPhoto, referencePhoto, allowZoom, actions, onFavoriteChange, practiceFavoriteIndex }: AlbumProps) {
   const [opened, setOpened] = useState<number | undefined>(initialPhoto);
 
   const [favorites, setFavorites] = useState<number[]>([]);
   const favoritesRef = useRef<number[]>([]);
+  const savedFavoritesRef = useRef<number[]>([]);
   const [favoritesLoaded, setFavoritesLoaded] = useState(false);
   const [onlyFavorites, setOnlyFavorites] = useState(false);
   const photoIndices = onlyFavorites ? allPhotoIndices.filter((index) => favorites.includes(index)) : allPhotoIndices;
@@ -211,19 +215,21 @@ export function PhotoAlbum({ initialPhoto, referencePhoto, allowZoom, actions }:
       if (!active) return;
       const saved: unknown = value ? JSON.parse(value) : [];
       if (Array.isArray(saved)) {
-        favoritesRef.current = saved.filter((item): item is number => Number.isInteger(item) && item >= 0 && item < photos.length);
+        savedFavoritesRef.current = saved.filter((item): item is number => Number.isInteger(item) && item >= 0 && item < photos.length);
+        favoritesRef.current = savedFavoritesRef.current.filter((index) => index !== practiceFavoriteIndex);
         setFavorites(favoritesRef.current);
       }
     }).catch(() => {}).finally(() => {
       if (active) setFavoritesLoaded(true);
     });
     return () => { active = false; };
-  }, []);
+  }, [practiceFavoriteIndex]);
 
   function toggleFavorite(index: number) {
     if (!favoritesLoaded) return;
     const previous = favoritesRef.current;
-    const next = previous.includes(index) ? previous.filter((item) => item !== index) : [...previous, index];
+    const isFavorite = !previous.includes(index);
+    const next = isFavorite ? [...previous, index] : previous.filter((item) => item !== index);
     // お気に入り内で解除したら、隣の写真へ。最後の1枚なら一覧へ戻る。
     if (onlyFavorites && previous.includes(index)) {
       const position = photoIndices.indexOf(index);
@@ -231,7 +237,13 @@ export function PhotoAlbum({ initialPhoto, referencePhoto, allowZoom, actions }:
     }
     favoritesRef.current = next;
     setFavorites(next);
-    void AsyncStorage.setItem(favoritesKey, JSON.stringify(next)).catch(() => {});
+    // 練習中の表示とは別に保存を更新し、別の写真を操作しても保存済みの雪山は維持する。
+    const savedNext = isFavorite
+      ? Array.from(new Set([...savedFavoritesRef.current, index]))
+      : savedFavoritesRef.current.filter((item) => item !== index);
+    savedFavoritesRef.current = savedNext;
+    void AsyncStorage.setItem(favoritesKey, JSON.stringify(savedNext)).catch(() => {});
+    onFavoriteChange?.(index, isFavorite);
   }
 
   return (
