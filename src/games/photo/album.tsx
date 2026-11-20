@@ -14,7 +14,6 @@ const allPhotoIndices = photos.map((_, index) => index);
 
 type AlbumProps = {
   initialPhoto?: number;
-  referencePhoto?: number;
   allowZoom?: boolean;
   onFavoriteChange?: (index: number, isFavorite: boolean) => void;
   // この練習だけ未登録の表示から始める。保存済みのお気に入りは消さない。
@@ -88,7 +87,7 @@ function ZoomPhoto({ index, onZoom }: { index: number; onZoom: (scale: number) =
   );
 }
 
-function PhotoViewer({ initialPhoto, allowZoom, actions, onBack, favorites, onToggleFavorite, fromFavorites, photoIndices, favoritesLoaded }: Omit<AlbumProps, "referencePhoto" | "initialPhoto" | "onFavoriteChange" | "practiceFavoriteIndex"> & {
+function PhotoViewer({ initialPhoto, allowZoom, actions, onBack, favorites, onToggleFavorite, fromFavorites, photoIndices, favoritesLoaded }: Omit<AlbumProps, "initialPhoto" | "onFavoriteChange" | "practiceFavoriteIndex"> & {
   initialPhoto: number;
   onBack: () => void;
   favorites: number[];
@@ -199,7 +198,7 @@ function PhotoViewer({ initialPhoto, allowZoom, actions, onBack, favorites, onTo
   );
 }
 
-export function PhotoAlbum({ initialPhoto, referencePhoto, allowZoom, actions, onFavoriteChange, practiceFavoriteIndex }: AlbumProps) {
+export function PhotoAlbum({ initialPhoto, allowZoom, actions, onFavoriteChange, practiceFavoriteIndex }: AlbumProps) {
   const [opened, setOpened] = useState<number | undefined>(initialPhoto);
 
   const [favorites, setFavorites] = useState<number[]>([]);
@@ -271,15 +270,6 @@ export function PhotoAlbum({ initialPhoto, referencePhoto, allowZoom, actions, o
             </Pressable>
           ))}
         </View>
-        {referencePhoto !== undefined && (
-          <View style={styles.reference}>
-            <Image source={photos[referencePhoto]} accessibilityLabel={photoLabel(referencePhoto)} style={styles.referencePhoto} />
-            <View style={styles.referenceText}>
-              <Text style={styles.referenceTitle}>見本の写真を探してください</Text>
-              <Text style={styles.counter}>{photoLabel(referencePhoto)}</Text>
-            </View>
-          </View>
-        )}
         <ScrollView contentContainerStyle={styles.grid}>
           {onlyFavorites && favoritesLoaded && favorites.length === 0 && <AlbumPrompt>お気に入りはまだありません。「全ての写真」で写真を開き、ハートを押すと登録できます。</AlbumPrompt>}
           {photoIndices.map((index) => (
@@ -356,10 +346,6 @@ const styles = StyleSheet.create({
   filterText: { color: accents.practice.dark, fontSize: fontSize.body, fontWeight: "bold", textAlign: "center" },
   activeFilterText: { color: colors.white },
   title: { paddingHorizontal: 12, paddingVertical: 8, fontSize: fontSize.large, fontWeight: "bold", color: colors.text },
-  reference: { marginHorizontal: 10, marginBottom: 10, padding: 10, flexDirection: "row", alignItems: "center", gap: 12, borderWidth: 2, borderColor: accents.practice.main, borderRadius: 12, backgroundColor: accents.practice.pale },
-  referencePhoto: { width: 112, height: 84, borderRadius: 6 },
-  referenceText: { flex: 1, gap: 6 },
-  referenceTitle: { color: accents.practice.dark, fontSize: fontSize.body, fontWeight: "bold" },
   toolbar: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingRight: 12 },
   back: { minHeight: 48, paddingHorizontal: 8, flexDirection: "row", alignItems: "center" },
   viewerTitle: { flex: 1, textAlign: "center", fontSize: fontSize.body, fontWeight: "bold", color: colors.text },
