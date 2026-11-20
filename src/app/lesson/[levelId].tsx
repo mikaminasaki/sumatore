@@ -115,13 +115,12 @@ export default function LessonScreen() {
         )}
         <View style={styles.albumTaskBox}>
           <Text style={styles.albumTaskLabel}>お題</Text>
-          <Text style={styles.albumTask}>{currentStep?.instruction}</Text>
-          {levelId === "photo-1" && (
+          {levelId === "photo-1" ? (
             <View style={styles.albumReference}>
               <Image source={photos[blanketDogPhotoIndex]} accessibilityLabel="見本：毛布をかぶった犬の写真" style={styles.albumReferencePhoto} resizeMode="contain" />
-              <Text style={styles.albumReferenceLabel}>見本</Text>
+              <Text style={[styles.albumTask, styles.albumReferenceTask]}>{currentStep?.instruction}</Text>
             </View>
-          )}
+          ) : <Text style={styles.albumTask}>{currentStep?.instruction}</Text>}
         </View>
         <View style={styles.albumPractice}>
           <Text style={styles.albumPracticeLabel}>写真アプリの練習画面</Text>
@@ -189,8 +188,8 @@ const styles = StyleSheet.create({
   albumTaskLabel: { fontSize: fontSize.body, fontWeight: "bold", color: accents.practice.dark },
   albumTask: { fontSize: fontSize.large, lineHeight: 34, fontWeight: "bold", color: colors.text },
   albumReference: { flexDirection: "row", gap: 12, alignItems: "center" },
-  albumReferenceLabel: { fontSize: fontSize.body, fontWeight: "bold", color: accents.practice.dark },
-  albumReferencePhoto: { width: 104, height: 78, borderRadius: 6 },
+  albumReferenceTask: { flex: 1 },
+  albumReferencePhoto: { width: 96, height: 72, borderRadius: 6 },
   albumPractice: { flex: 1, minHeight: 0, paddingHorizontal: 12, paddingBottom: 8, gap: 6 },
   albumPracticeLabel: { fontSize: fontSize.body, fontWeight: "bold", color: accents.practice.dark, marginLeft: 4 },
   albumPracticeFrame: { flex: 1, minHeight: 0, borderWidth: 2, borderColor: accents.practice.main, borderRadius: 16, backgroundColor: colors.white, overflow: "hidden" },

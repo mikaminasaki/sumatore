@@ -13,7 +13,7 @@ function PhotoLevel1({ onStepComplete }: GameProps) {
 
 export const photo1: Game = {
   steps: [{
-    instruction: "見本と同じ、毛布をかぶった犬の写真を開いてください",
+    instruction: "見本と同じ写真を開いてください",
     hint: "上のお題にある写真が見本です。下の写真一覧を上にスクロールして、同じ犬を探してください",
   }],
   Component: PhotoLevel1,
