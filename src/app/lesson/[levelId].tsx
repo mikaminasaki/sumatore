@@ -173,9 +173,9 @@ export default function LessonScreen() {
 
 const styles = StyleSheet.create({
   albumLesson: { flex: 1, backgroundColor: colors.white },
-  albumTaskBox: { marginHorizontal: 16, marginVertical: 12, paddingHorizontal: 14, paddingVertical: 10, gap: 4, borderRadius: 8, backgroundColor: accents.practice.pale, borderLeftWidth: 4, borderLeftColor: accents.practice.main },
-  albumTaskLabel: { fontSize: fontSize.small, fontWeight: "bold", color: colors.text },
-  albumTask: { fontSize: fontSize.body, lineHeight: 30, fontWeight: "bold", color: colors.text },
+  albumTaskBox: { marginHorizontal: 16, marginVertical: 12, paddingHorizontal: 14, paddingVertical: 10, gap: 6, borderRadius: 8, backgroundColor: colors.white, borderWidth: 2, borderColor: accents.practice.main, borderLeftWidth: 6 },
+  albumTaskLabel: { fontSize: fontSize.body, fontWeight: "bold", color: accents.practice.dark },
+  albumTask: { fontSize: fontSize.large, lineHeight: 34, fontWeight: "bold", color: colors.text },
   container: { flex: 1, backgroundColor: colors.background },
   stepRow: {
     flexDirection: "row",
