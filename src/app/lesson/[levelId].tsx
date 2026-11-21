@@ -3,12 +3,13 @@ import * as Haptics from "expo-haptics";
 import { router, useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useRef, useState } from "react";
-import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
+import { Animated, Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AppHeader } from "@/components/app-header";
 import { accents, colors, fontSize } from "@/constants/theme";
 import { getCategory, getLevel, getLevelsByCategory } from "@/data/lessons";
+import { blanketDogPhotoIndex, photos } from "@/games/photo/photos";
 import { getGame } from "@/games/registry";
 import { useProgress } from "@/hooks/use-progress";
 
@@ -114,9 +115,19 @@ export default function LessonScreen() {
         )}
         <View style={styles.albumTaskBox}>
           <Text style={styles.albumTaskLabel}>お題</Text>
-          <Text style={styles.albumTask}>{currentStep?.instruction}</Text>
+          {levelId === "photo-1" ? (
+            <View style={styles.albumReference}>
+              <Image source={photos[blanketDogPhotoIndex]} accessibilityLabel="見本：毛布をかぶった犬の写真" style={styles.albumReferencePhoto} resizeMode="contain" />
+              <Text style={[styles.albumTask, styles.albumReferenceTask]}>{currentStep?.instruction}</Text>
+            </View>
+          ) : <Text style={styles.albumTask}>{currentStep?.instruction}</Text>}
         </View>
-        <game.Component step={step} onStepComplete={handleStepComplete} />
+        <View style={styles.albumPractice}>
+          <Text style={styles.albumPracticeLabel}>写真アプリの練習画面</Text>
+          <View style={styles.albumPracticeFrame}>
+            <game.Component step={step} onStepComplete={handleStepComplete} />
+          </View>
+        </View>
         {celebration}
       </View>
     );
@@ -176,6 +187,12 @@ const styles = StyleSheet.create({
   albumTaskBox: { marginHorizontal: 16, marginVertical: 12, paddingHorizontal: 14, paddingVertical: 10, gap: 6, borderRadius: 8, backgroundColor: colors.white, borderWidth: 2, borderColor: accents.practice.main, borderLeftWidth: 6 },
   albumTaskLabel: { fontSize: fontSize.body, fontWeight: "bold", color: accents.practice.dark },
   albumTask: { fontSize: fontSize.large, lineHeight: 34, fontWeight: "bold", color: colors.text },
+  albumReference: { flexDirection: "row", gap: 12, alignItems: "center" },
+  albumReferenceTask: { flex: 1 },
+  albumReferencePhoto: { width: 96, height: 72, borderRadius: 6 },
+  albumPractice: { flex: 1, minHeight: 0, paddingHorizontal: 12, paddingBottom: 8, gap: 6 },
+  albumPracticeLabel: { fontSize: fontSize.body, fontWeight: "bold", color: accents.practice.dark, marginLeft: 4 },
+  albumPracticeFrame: { flex: 1, minHeight: 0, borderWidth: 2, borderColor: accents.practice.main, borderRadius: 16, backgroundColor: colors.white, overflow: "hidden" },
   container: { flex: 1, backgroundColor: colors.background },
   stepRow: {
     flexDirection: "row",
