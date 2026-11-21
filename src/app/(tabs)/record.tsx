@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
@@ -9,10 +10,17 @@ import { courses, getCategoriesByCourse, getLevelsByCategory, type CourseId } fr
 import { useProgress } from "@/hooks/use-progress";
 
 export default function RecordScreen() {
+  const { recordPreview } = useLocalSearchParams<{ recordPreview?: string }>();
+  const preview = __DEV__ && recordPreview === "1";
   const [course, setCourse] = useState<CourseId>("basic");
   const [puzzleSize, setPuzzleSize] = useState(0);
   const [expandedCategoryIds, setExpandedCategoryIds] = useState<string[]>([]);
-  const { loaded, isCleared } = useProgress();
+  const progress = useProgress();
+  const loaded = preview || progress.loaded;
+  // 確認用URLでは表示だけを置き換える。進捗の保存・削除は行わない。
+  const isCleared = preview
+    ? (id: string) => id.startsWith("zoom-") || id.startsWith("photo-")
+    : progress.isCleared;
   const categories = getCategoriesByCourse(course);
   const categoryProgress = categories.map((category) => {
     const levels = getLevelsByCategory(category.id);
@@ -49,6 +57,14 @@ export default function RecordScreen() {
         </View>
 
         <ScrollView key={course} style={styles.scroll} contentContainerStyle={styles.content}>
+          {preview && (
+            <View style={styles.previewNotice}>
+              <Text style={styles.levelText}>表示確認用の記録です。保存されません。</Text>
+              <Pressable accessibilityRole="button" onPress={() => router.replace("/record")} style={styles.previewExit}>
+                <Text style={styles.categoryTitle}>自分の記録に戻る</Text>
+              </Pressable>
+            </View>
+          )}
           <View style={[styles.panel, { borderColor: accents[course].main, backgroundColor: accents[course].pale }]}>
             <View style={styles.puzzleFrame} accessible accessibilityLabel={loaded ? `${courses[course].title}のパズル、${collectedCategoryIds.length} / ${categories.length} ピース獲得` : "パズルの記録を読み込み中"}>
               <View style={styles.puzzleCanvas} onLayout={(event) => setPuzzleSize(event.nativeEvent.layout.width)}>
@@ -74,7 +90,7 @@ export default function RecordScreen() {
                 const complete = clearedLevels.length === levels.length;
                 const expanded = expandedCategoryIds.includes(category.id);
                 return (
-                  <View key={category.id}>
+                  <View key={category.id} style={complete && [styles.categoryGroup, { borderColor: accents[course].main }]}>
                     {complete && (
                       <Pressable
                         accessibilityRole="button"
@@ -84,26 +100,33 @@ export default function RecordScreen() {
                         onPress={() => setExpandedCategoryIds((ids) => expanded
                           ? ids.filter((id) => id !== category.id)
                           : [...ids, category.id])}
-                        style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+                        style={({ pressed }) => [styles.groupHeader, pressed && styles.pressed]}
                       >
                         <Ionicons name="checkmark-circle" size={32} color={colors.clearGreen} accessible={false} />
                         <View style={styles.rowText}>
                           <Text style={styles.categoryTitle}>{category.title}</Text>
                           <Text style={styles.levelText}>全{levels.length}レベルクリア</Text>
-                          <Text style={[styles.levelText, { color: accents[course].dark }]}>{expanded ? "レベルを閉じる" : "レベルを見る"}</Text>
+                          <View style={[styles.disclosure, { borderColor: accents[course].main }]}>
+                            <Text style={[styles.disclosureText, { color: accents[course].dark }]}>{expanded ? "レベルを閉じる" : "レベルを見る"}</Text>
+                            <Ionicons name={expanded ? "chevron-up" : "chevron-down"} size={22} color={accents[course].main} accessible={false} />
+                          </View>
                         </View>
-                        <Ionicons name={expanded ? "chevron-up" : "chevron-down"} size={24} color={accents[course].main} accessible={false} />
                       </Pressable>
                     )}
-                    {(!complete || expanded) && clearedLevels.map((level) => (
-                      <View key={level.id} style={[styles.row, complete && styles.detailRow]} accessible accessibilityLabel={`${category.title}、レベル${level.level}、完了済み`}>
-                        <Ionicons name="checkmark-circle" size={32} color={colors.clearGreen} accessible={false} />
-                        <View style={styles.rowText}>
-                          <Text style={styles.categoryTitle}>{category.title}</Text>
-                          <Text style={styles.levelText}>レベル {level.level}</Text>
-                        </View>
+                    {(!complete || expanded) && (
+                      <View style={complete && [styles.levelList, { borderTopColor: accents[course].main, backgroundColor: accents[course].pale }]}>
+                        {complete && <Text accessibilityRole="header" style={[styles.listHeading, { color: accents[course].dark }]}>クリアしたレベル</Text>}
+                        {clearedLevels.map((level) => (
+                          <View key={level.id} style={[styles.row, complete && styles.detailRow]} accessible accessibilityLabel={`${category.title}、レベル${level.level}、クリア済み`}>
+                            <Ionicons name="checkmark-circle" size={32} color={colors.clearGreen} accessible={false} />
+                            <View style={styles.rowText}>
+                              {!complete && <Text style={styles.categoryTitle}>{category.title}</Text>}
+                              <Text style={complete ? styles.categoryTitle : styles.levelText}>レベル {level.level}</Text>
+                            </View>
+                          </View>
+                        ))}
                       </View>
-                    ))}
+                    )}
                   </View>
                 );
               })
@@ -135,7 +158,15 @@ const styles = StyleSheet.create({
   heading: { marginBottom: 12, fontSize: fontSize.body, fontWeight: "bold", color: colors.text },
   row: { flexDirection: "row", alignItems: "center", minHeight: minTouchSize, gap: 10, paddingHorizontal: 12, paddingVertical: 10, marginBottom: 12, borderRadius: 30, borderWidth: 1, borderColor: colors.textSub, backgroundColor: colors.white },
   rowText: { flex: 1, gap: 3 },
-  detailRow: { marginLeft: 12 },
+  categoryGroup: { marginBottom: 12, borderWidth: 2, borderRadius: 16, overflow: "hidden", backgroundColor: colors.white },
+  groupHeader: { flexDirection: "row", alignItems: "center", gap: 10, padding: 12, minHeight: minTouchSize },
+  disclosure: { flexDirection: "row", alignSelf: "flex-start", alignItems: "center", gap: 6, marginTop: 6, paddingHorizontal: 10, paddingVertical: 6, borderWidth: 1, borderRadius: 10, backgroundColor: colors.white },
+  disclosureText: { fontSize: fontSize.small, fontWeight: "bold", flexShrink: 1 },
+  levelList: { borderTopWidth: 1, padding: 12, gap: 8 },
+  listHeading: { fontSize: fontSize.small, fontWeight: "bold", marginBottom: 2 },
+  detailRow: { marginBottom: 0, borderRadius: 10, borderColor: colors.border },
+  previewNotice: { width: "100%", maxWidth: 480, marginBottom: 12, gap: 4 },
+  previewExit: { minHeight: 48, justifyContent: "center", alignItems: "center", backgroundColor: colors.white, borderWidth: 1, borderColor: colors.border, borderRadius: 10 },
   categoryTitle: { fontSize: fontSize.body, color: colors.text },
   levelText: { fontSize: fontSize.small, color: colors.textSub },
   emptyRow: { flexDirection: "row", alignItems: "center", gap: 10, minHeight: minTouchSize, paddingHorizontal: 12, paddingVertical: 12, borderRadius: 26, borderWidth: 1, borderColor: colors.textSub, backgroundColor: colors.white },
