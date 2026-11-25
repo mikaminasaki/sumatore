@@ -11,6 +11,8 @@ const PHOTO_HEIGHT = 90;
 const TARGETS = [1.8, 0.7, 2.4];
 // シニア向けに、ぴったりでなくても合格にする
 const TOLERANCE = 0.2;
+// 白いふちを点線の外側にはみ出させる幅
+const FRAME_PAD = 3;
 
 // 拡大・縮小編 レベル 2: 写真を点線の枠の大きさに合わせる
 function ZoomLevel2({ step, onStepComplete }: GameProps) {
@@ -18,6 +20,14 @@ function ZoomLevel2({ step, onStepComplete }: GameProps) {
 
   return (
     <View style={styles.wrapper}>
+      {/* 点線の枠。写真の色とかぶらないよう、白い太い線の上にオレンジの点線を重ねる */}
+      <View
+        pointerEvents="none"
+        style={[
+          styles.frameBack,
+          { width: PHOTO_WIDTH * target + FRAME_PAD * 2, height: PHOTO_HEIGHT * target + FRAME_PAD * 2 },
+        ]}
+      />
       <View
         pointerEvents="none"
         style={[styles.frame, { width: PHOTO_WIDTH * target, height: PHOTO_HEIGHT * target }]}
@@ -49,13 +59,24 @@ export const zoom2: Game = { steps, Component: ZoomLevel2 };
 
 const styles = StyleSheet.create({
   wrapper: { flex: 1, alignSelf: "stretch", alignItems: "center", justifyContent: "center" },
+  frameBack: {
+    position: "absolute",
+    borderWidth: 11,
+    borderRadius: 10,
+    borderColor: colors.white,
+    zIndex: 1,
+    shadowColor: "#000",
+    shadowOpacity: 0.35,
+    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 0 },
+  },
   frame: {
     position: "absolute",
-    borderWidth: 3,
+    borderWidth: 5,
     borderStyle: "dashed",
     borderRadius: 8,
     borderColor: colors.burntOrange,
-    zIndex: 1,
+    zIndex: 2,
   },
   photo: {
     width: PHOTO_WIDTH,
