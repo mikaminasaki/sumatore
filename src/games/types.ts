@@ -20,4 +20,6 @@ export type GameProps = {
 export type Game = {
   steps: GameStep[];
   Component: ComponentType<GameProps>;
+  // true なら、練習エリアの緑の点線の枠と背景を出さない (写真を大きく見せたいゲーム用)
+  frameless?: boolean;
 };
