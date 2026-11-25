@@ -45,6 +45,17 @@ export default function LessonScreen() {
   // ステップができたら、ぶるっと震わせて「できた！」を見せてから次へ進む
   const [celebrating, setCelebrating] = useState(false);
   const [celebrateScale] = useState(() => new Animated.Value(0));
+  // 次のステップに進んだとき、お題の箱をふわっと大きくして光らせる (0 → 1 → 0)
+  const [taskPulse] = useState(() => new Animated.Value(0));
+  const pulseTask = () => {
+    taskPulse.setValue(0);
+    Animated.sequence([
+      Animated.timing(taskPulse, { toValue: 1, duration: 250, useNativeDriver: true }),
+      Animated.timing(taskPulse, { toValue: 0, duration: 300, useNativeDriver: true }),
+      Animated.timing(taskPulse, { toValue: 1, duration: 250, useNativeDriver: true }),
+      Animated.timing(taskPulse, { toValue: 0, duration: 450, useNativeDriver: true }),
+    ]).start();
+  };
   const celebrateTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -64,7 +75,10 @@ export default function LessonScreen() {
     celebrateTimer.current = setTimeout(() => {
       setCelebrating(false);
       if (step + 1 >= totalSteps) clear();
-      else setStep(step + 1);
+      else {
+        setStep(step + 1);
+        pulseTask();
+      }
     }, CELEBRATE_MS);
   };
 
@@ -159,10 +173,27 @@ export default function LessonScreen() {
       <View style={[styles.body, { paddingBottom: insets.bottom + 16 }]}>
         {/* お題 (実践編と同じ箱) */}
         <View style={styles.guide}>
-          <View style={[styles.taskBox, { backgroundColor: accent.pale, borderLeftColor: accent.main }]}>
+          <Animated.View
+            style={[
+              styles.taskBox,
+              {
+                backgroundColor: accent.pale,
+                borderLeftColor: accent.main,
+                transform: [{ scale: taskPulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.08] }) }],
+              },
+            ]}
+          >
+            {/* 光るときだけ、コースの色の太い枠を出す (文字の背景は暗くしない) */}
+            <Animated.View
+              pointerEvents="none"
+              style={[
+                styles.taskGlow,
+                { borderColor: accent.main, opacity: taskPulse },
+              ]}
+            />
             <Text style={styles.taskLabel}>お題</Text>
             <Text style={styles.taskText}>{currentStep?.instruction ?? level?.description}</Text>
-          </View>
+          </Animated.View>
         </View>
 
         <View style={[styles.practiceArea, game?.frameless && styles.practiceAreaFrameless]}>
@@ -208,7 +239,8 @@ const styles = StyleSheet.create({
   stepBar: { flex: 1, height: 8, borderRadius: 4, backgroundColor: colors.border },
   body: { flex: 1, padding: 16, gap: 16 },
   guide: { flexDirection: "row" },
-  taskBox: { flex: 1, paddingHorizontal: 14, paddingVertical: 10, gap: 4, borderRadius: 8, borderLeftWidth: 4 },
+  taskBox: { flex: 1, paddingHorizontal: 14, paddingVertical: 10, gap: 4, borderRadius: 8, borderLeftWidth: 4, overflow: "hidden" },
+  taskGlow: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, borderWidth: 4, borderRadius: 8 },
   taskLabel: { fontSize: fontSize.small, fontWeight: "bold", color: colors.text },
   taskText: { fontSize: fontSize.body, lineHeight: 30, fontWeight: "bold", color: colors.text },
   hintButton: {
