@@ -22,7 +22,6 @@ function ZoomLevel4({ step, onStepComplete }: GameProps) {
     <View style={styles.panels}>
       {/* お手本は見るだけ。タップできるのは「探す絵」だけにする */}
       <View style={styles.section}>
-        <Text style={styles.label}>お手本</Text>
         <View style={styles.panel}>
           <ZoomArea pannable minScale={1} onPinchEnd={handlePinchEnd}>
             <Image
@@ -31,10 +30,11 @@ function ZoomLevel4({ step, onStepComplete }: GameProps) {
               accessibilityLabel="お手本の写真。キーコと木古内駅の看板"
             />
           </ZoomArea>
+          {/* ラベルは写真の左上に重ねて、写真をできるだけ大きく見せる */}
+          <Text style={styles.label} pointerEvents="none">お手本</Text>
         </View>
       </View>
       <View style={styles.section}>
-        <Text style={[styles.label, styles.labelActive]}>探す絵</Text>
         <View style={[styles.panel, styles.panelActive]}>
           <ZoomArea pannable minScale={1} onPinchEnd={handlePinchEnd}>
             <View style={styles.photo}>
@@ -54,6 +54,7 @@ function ZoomLevel4({ step, onStepComplete }: GameProps) {
               />
             </View>
           </ZoomArea>
+          <Text style={[styles.label, styles.labelActive]} pointerEvents="none">探す絵</Text>
         </View>
       </View>
     </View>
@@ -75,10 +76,22 @@ export const zoom4: Game = {
 };
 
 const styles = StyleSheet.create({
-  panels: { flex: 1, alignSelf: "stretch", padding: 8, gap: 8 },
-  section: { flex: 1, alignItems: "center" },
-  label: { fontSize: fontSize.body, fontWeight: "bold", color: colors.text, marginBottom: 4 },
-  labelActive: { color: colors.burntOrange },
+  panels: { flex: 1, alignSelf: "stretch", padding: 4, gap: 6 },
+  section: { flex: 1, alignItems: "center", justifyContent: "center" },
+  label: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    paddingHorizontal: 10,
+    paddingVertical: 2,
+    borderBottomRightRadius: 10,
+    fontSize: fontSize.body,
+    fontWeight: "bold",
+    color: colors.white,
+    backgroundColor: colors.textSub,
+    overflow: "hidden",
+  },
+  labelActive: { backgroundColor: colors.burntOrange },
   // 高さに合わせて横 3 : 縦 2 で広げ、横幅からはみ出さないようにする
   panel: {
     flex: 1,
