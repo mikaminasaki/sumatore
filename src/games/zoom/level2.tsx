@@ -20,17 +20,25 @@ function ZoomLevel2({ step, onStepComplete }: GameProps) {
 
   return (
     <View style={styles.wrapper}>
-      {/* 点線の枠。写真の色とかぶらないよう、白い太い線の上にオレンジの点線を重ねる */}
+      {/* 点線の枠。小さな枠 (ステップ2) は写真の上に重なるので、白い太い線の上にオレンジの点線を重ねる */}
+      {step === 1 && (
+        <View
+          pointerEvents="none"
+          style={[
+            styles.frameBack,
+            {
+              width: PHOTO_WIDTH * target + FRAME_PAD * 2,
+              height: PHOTO_HEIGHT * target + FRAME_PAD * 2,
+            },
+          ]}
+        />
+      )}
       <View
         pointerEvents="none"
         style={[
-          styles.frameBack,
-          { width: PHOTO_WIDTH * target + FRAME_PAD * 2, height: PHOTO_HEIGHT * target + FRAME_PAD * 2 },
+          styles.frame,
+          { width: PHOTO_WIDTH * target, height: PHOTO_HEIGHT * target },
         ]}
-      />
-      <View
-        pointerEvents="none"
-        style={[styles.frame, { width: PHOTO_WIDTH * target, height: PHOTO_HEIGHT * target }]}
       />
       <ZoomArea
         maxScale={3}
@@ -50,15 +58,29 @@ function ZoomLevel2({ step, onStepComplete }: GameProps) {
 }
 
 const steps = [
-  { instruction: "写真を大きくして、点線の枠に合わせましょう", hint: "2本の指をゆっくり広げます。枠と同じくらいで指を離します" },
-  { instruction: "今度は小さな枠に合わせましょう", hint: "2本の指を近づけて写真を小さくします" },
-  { instruction: "最後は大きな枠に合わせましょう", hint: "1回で届かなければ、指を離してもう一度広げます" },
+  {
+    instruction: "写真を大きくして、点線の枠に合わせましょう",
+    hint: "2本の指をゆっくり広げます。枠と同じくらいで指を離します",
+  },
+  {
+    instruction: "今度は小さな枠に合わせましょう",
+    hint: "2本の指を近づけて写真を小さくします",
+  },
+  {
+    instruction: "最後は大きな枠に合わせましょう",
+    hint: "1回で届かなければ、指を離してもう一度広げます",
+  },
 ];
 
 export const zoom2: Game = { steps, Component: ZoomLevel2 };
 
 const styles = StyleSheet.create({
-  wrapper: { flex: 1, alignSelf: "stretch", alignItems: "center", justifyContent: "center" },
+  wrapper: {
+    flex: 1,
+    alignSelf: "stretch",
+    alignItems: "center",
+    justifyContent: "center",
+  },
   frameBack: {
     position: "absolute",
     borderWidth: 11,
