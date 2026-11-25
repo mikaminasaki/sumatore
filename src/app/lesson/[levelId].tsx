@@ -165,7 +165,7 @@ export default function LessonScreen() {
           </View>
         </View>
 
-        <View style={styles.practiceArea}>
+        <View style={[styles.practiceArea, game?.frameless && styles.practiceAreaFrameless]}>
           {game ? (
             <game.Component step={step} onStepComplete={handleStepComplete} />
           ) : (
@@ -246,6 +246,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     overflow: "hidden",
   },
+  practiceAreaFrameless: { borderWidth: 0, backgroundColor: "transparent", borderRadius: 0 },
 
   practiceArea: {
     flex: 1,

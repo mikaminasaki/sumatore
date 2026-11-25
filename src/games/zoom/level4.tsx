@@ -73,19 +73,21 @@ export const zoom4: Game = {
     },
   ],
   Component: ZoomLevel4,
+  // 写真をできるだけ大きく見せるため、練習エリアの枠を出さない
+  frameless: true,
 };
 
 const styles = StyleSheet.create({
-  panels: { flex: 1, alignSelf: "stretch", padding: 4, gap: 6 },
+  panels: { flex: 1, alignSelf: "stretch", gap: 8 },
   section: { flex: 1, alignItems: "center", justifyContent: "center" },
   label: {
     position: "absolute",
     top: 0,
     left: 0,
-    paddingHorizontal: 10,
-    paddingVertical: 2,
-    borderBottomRightRadius: 10,
-    fontSize: fontSize.body,
+    paddingHorizontal: 14,
+    paddingVertical: 4,
+    borderBottomRightRadius: 12,
+    fontSize: fontSize.large,
     fontWeight: "bold",
     color: colors.white,
     backgroundColor: colors.textSub,
