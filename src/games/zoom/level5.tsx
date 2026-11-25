@@ -55,10 +55,11 @@ export const zoom5: Game = {
 };
 
 const styles = StyleSheet.create({
+  // 横幅に合わせて縦横比を保つ (絵が切れると、猫の位置とタップの範囲がずれるため)
   scene: {
-    height: "100%",
+    width: "100%",
     aspectRatio: PHOTO_ASPECT,
-    maxWidth: "100%",
+    maxHeight: "100%",
     borderRadius: 4,
     overflow: "hidden",
   },
