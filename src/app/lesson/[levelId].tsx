@@ -183,12 +183,12 @@ export default function LessonScreen() {
               },
             ]}
           >
-            {/* 光るときだけ、コースの色を上に重ねる */}
+            {/* 光るときだけ、コースの色の太い枠を出す (文字の背景は暗くしない) */}
             <Animated.View
               pointerEvents="none"
               style={[
                 styles.taskGlow,
-                { backgroundColor: accent.main, opacity: taskPulse.interpolate({ inputRange: [0, 1], outputRange: [0, 0.55] }) },
+                { borderColor: accent.main, opacity: taskPulse },
               ]}
             />
             <Text style={styles.taskLabel}>お題</Text>
@@ -240,7 +240,7 @@ const styles = StyleSheet.create({
   body: { flex: 1, padding: 16, gap: 16 },
   guide: { flexDirection: "row" },
   taskBox: { flex: 1, paddingHorizontal: 14, paddingVertical: 10, gap: 4, borderRadius: 8, borderLeftWidth: 4, overflow: "hidden" },
-  taskGlow: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
+  taskGlow: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, borderWidth: 4, borderRadius: 8 },
   taskLabel: { fontSize: fontSize.small, fontWeight: "bold", color: colors.text },
   taskText: { fontSize: fontSize.body, lineHeight: 30, fontWeight: "bold", color: colors.text },
   hintButton: {
