@@ -50,10 +50,10 @@ export default function LessonScreen() {
   const pulseTask = () => {
     taskPulse.setValue(0);
     Animated.sequence([
-      Animated.timing(taskPulse, { toValue: 1, duration: 180, useNativeDriver: true }),
-      Animated.timing(taskPulse, { toValue: 0, duration: 220, useNativeDriver: true }),
-      Animated.timing(taskPulse, { toValue: 1, duration: 180, useNativeDriver: true }),
-      Animated.timing(taskPulse, { toValue: 0, duration: 320, useNativeDriver: true }),
+      Animated.timing(taskPulse, { toValue: 1, duration: 250, useNativeDriver: true }),
+      Animated.timing(taskPulse, { toValue: 0, duration: 300, useNativeDriver: true }),
+      Animated.timing(taskPulse, { toValue: 1, duration: 250, useNativeDriver: true }),
+      Animated.timing(taskPulse, { toValue: 0, duration: 450, useNativeDriver: true }),
     ]).start();
   };
   const celebrateTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -179,7 +179,7 @@ export default function LessonScreen() {
               {
                 backgroundColor: accent.pale,
                 borderLeftColor: accent.main,
-                transform: [{ scale: taskPulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.04] }) }],
+                transform: [{ scale: taskPulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.08] }) }],
               },
             ]}
           >
@@ -188,7 +188,7 @@ export default function LessonScreen() {
               pointerEvents="none"
               style={[
                 styles.taskGlow,
-                { backgroundColor: accent.main, opacity: taskPulse.interpolate({ inputRange: [0, 1], outputRange: [0, 0.3] }) },
+                { backgroundColor: accent.main, opacity: taskPulse.interpolate({ inputRange: [0, 1], outputRange: [0, 0.55] }) },
               ]}
             />
             <Text style={styles.taskLabel}>お題</Text>
