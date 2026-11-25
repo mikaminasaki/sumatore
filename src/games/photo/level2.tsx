@@ -2,12 +2,12 @@ import type { Game, GameProps } from "@/games/types";
 
 import { PhotoAlbum } from "./album";
 import { ConfirmSelection } from "./confirm-selection";
-import { meadowPhotoIndex, snowPhotoIndex } from "./photos";
+import { beachPhotoIndex, snowPhotoIndex } from "./photos";
 
 function PhotoLevel2({ onStepComplete }: GameProps) {
   return (
     <PhotoAlbum
-      initialPhoto={meadowPhotoIndex}
+      initialPhoto={beachPhotoIndex}
       actions={(index) => (
         <ConfirmSelection
           key={index}

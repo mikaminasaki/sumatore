@@ -1,16 +1,17 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
+import { Image } from "expo-image";
 import { useEffect, useRef, useState, type ComponentRef, type ReactNode } from "react";
-import { FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { FlatList, Image as NativeImage, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { GestureDetector, usePanGesture, usePinchGesture, useSimultaneousGestures } from "react-native-gesture-handler";
 
 import { accents, colors, fontSize, minTouchSize } from "@/constants/theme";
 
-import { blanketDogPhotoIndex, dogPhotoIndex, photos, riverPhotoIndex, snowPhotoIndex } from "./photos";
+import { albumPhotoIndices, blanketDogPhotoIndex, dogPhotoIndex, photos, photoThumbnails, riverPhotoIndex, snowPhotoIndex } from "./photos";
 
 const thumbnailSize = minTouchSize;
 const thumbnailGap = 4;
-const allPhotoIndices = photos.map((_, index) => index);
+const allPhotoIndices = albumPhotoIndices;
 
 type AlbumProps = {
   initialPhoto?: number;
@@ -33,7 +34,7 @@ function ZoomPhoto({ index, onZoom }: { index: number; onZoom: (scale: number) =
   const panStart = useRef(originalTransform);
 
   function update(next: PhotoTransform) {
-    const source = Image.resolveAssetSource(photos[index]);
+    const source = NativeImage.resolveAssetSource(photos[index]);
     if (!source?.width || !source.height) return;
     const fit = Math.min(size.width / source.width, size.height / source.height);
     const maxX = Math.max(0, (source.width * fit * next.scale - size.width) / 2);
@@ -80,7 +81,11 @@ function ZoomPhoto({ index, onZoom }: { index: number; onZoom: (scale: number) =
         <Image
           source={photos[index]}
           style={[styles.image, { transform: [{ translateX: transform.x }, { translateY: transform.y }, { scale: transform.scale }] }]}
-          resizeMode="contain"
+          contentFit="contain"
+          cachePolicy="memory-disk"
+          priority="high"
+          // 拡大中も元の解像度を保ち、毛布の模様を読めるようにする。
+          allowDownscaling={false}
         />
       </View>
     </GestureDetector>
@@ -143,6 +148,9 @@ function PhotoViewer({ initialPhoto, allowZoom, actions, onBack, favorites, onTo
             pagingEnabled
             showsHorizontalScrollIndicator={false}
             initialScrollIndex={photoIndices.indexOf(index)}
+            initialNumToRender={1}
+            maxToRenderPerBatch={2}
+            windowSize={3}
             getItemLayout={(_, itemIndex) => ({ length: width, offset: width * itemIndex, index: itemIndex })}
             keyExtractor={(photoIndex) => String(photoIndex)}
             scrollEnabled={scale <= 1.01}
@@ -155,7 +163,7 @@ function PhotoViewer({ initialPhoto, allowZoom, actions, onBack, favorites, onTo
                 {allowZoom && photoIndex === index ? (
                   <ZoomPhoto index={photoIndex} onZoom={setScale} />
                 ) : (
-                  <Image source={photos[photoIndex]} style={styles.image} resizeMode="contain" />
+                  <Image source={photos[photoIndex]} placeholder={photoThumbnails[photoIndex]} placeholderContentFit="contain" style={styles.image} contentFit="contain" cachePolicy="memory-disk" priority={photoIndex === index ? "high" : "normal"} />
                 )}
               </View>
             )}
@@ -187,7 +195,7 @@ function PhotoViewer({ initialPhoto, allowZoom, actions, onBack, favorites, onTo
                   selectPhoto(photoIndex);
                 }}
               >
-                <Image source={photos[photoIndex]} style={styles.image} />
+                <Image source={photoThumbnails[photoIndex]} style={styles.image} contentFit="cover" cachePolicy="memory-disk" />
               </Pressable>
             ))}
           </ScrollView>
@@ -271,10 +279,10 @@ export function PhotoAlbum({ initialPhoto, allowZoom, actions, onFavoriteChange,
           ))}
         </View>
         <ScrollView contentContainerStyle={styles.grid}>
-          {onlyFavorites && favoritesLoaded && favorites.length === 0 && <AlbumPrompt>お気に入りはまだありません。「全ての写真」で写真を開き、ハートを押すと登録できます。</AlbumPrompt>}
+          {onlyFavorites && favoritesLoaded && photoIndices.length === 0 && <AlbumPrompt>この一覧にお気に入りの写真はありません。「全ての写真」で写真を開き、ハートを押すと登録できます。</AlbumPrompt>}
           {photoIndices.map((index) => (
             <Pressable key={index} accessibilityRole="button" accessibilityLabel={photoLabel(index)} style={styles.tile} onPress={() => setOpened(index)}>
-              <Image source={photos[index]} style={styles.image} />
+              {opened === undefined && <Image source={photoThumbnails[index]} style={styles.image} contentFit="cover" cachePolicy="memory-disk" />}
             </Pressable>
           ))}
         </ScrollView>
@@ -309,17 +317,6 @@ export function AlbumPrompt({ children }: { children: string }) {
   return <Text accessibilityLiveRegion="polite" style={styles.prompt}>{children}</Text>;
 }
 
-export function ConfirmPhoto({ correct, onCorrect }: { correct: boolean; onCorrect: () => void }) {
-  const [tryAgain, setTryAgain] = useState(false);
-
-  return (
-    <View>
-      <AlbumPrompt>{tryAgain ? "別の写真です。もう一度ご確認ください" : "見せたい写真を選んでください"}</AlbumPrompt>
-      <AlbumAction title="この写真を見せる" onPress={correct ? onCorrect : () => setTryAgain(true)} />
-    </View>
-  );
-}
-
 function thumbnailOffset(index: number, count: number, width: number) {
   return Math.max(0, Math.min(
     count * (thumbnailSize + thumbnailGap) - width,
@@ -332,6 +329,10 @@ function photoLabel(index: number) {
   if (index === dogPhotoIndex) return "黒い犬の写真";
   if (index === riverPhotoIndex) return "森の川の写真";
   if (index === snowPhotoIndex) return "雪山の写真";
+  if (index === 24) return "机と本の写真";
+  if (index === 25) return "いちごの写真";
+  if (index === 26) return "野菜の写真";
+  if (index === 27) return "セイウチの写真";
   return `写真 ${index + 1}`;
 }
 
