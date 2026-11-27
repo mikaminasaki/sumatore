@@ -69,7 +69,7 @@ function ZoomLevel4({ step, onStepComplete }: GameProps) {
 export const zoom4: Game = {
   steps: [
     {
-      instruction: "どちらかの絵を大きくしましょう",
+      instruction: "上下どちらかの絵を大きくしましょう",
       hint: "上の絵も下の絵も、それぞれ2本の指で広げて大きくできます",
     },
     {
