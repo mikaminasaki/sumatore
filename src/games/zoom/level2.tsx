@@ -1,7 +1,6 @@
 import { Image } from "expo-image";
 import { StyleSheet, View } from "react-native";
 
-import { colors } from "@/constants/theme";
 import type { Game, GameProps } from "@/games/types";
 import { ZoomArea } from "@/games/zoom/zoom-area";
 
@@ -11,8 +10,8 @@ const PHOTO_HEIGHT = 90;
 const TARGETS = [1.8, 0.7, 2.4];
 // シニア向けに、ぴったりでなくても合格にする
 const TOLERANCE = 0.2;
-// 白いふちを点線の外側にはみ出させる幅
-const FRAME_PAD = 3;
+// 点線の色。写真 (ピンク・緑・ベージュ) とも、練習エリアの薄い緑ともかぶらない鮮やかな青
+const FRAME_COLOR = "#0050FF";
 
 // 拡大・縮小編 レベル 2: 写真を点線の枠の大きさに合わせる
 function ZoomLevel2({ step, onStepComplete }: GameProps) {
@@ -20,19 +19,7 @@ function ZoomLevel2({ step, onStepComplete }: GameProps) {
 
   return (
     <View style={styles.wrapper}>
-      {/* 点線の枠。小さな枠 (ステップ2) は写真の上に重なるので、白い太い線の上にオレンジの点線を重ねる */}
-      {step === 1 && (
-        <View
-          pointerEvents="none"
-          style={[
-            styles.frameBack,
-            {
-              width: PHOTO_WIDTH * target + FRAME_PAD * 2,
-              height: PHOTO_HEIGHT * target + FRAME_PAD * 2,
-            },
-          ]}
-        />
-      )}
+      {/* 点線の枠。写真の上に重なっても見えるよう、写真にない色にする */}
       <View
         pointerEvents="none"
         style={[
@@ -81,24 +68,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  frameBack: {
-    position: "absolute",
-    borderWidth: 11,
-    borderRadius: 10,
-    borderColor: colors.white,
-    zIndex: 1,
-    shadowColor: "#000",
-    shadowOpacity: 0.35,
-    shadowRadius: 3,
-    shadowOffset: { width: 0, height: 0 },
-  },
   frame: {
     position: "absolute",
     borderWidth: 5,
     borderStyle: "dashed",
     borderRadius: 8,
-    borderColor: colors.burntOrange,
-    zIndex: 2,
+    borderColor: FRAME_COLOR,
+    zIndex: 1,
   },
   photo: {
     width: PHOTO_WIDTH,
