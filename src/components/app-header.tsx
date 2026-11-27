@@ -17,22 +17,26 @@ type Props = {
   accent?: Accent;
   // 右側に置くもの (例: 練習画面のヒントボタン)
   right?: ReactNode;
+  // logo のとき、ロゴを長押ししたら呼ぶ (開発中の記録リセット用)
+  onLogoLongPress?: () => void;
 };
 
-export function AppHeader({ title, subtitle, variant = "section", leftButton = "none", accent = accents.basic, right }: Props) {
+export function AppHeader({ title, subtitle, variant = "section", leftButton = "none", accent = accents.basic, right, onLogoLongPress }: Props) {
   const insets = useSafeAreaInsets();
 
   if (variant === "logo") {
     return (
       <View style={[styles.container, styles.logoContainer, { backgroundColor: colors.homeRed, paddingTop: insets.top + 8 }]}>
         {/* ロゴ画像。読み上げでは title を読む */}
-        <Image
-          source={require("@/../assets/images/home/logo.png")}
-          accessibilityRole="header"
-          accessibilityLabel={title}
-          style={styles.logoImage}
-          resizeMode="contain"
-        />
+        <Pressable onLongPress={onLogoLongPress} disabled={!onLogoLongPress} delayLongPress={800}>
+          <Image
+            source={require("@/../assets/images/home/logo.png")}
+            accessibilityRole="header"
+            accessibilityLabel={title}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
+        </Pressable>
       </View>
     );
   }

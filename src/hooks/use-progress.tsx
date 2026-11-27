@@ -15,6 +15,8 @@ type ProgressContextValue = {
   isCleared: (levelId: string) => boolean;
   markCleared: (levelId: string) => void;
   clearedLevelIds: string[];
+  // 指定したカテゴリ (例: "zoom", "photo") のクリア記録を消す。開発中の確認用
+  resetCategories: (categoryIds: string[]) => void;
 };
 
 const ProgressContext = createContext<ProgressContextValue | null>(null);
@@ -41,11 +43,23 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const resetCategories = useCallback((categoryIds: string[]) => {
+    setProgress((prev) => {
+      // レベル ID は「カテゴリ id-番号」なので、先頭のカテゴリ id で選ぶ
+      const clearedAt = Object.fromEntries(
+        Object.entries(prev.clearedAt).filter(([levelId]) => !categoryIds.some((id) => levelId.startsWith(`${id}-`))),
+      );
+      const next = { clearedAt };
+      AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(next)).catch(() => {});
+      return next;
+    });
+  }, []);
+
   const isCleared = useCallback((levelId: string) => Boolean(progress.clearedAt[levelId]), [progress]);
 
   return (
     <ProgressContext.Provider
-      value={{ loaded, isCleared, markCleared, clearedLevelIds: Object.keys(progress.clearedAt) }}
+      value={{ loaded, isCleared, markCleared, clearedLevelIds: Object.keys(progress.clearedAt), resetCategories }}
     >
       {children}
     </ProgressContext.Provider>
