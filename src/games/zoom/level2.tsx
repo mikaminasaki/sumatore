@@ -21,7 +21,13 @@ const THICK = 5;
 const EDGE = 2;
 
 // 1 辺ぶんの点線。点線 1 本ずつに白いふちを付けて、写真の上でも見えるようにする
-function DashedLine({ length, vertical }: { length: number; vertical?: boolean }) {
+function DashedLine({
+  length,
+  vertical,
+}: {
+  length: number;
+  vertical?: boolean;
+}) {
   const count = Math.max(1, Math.floor((length + GAP) / (DASH + GAP)));
   // 両端に点線が来るように、すき間を広げて調整する
   const gap = count > 1 ? (length - count * DASH) / (count - 1) : 0;
@@ -35,8 +41,18 @@ function DashedLine({ length, vertical }: { length: number; vertical?: boolean }
             style={[
               styles.dash,
               vertical
-                ? { top: offset, left: 0, width: THICK + EDGE * 2, height: DASH }
-                : { left: offset, top: 0, width: DASH, height: THICK + EDGE * 2 },
+                ? {
+                    top: offset,
+                    left: 0,
+                    width: THICK + EDGE * 2,
+                    height: DASH,
+                  }
+                : {
+                    left: offset,
+                    top: 0,
+                    width: DASH,
+                    height: THICK + EDGE * 2,
+                  },
             ]}
           />
         );
@@ -53,14 +69,33 @@ function DashedFrame({ width, height }: { width: number; height: number }) {
       <View style={{ position: "absolute", top: 0, left: 0, width, height: t }}>
         <DashedLine length={width} />
       </View>
-      <View style={{ position: "absolute", bottom: 0, left: 0, width, height: t }}>
+      <View
+        style={{ position: "absolute", bottom: 0, left: 0, width, height: t }}
+      >
         <DashedLine length={width} />
       </View>
-      <View style={{ position: "absolute", top: 0, left: 0, width: t, height }}>
-        <DashedLine length={height} vertical />
+      {/* 縦の辺は、角の点線と重ならないよう上下を空ける */}
+      <View
+        style={{
+          position: "absolute",
+          top: t + GAP,
+          left: 0,
+          width: t,
+          height: height - (t + GAP) * 2,
+        }}
+      >
+        <DashedLine length={height - (t + GAP) * 2} vertical />
       </View>
-      <View style={{ position: "absolute", top: 0, right: 0, width: t, height }}>
-        <DashedLine length={height} vertical />
+      <View
+        style={{
+          position: "absolute",
+          top: t + GAP,
+          right: 0,
+          width: t,
+          height: height - (t + GAP) * 2,
+        }}
+      >
+        <DashedLine length={height - (t + GAP) * 2} vertical />
       </View>
     </View>
   );
@@ -73,7 +108,10 @@ function ZoomLevel2({ step, onStepComplete }: GameProps) {
   return (
     <View style={styles.wrapper}>
       {/* 点線の枠。写真の上に重なっても見えるよう、写真にない色にする */}
-      <DashedFrame width={PHOTO_WIDTH * target} height={PHOTO_HEIGHT * target} />
+      <DashedFrame
+        width={PHOTO_WIDTH * target}
+        height={PHOTO_HEIGHT * target}
+      />
       <ZoomArea
         maxScale={3}
         onPinchEnd={(scale) => {
