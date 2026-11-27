@@ -1,6 +1,7 @@
 import { Image } from "expo-image";
 import { StyleSheet, View } from "react-native";
 
+import { colors } from "@/constants/theme";
 import type { Game, GameProps } from "@/games/types";
 import { ZoomArea } from "@/games/zoom/zoom-area";
 
@@ -13,6 +14,58 @@ const TOLERANCE = 0.2;
 // 点線の色。写真 (ピンク・緑・ベージュ) とも、練習エリアの薄い緑ともかぶらない鮮やかな青
 const FRAME_COLOR = "#0050FF";
 
+// 点線 1 本ずつの長さ・すき間・太さ・白いふちの太さ
+const DASH = 16;
+const GAP = 10;
+const THICK = 5;
+const EDGE = 2;
+
+// 1 辺ぶんの点線。点線 1 本ずつに白いふちを付けて、写真の上でも見えるようにする
+function DashedLine({ length, vertical }: { length: number; vertical?: boolean }) {
+  const count = Math.max(1, Math.floor((length + GAP) / (DASH + GAP)));
+  // 両端に点線が来るように、すき間を広げて調整する
+  const gap = count > 1 ? (length - count * DASH) / (count - 1) : 0;
+  return (
+    <>
+      {Array.from({ length: count }, (_, i) => {
+        const offset = count > 1 ? i * (DASH + gap) : (length - DASH) / 2;
+        return (
+          <View
+            key={i}
+            style={[
+              styles.dash,
+              vertical
+                ? { top: offset, left: 0, width: THICK + EDGE * 2, height: DASH }
+                : { left: offset, top: 0, width: DASH, height: THICK + EDGE * 2 },
+            ]}
+          />
+        );
+      })}
+    </>
+  );
+}
+
+// 点線の枠 (四角の 4 辺)
+function DashedFrame({ width, height }: { width: number; height: number }) {
+  const t = THICK + EDGE * 2;
+  return (
+    <View pointerEvents="none" style={[styles.frame, { width, height }]}>
+      <View style={{ position: "absolute", top: 0, left: 0, width, height: t }}>
+        <DashedLine length={width} />
+      </View>
+      <View style={{ position: "absolute", bottom: 0, left: 0, width, height: t }}>
+        <DashedLine length={width} />
+      </View>
+      <View style={{ position: "absolute", top: 0, left: 0, width: t, height }}>
+        <DashedLine length={height} vertical />
+      </View>
+      <View style={{ position: "absolute", top: 0, right: 0, width: t, height }}>
+        <DashedLine length={height} vertical />
+      </View>
+    </View>
+  );
+}
+
 // 拡大・縮小編 レベル 2: 写真を点線の枠の大きさに合わせる
 function ZoomLevel2({ step, onStepComplete }: GameProps) {
   const target = TARGETS[step];
@@ -20,13 +73,7 @@ function ZoomLevel2({ step, onStepComplete }: GameProps) {
   return (
     <View style={styles.wrapper}>
       {/* 点線の枠。写真の上に重なっても見えるよう、写真にない色にする */}
-      <View
-        pointerEvents="none"
-        style={[
-          styles.frame,
-          { width: PHOTO_WIDTH * target, height: PHOTO_HEIGHT * target },
-        ]}
-      />
+      <DashedFrame width={PHOTO_WIDTH * target} height={PHOTO_HEIGHT * target} />
       <ZoomArea
         maxScale={3}
         onPinchEnd={(scale) => {
@@ -68,13 +115,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  frame: {
+  frame: { position: "absolute", zIndex: 1 },
+  dash: {
     position: "absolute",
-    borderWidth: 5,
-    borderStyle: "dashed",
-    borderRadius: 8,
-    borderColor: FRAME_COLOR,
-    zIndex: 1,
+    borderRadius: 3,
+    borderWidth: EDGE,
+    borderColor: colors.white,
+    backgroundColor: FRAME_COLOR,
   },
   photo: {
     width: PHOTO_WIDTH,
