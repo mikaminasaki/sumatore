@@ -11,105 +11,76 @@ const PHOTO_HEIGHT = 90;
 const TARGETS = [1.8, 0.7, 2.4];
 // シニア向けに、ぴったりでなくても合格にする
 const TOLERANCE = 0.2;
-// 点線の色 (焼きオレンジ)。白いふちを付けて、写真の上でも見えるようにする
+// かぎかっこの色 (焼きオレンジ)。白いふちを付けて、写真の上でも見えるようにする
 const FRAME_COLOR = colors.burntOrange;
 
-// 点線 1 本ずつの長さ・すき間・太さ・白いふちの太さ
-const GAP = 4;
-const THICK = 5;
+// かぎかっこの線の太さ・白いふちの太さ・腕の長さ
+const THICK = 6;
 const EDGE = 4;
-// 点線 1 本の長さ (青い部分 10 ＋ 両端の白いふち)
-const DASH = 10 + EDGE * 2;
+const ARM = 30;
 
-// 1 辺ぶんの点線。点線 1 本ずつに白いふちを付けて、写真の上でも見えるようにする
-function DashedLine({
-  length,
-  vertical,
-}: {
-  length: number;
-  vertical?: boolean;
-}) {
-  const count = Math.max(1, Math.floor((length + GAP) / (DASH + GAP)));
-  // 両端に点線が来るように、すき間を広げて調整する
-  const gap = count > 1 ? (length - count * DASH) / (count - 1) : 0;
+type Corner = "tl" | "tr" | "bl" | "br";
+
+// 角 1 つぶんのかぎかっこ。白い太い L の上に、オレンジの L を重ねる
+function Bracket({ corner, arm }: { corner: Corner; arm: number }) {
+  const top = corner[0] === "t";
+  const left = corner[1] === "l";
+  const pos = (offset: number) => ({
+    [top ? "top" : "bottom"]: offset,
+    [left ? "left" : "right"]: offset,
+  });
+  const outer = THICK + EDGE * 2;
   return (
     <>
-      {Array.from({ length: count }, (_, i) => {
-        const offset = count > 1 ? i * (DASH + gap) : (length - DASH) / 2;
-        return (
-          <View
-            key={i}
-            style={[
-              styles.dash,
-              vertical
-                ? {
-                    top: offset,
-                    left: 0,
-                    width: THICK + EDGE * 2,
-                    height: DASH,
-                  }
-                : {
-                    left: offset,
-                    top: 0,
-                    width: DASH,
-                    height: THICK + EDGE * 2,
-                  },
-            ]}
-          />
-        );
-      })}
+      {/* 白いふち */}
+      <View
+        style={[
+          styles.bar,
+          styles.edge,
+          pos(-EDGE),
+          { width: arm + EDGE * 2, height: outer },
+        ]}
+      />
+      <View
+        style={[
+          styles.bar,
+          styles.edge,
+          pos(-EDGE),
+          { width: outer, height: arm + EDGE * 2 },
+        ]}
+      />
+      {/* オレンジの線 */}
+      <View
+        style={[styles.bar, styles.line, pos(0), { width: arm, height: THICK }]}
+      />
+      <View
+        style={[styles.bar, styles.line, pos(0), { width: THICK, height: arm }]}
+      />
     </>
   );
 }
 
-// 点線の枠 (四角の 4 辺)
-function DashedFrame({ width, height }: { width: number; height: number }) {
-  const t = THICK + EDGE * 2;
+// 合わせる大きさを示す枠。四隅のかぎかっこで表す
+function CornerFrame({ width, height }: { width: number; height: number }) {
+  // 小さな枠でも、かぎかっこ同士がくっつかない長さにする
+  const arm = Math.min(ARM, width * 0.3, height * 0.3);
   return (
     <View pointerEvents="none" style={[styles.frame, { width, height }]}>
-      <View style={{ position: "absolute", top: 0, left: 0, width, height: t }}>
-        <DashedLine length={width} />
-      </View>
-      <View
-        style={{ position: "absolute", bottom: 0, left: 0, width, height: t }}
-      >
-        <DashedLine length={width} />
-      </View>
-      {/* 縦の辺は、角の点線と重ならないよう上下を空ける */}
-      <View
-        style={{
-          position: "absolute",
-          top: t + GAP,
-          left: 0,
-          width: t,
-          height: height - (t + GAP) * 2,
-        }}
-      >
-        <DashedLine length={height - (t + GAP) * 2} vertical />
-      </View>
-      <View
-        style={{
-          position: "absolute",
-          top: t + GAP,
-          right: 0,
-          width: t,
-          height: height - (t + GAP) * 2,
-        }}
-      >
-        <DashedLine length={height - (t + GAP) * 2} vertical />
-      </View>
+      {(["tl", "tr", "bl", "br"] as const).map((c) => (
+        <Bracket key={c} corner={c} arm={arm} />
+      ))}
     </View>
   );
 }
 
-// 拡大・縮小編 レベル 2: 写真を点線の枠の大きさに合わせる
+// 拡大・縮小編 レベル 2: 写真をかぎかっこの枠の大きさに合わせる
 function ZoomLevel2({ step, onStepComplete }: GameProps) {
   const target = TARGETS[step];
 
   return (
     <View style={styles.wrapper}>
-      {/* 点線の枠。写真の上に重なっても見えるよう、写真にない色にする */}
-      <DashedFrame
+      {/* 合わせる大きさを、四隅のかぎかっこで示す */}
+      <CornerFrame
         width={PHOTO_WIDTH * target}
         height={PHOTO_HEIGHT * target}
       />
@@ -132,7 +103,7 @@ function ZoomLevel2({ step, onStepComplete }: GameProps) {
 
 const steps = [
   {
-    instruction: "写真を大きくして、点線の枠に合わせましょう",
+    instruction: "写真を大きくして、かぎかっこの枠に合わせましょう",
     hint: "2本の指をゆっくり広げます。枠と同じくらいで指を離します",
   },
   {
@@ -155,13 +126,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   frame: { position: "absolute", zIndex: 1 },
-  dash: {
-    position: "absolute",
-    borderRadius: 3,
-    borderWidth: EDGE,
-    borderColor: colors.white,
-    backgroundColor: FRAME_COLOR,
-  },
+  bar: { position: "absolute", borderRadius: 3 },
+  edge: { backgroundColor: colors.white, borderRadius: 5 },
+  line: { backgroundColor: FRAME_COLOR },
   photo: {
     width: PHOTO_WIDTH,
     height: PHOTO_HEIGHT,
