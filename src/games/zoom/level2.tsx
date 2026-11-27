@@ -15,10 +15,10 @@ const TOLERANCE = 0.2;
 const FRAME_COLOR = "#0050FF";
 
 // 点線 1 本ずつの長さ・すき間・太さ・白いふちの太さ
-const DASH = 16;
-const GAP = 10;
+const DASH = 10;
+const GAP = 7;
 const THICK = 5;
-const EDGE = 2;
+const EDGE = 3;
 
 // 1 辺ぶんの点線。点線 1 本ずつに白いふちを付けて、写真の上でも見えるようにする
 function DashedLine({
