@@ -15,7 +15,7 @@ const TOLERANCE = 0.2;
 const FRAME_COLOR = "#0050FF";
 
 // 点線 1 本ずつの長さ・すき間・太さ・白いふちの太さ
-const GAP = 7;
+const GAP = 4;
 const THICK = 5;
 const EDGE = 3;
 // 点線 1 本の長さ (青い部分 10 ＋ 両端の白いふち)
