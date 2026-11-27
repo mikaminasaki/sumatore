@@ -11,13 +11,13 @@ const PHOTO_HEIGHT = 90;
 const TARGETS = [1.8, 0.7, 2.4];
 // シニア向けに、ぴったりでなくても合格にする
 const TOLERANCE = 0.2;
-// 点線の色。写真 (ピンク・緑・ベージュ) とも、練習エリアの薄い緑ともかぶらない鮮やかな青
-const FRAME_COLOR = "#0050FF";
+// 点線の色 (焼きオレンジ)。白いふちを付けて、写真の上でも見えるようにする
+const FRAME_COLOR = colors.burntOrange;
 
 // 点線 1 本ずつの長さ・すき間・太さ・白いふちの太さ
 const GAP = 4;
 const THICK = 5;
-const EDGE = 3;
+const EDGE = 4;
 // 点線 1 本の長さ (青い部分 10 ＋ 両端の白いふち)
 const DASH = 10 + EDGE * 2;
 
