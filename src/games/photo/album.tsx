@@ -17,6 +17,7 @@ type AlbumProps = {
   initialPhoto?: number;
   allowZoom?: boolean;
   onFavoriteChange?: (index: number, isFavorite: boolean) => void;
+  onPhotoOpen?: (index: number, selection: { isFavorite: boolean; fromFavorites: boolean }) => void;
   // この練習だけ未登録の表示から始める。保存済みのお気に入りは消さない。
   practiceFavoriteIndex?: number;
   actions: (index: number, zoomed: boolean, selection: { isFavorite: boolean; fromFavorites: boolean }) => ReactNode;
@@ -92,7 +93,7 @@ function ZoomPhoto({ index, onZoom }: { index: number; onZoom: (scale: number) =
   );
 }
 
-function PhotoViewer({ initialPhoto, allowZoom, actions, onBack, favorites, onToggleFavorite, fromFavorites, photoIndices, favoritesLoaded }: Omit<AlbumProps, "initialPhoto" | "onFavoriteChange" | "practiceFavoriteIndex"> & {
+function PhotoViewer({ initialPhoto, allowZoom, actions, onBack, favorites, onToggleFavorite, fromFavorites, photoIndices, favoritesLoaded, onPhotoOpen }: Omit<AlbumProps, "initialPhoto" | "onFavoriteChange" | "practiceFavoriteIndex"> & {
   initialPhoto: number;
   onBack: () => void;
   favorites: number[];
@@ -112,6 +113,7 @@ function PhotoViewer({ initialPhoto, allowZoom, actions, onBack, favorites, onTo
     if (next === index) return;
     setIndex(next);
     setScale(1);
+    onPhotoOpen?.(next, { isFavorite: favorites.includes(next), fromFavorites });
     thumbnails.current?.scrollTo({ x: thumbnailOffset(photoIndices.indexOf(next), photoIndices.length, width), animated: true });
   }
 
@@ -206,7 +208,7 @@ function PhotoViewer({ initialPhoto, allowZoom, actions, onBack, favorites, onTo
   );
 }
 
-export function PhotoAlbum({ initialPhoto, allowZoom, actions, onFavoriteChange, practiceFavoriteIndex }: AlbumProps) {
+export function PhotoAlbum({ initialPhoto, allowZoom, actions, onFavoriteChange, practiceFavoriteIndex, onPhotoOpen }: AlbumProps) {
   const [opened, setOpened] = useState<number | undefined>(initialPhoto);
 
   const [favorites, setFavorites] = useState<number[]>([]);
@@ -281,7 +283,10 @@ export function PhotoAlbum({ initialPhoto, allowZoom, actions, onFavoriteChange,
         <ScrollView contentContainerStyle={styles.grid}>
           {onlyFavorites && favoritesLoaded && photoIndices.length === 0 && <AlbumPrompt>この一覧にお気に入りの写真はありません。「全ての写真」で写真を開き、ハートを押すと登録できます。</AlbumPrompt>}
           {photoIndices.map((index) => (
-            <Pressable key={index} accessibilityRole="button" accessibilityLabel={photoLabel(index)} style={styles.tile} onPress={() => setOpened(index)}>
+            <Pressable key={index} accessibilityRole="button" accessibilityLabel={photoLabel(index)} style={styles.tile} onPress={() => {
+              setOpened(index);
+              onPhotoOpen?.(index, { isFavorite: favoritesRef.current.includes(index), fromFavorites: onlyFavorites });
+            }}>
               {opened === undefined && <Image source={photoThumbnails[index]} style={styles.image} contentFit="cover" cachePolicy="memory-disk" />}
             </Pressable>
           ))}
@@ -298,6 +303,7 @@ export function PhotoAlbum({ initialPhoto, allowZoom, actions, onFavoriteChange,
           photoIndices={photoIndices}
           fromFavorites={onlyFavorites}
           onToggleFavorite={toggleFavorite}
+          onPhotoOpen={onPhotoOpen}
           onBack={() => setOpened(undefined)}
         />
       )}
