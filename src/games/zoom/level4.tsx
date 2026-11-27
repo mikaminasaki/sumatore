@@ -31,7 +31,10 @@ function ZoomLevel4({ step, onStepComplete }: GameProps) {
             />
           </ZoomArea>
           {/* ラベルは写真の左上に重ねて、写真をできるだけ大きく見せる */}
-          <Text style={styles.label} pointerEvents="none">お手本</Text>
+          {/* ステップ1 (拡大するだけ) ではラベルを出さず、比べるステップ2で出す */}
+          {step === 1 && (
+            <Text style={styles.label} pointerEvents="none">お手本</Text>
+          )}
         </View>
       </View>
       <View style={styles.section}>
@@ -54,7 +57,9 @@ function ZoomLevel4({ step, onStepComplete }: GameProps) {
               />
             </View>
           </ZoomArea>
-          <Text style={[styles.label, styles.labelActive]} pointerEvents="none">探す絵</Text>
+          {step === 1 && (
+            <Text style={[styles.label, styles.labelActive]} pointerEvents="none">探す絵</Text>
+          )}
         </View>
       </View>
     </View>
@@ -64,7 +69,7 @@ function ZoomLevel4({ step, onStepComplete }: GameProps) {
 export const zoom4: Game = {
   steps: [
     {
-      instruction: "どちらかの絵を大きくしましょう",
+      instruction: "上下どちらかの絵を大きくしましょう",
       hint: "上の絵も下の絵も、それぞれ2本の指で広げて大きくできます",
     },
     {
