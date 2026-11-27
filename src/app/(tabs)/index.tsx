@@ -1,7 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, usePathname } from "expo-router";
 import { useState } from "react";
-import { Image, Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { Alert, Image, Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 
 import { AppHeader } from "@/components/app-header";
 import { accents, colors, fontSize } from "@/constants/theme";
@@ -10,11 +11,13 @@ import { useProgress } from "@/hooks/use-progress";
 
 // Figma「ホーム画面ver.6」: 空と海の背景、キャラクターの吹き出し、2つのコースボタン
 const SCENERY_RATIO = 232 / 412; // 下の海と花の絵の 高さ / 幅
+// 写真編のお気に入りの保存先 (src/games/photo/album.tsx と同じ名前)
+const PHOTO_FAVORITES_KEY = "photo-practice/favorites-v1";
 
 export default function HomeScreen() {
   const { width } = useWindowDimensions();
   const sceneryHeight = width * SCENERY_RATIO;
-  const { loaded, clearedLevelIds } = useProgress();
+  const { loaded, clearedLevelIds, resetCategories } = useProgress();
 
   // ホームを開くたび (ほかの画面から戻ったときも) に、吹き出しの文を選び直す。
   // 下のタブの切り替えでは focus の通知が来ないので、表示中の URL がホームに戻った回数を数える
@@ -29,9 +32,24 @@ export default function HomeScreen() {
     setGreeting({ key: greetingKey, text: pickGreeting(clearedLevelIds) });
   }
 
+  // 開発中だけ: ロゴを長押しすると、拡大・縮小編と写真編の記録を消して最初から試せる
+  const confirmReset = () => {
+    Alert.alert("記録を消しますか？", "拡大・縮小編と写真編のクリア記録と、写真編のお気に入りを消します（開発中のみ）", [
+      { text: "やめる", style: "cancel" },
+      {
+        text: "消す",
+        style: "destructive",
+        onPress: () => {
+          resetCategories(["zoom", "photo"]);
+          AsyncStorage.removeItem(PHOTO_FAVORITES_KEY).catch(() => {});
+        },
+      },
+    ]);
+  };
+
   return (
     <View style={styles.container}>
-      <AppHeader title="スマトレ" variant="logo" />
+      <AppHeader title="スマトレ" variant="logo" onLogoLongPress={__DEV__ ? confirmReset : undefined} />
       <View style={styles.body}>
         {/* 背景 (飾りなので読み上げない) */}
         <View style={StyleSheet.absoluteFill} pointerEvents="none" importantForAccessibility="no-hide-descendants">
