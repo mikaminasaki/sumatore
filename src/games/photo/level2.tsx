@@ -13,7 +13,7 @@ function PhotoLevel2({ onStepComplete }: GameProps) {
           key={index}
           correct={index === snowPhotoIndex}
           onCorrect={onStepComplete}
-          retryMessage="別の写真です。左右にめくって、雪山の写真を探しましょう。"
+          retryMessage="別の写真です。写真を左右に動かして、雪山の写真を探しましょう。"
         />
       )}
     />
@@ -22,8 +22,8 @@ function PhotoLevel2({ onStepComplete }: GameProps) {
 
 export const photo2: Game = {
   steps: [{
-    instruction: "写真を左右にめくって、雪山の写真を探しましょう。",
-    hint: "写真の上に指を置き、左右どちらかに滑らせると、前後の写真が見られます。見つけたら「この写真を選ぶ」を押してください。",
+    instruction: "写真を左右に動かして、雪山の写真を探しましょう。",
+    hint: "写真に指を置いて、左や右へ動かします。雪山の写真が見つかったら「この写真を選ぶ」を押してください。",
   }],
   Component: PhotoLevel2,
 };
